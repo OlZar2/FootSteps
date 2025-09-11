@@ -3,3 +3,44 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Build results
+bin/
+obj/
+out/
+*.exe
+*.dll
+*.log
+*.cache
+*.pdb
+*.mdb
+
+# Rider / IntelliJ
+.idea/
+*.sln.iml
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+project.lock.json
+project.fragment.lock.json
+
+# Logs
+logs/
+*.log
+*.tlog
+
+# Others
+_ReSharper.Caches/

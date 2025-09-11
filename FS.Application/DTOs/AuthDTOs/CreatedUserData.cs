@@ -3,20 +3,19 @@ using FS.Core.Entities;
 
 namespace FS.Application.DTOs.AuthDTOs;
 
-public record CreatedUserDTO
+public record CreatedUserData
 {
     public string FirstName { get; init; }
     
     public string LastName { get; init; }
     
-    [Description("Zero-based page index")]
     public string? Patronymic { get; init; }
     
     public string? Email { get; init; }
     
     public string? AvatarPath { get; init; }
 
-    public static CreatedUserDTO From(User user) => new()
+    public static CreatedUserData From(User user) => new()
     {
         FirstName  = user.FullName.FirstName,
         LastName   = user.FullName.SecondName,

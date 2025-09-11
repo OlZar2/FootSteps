@@ -13,6 +13,7 @@ public static class DependencyInjection
         services
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IImageRepository, ImageRepository>()
+            .AddScoped<IMissingAnnouncementRepository, MissingAnnouncementRepository>()
             .AddScoped<ITransactionService, TransactionService>();
 
         return services;

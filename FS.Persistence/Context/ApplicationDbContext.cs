@@ -14,7 +14,6 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new FindAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new ImageConfiguration());
         modelBuilder.ApplyConfiguration(new MissingAnnouncementConfiguration());
-        modelBuilder.ApplyConfiguration(new PetTypeConfiguration());
         modelBuilder.ApplyConfiguration(new StreetPetAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
 
@@ -25,7 +24,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<FindAnnouncement> FindAnnouncements { get; set; } = null!;
     public DbSet<Image> Images { get; set; } = null!;
     public DbSet<MissingAnnouncement> MissingAnnouncements { get; set; } = null!;
-    public DbSet<PetType> PetTypes { get; set; } = null!;
     public DbSet<StreetPetAnnouncement> StreetPetAnnouncements { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
 }

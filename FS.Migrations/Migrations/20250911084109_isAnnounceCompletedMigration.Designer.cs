@@ -3,6 +3,7 @@ using System;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FS.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250911084109_isAnnounceCompletedMigration")]
+    partial class isAnnounceCompletedMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,19 +39,23 @@ namespace FS.Migrations.Migrations
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("PetType")
-                        .HasColumnType("integer");
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("PetTypeId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
 
+                    b.HasIndex("PetTypeId");
+
                     b.ToTable("Announcements", (string)null);
 
-                    b.HasDiscriminator<int>("Type");
+                    b.HasDiscriminator().HasValue("Announcement");
 
                     b.UseTphMappingStrategy();
                 });
@@ -71,6 +78,21 @@ namespace FS.Migrations.Migrations
                     b.HasIndex("AnnouncementId");
 
                     b.ToTable("Images", (string)null);
+                });
+
+            modelBuilder.Entity("FS.Core.Entities.PetType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PetTypes", (string)null);
                 });
 
             modelBuilder.Entity("FS.Core.Entities.User", b =>
@@ -107,7 +129,7 @@ namespace FS.Migrations.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
 
-                    b.HasDiscriminator().HasValue(0);
+                    b.HasDiscriminator().HasValue("FindAnnouncement");
                 });
 
             modelBuilder.Entity("FS.Core.Entities.MissingAnnouncement", b =>
@@ -133,7 +155,7 @@ namespace FS.Migrations.Migrations
                                 .HasColumnName("MissingAnnouncement_IsCompleted");
                         });
 
-                    b.HasDiscriminator().HasValue(1);
+                    b.HasDiscriminator().HasValue("MissingAnnouncement");
                 });
 
             modelBuilder.Entity("FS.Core.Entities.StreetPetAnnouncement", b =>
@@ -144,7 +166,7 @@ namespace FS.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("geometry(Point,4326)");
 
-                    b.HasDiscriminator().HasValue(2);
+                    b.HasDiscriminator().HasValue("StreetPetAnnouncement");
                 });
 
             modelBuilder.Entity("FS.Core.Entities.Announcement", b =>
@@ -152,6 +174,12 @@ namespace FS.Migrations.Migrations
                     b.HasOne("FS.Core.Entities.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FS.Core.Entities.PetType", "PetType")
+                        .WithMany()
+                        .HasForeignKey("PetTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -174,6 +202,8 @@ namespace FS.Migrations.Migrations
                         });
 
                     b.Navigation("Creator");
+
+                    b.Navigation("PetType");
 
                     b.Navigation("Place")
                         .IsRequired();

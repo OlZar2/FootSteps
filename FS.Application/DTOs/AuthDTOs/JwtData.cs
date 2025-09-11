@@ -1,6 +1,6 @@
 ﻿namespace FS.Application.DTOs.AuthDTOs;
 
-public record JwtDTO(string Token)
+public record JwtData(string Token)
 {
     public string Token { get; set; } = Token;
 }

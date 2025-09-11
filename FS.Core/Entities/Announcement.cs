@@ -1,28 +1,35 @@
-﻿using FS.Core.ValueObjects;
+﻿using FS.Core.Enums;
+using FS.Core.ValueObjects;
 
 namespace FS.Core.Entities;
 
-public class Announcement
+public abstract class Announcement
 {
     public Guid Id { get; private set; }
     
     public DateTime CreatedAt { get; private set; }
     
-    public Place Place { get; private set; }
+    public Place FullPlace { get; private set; }
     
-    public Guid PetTypeId { get; private set; }
+    public District District { get; private set; }
+    
     public PetType PetType { get; private set; }
     
     public Image[] Images  { get; private set; }
     
     public User Creator  { get; set; }
+    
+    public AnnouncementType Type { get; private set; }
 
-    protected Announcement(Place place, PetType petType, Image[] images, User creator)
+    protected Announcement(Place fullPlace, PetType petType, Image[] images, User creator, AnnouncementType type,
+        District district)
     {
-        Place = place;
+        FullPlace = fullPlace;
         PetType = petType;
         Images = images;
         Creator = creator;
+        Type = type;
+        district = district;
     }
     
     // EF

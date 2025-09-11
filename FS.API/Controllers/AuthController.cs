@@ -16,21 +16,21 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
 {
     
     [HttpPost("/register")]
-    [ProducesResponseType(typeof(CreatedUserDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CreatedUserData), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Summary = "Регистрация пользователя",
         Description = "Возвращает объект пользователя, если успешно"
     )]
-    public async Task<CreatedUserDTO> Register([FromForm] RegisterRM request, CancellationToken ct)
+    public async Task<CreatedUserData> Register([FromForm] RegisterRM request, CancellationToken ct)
     {
         await registerValidator.ValidateAndThrowAsync(request, ct);
         
         await using var ms = new MemoryStream();
         await request.AvatarImage.CopyToAsync(ms, ct);
 
-        var registerDTO = new RegisterDTO
+        var registerDTO = new RegisterData
         (
             request.Email,
             request.Password,
@@ -46,18 +46,18 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
     }
 
     [HttpPost("/login")]
-    [ProducesResponseType(typeof(JwtDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(JwtData), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Summary = "Логин",
         Description = "Возвращает токен, если успешно"
     )]
-    public async Task<JwtDTO> Login(LoginRM request, CancellationToken ct)
+    public async Task<JwtData> Login(LoginRM request, CancellationToken ct)
     {
         await loginValidator.ValidateAndThrowAsync(request, ct);
         
-        var loginDTO = new LoginDTO(request.Email, request.Password);
+        var loginDTO = new LoginData(request.Email, request.Password);
         
         var response = await authService.LoginAsync(loginDTO, ct);
         return response;

@@ -2,6 +2,8 @@
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Implementations;
 using FS.Application.Services.ImageLogic.Interfaces;
+using FS.Application.Services.MissingPetLogic.Implementations;
+using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Core.Services;
 using HW.Application.Services.AuthLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +17,8 @@ public static class DependencyInjection
         services
             .AddScoped<IAuthService, AuthService>()
             .AddScoped<IImageService, YandexCloudImageService>()
-            .AddScoped<IPasswordHasher, PasswordHasher>();
+            .AddScoped<IPasswordHasher, PasswordHasher>()
+            .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>();
 
         services
             .AddScoped<IEmailUniqueService, EmailUniqueService>();

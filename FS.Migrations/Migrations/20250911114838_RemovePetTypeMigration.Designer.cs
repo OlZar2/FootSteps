@@ -3,6 +3,7 @@ using System;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FS.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250911114838_RemovePetTypeMigration")]
+    partial class RemovePetTypeMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,10 +39,12 @@ namespace FS.Migrations.Migrations
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("PetType")
-                        .HasColumnType("integer");
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
 
-                    b.Property<int>("Type")
+                    b.Property<int>("PetType")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -48,7 +53,7 @@ namespace FS.Migrations.Migrations
 
                     b.ToTable("Announcements", (string)null);
 
-                    b.HasDiscriminator<int>("Type");
+                    b.HasDiscriminator().HasValue("Announcement");
 
                     b.UseTphMappingStrategy();
                 });
@@ -107,7 +112,7 @@ namespace FS.Migrations.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
 
-                    b.HasDiscriminator().HasValue(0);
+                    b.HasDiscriminator().HasValue("FindAnnouncement");
                 });
 
             modelBuilder.Entity("FS.Core.Entities.MissingAnnouncement", b =>
@@ -133,7 +138,7 @@ namespace FS.Migrations.Migrations
                                 .HasColumnName("MissingAnnouncement_IsCompleted");
                         });
 
-                    b.HasDiscriminator().HasValue(1);
+                    b.HasDiscriminator().HasValue("MissingAnnouncement");
                 });
 
             modelBuilder.Entity("FS.Core.Entities.StreetPetAnnouncement", b =>
@@ -144,7 +149,7 @@ namespace FS.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("geometry(Point,4326)");
 
-                    b.HasDiscriminator().HasValue(2);
+                    b.HasDiscriminator().HasValue("StreetPetAnnouncement");
                 });
 
             modelBuilder.Entity("FS.Core.Entities.Announcement", b =>

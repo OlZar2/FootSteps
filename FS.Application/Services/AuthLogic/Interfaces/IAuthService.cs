@@ -4,7 +4,7 @@ namespace FS.Application.Services.AuthLogic.Interfaces;
 
 public interface IAuthService
 {
-    Task<CreatedUserDTO> RegisterUserAsync(RegisterDTO userRegisterDTO, CancellationToken ct);
+    Task<CreatedUserData> RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct);
 
-    Task<JwtDTO> LoginAsync(LoginDTO loginDTO, CancellationToken ct);
+    Task<JwtData> LoginAsync(LoginData loginData, CancellationToken ct);
 }

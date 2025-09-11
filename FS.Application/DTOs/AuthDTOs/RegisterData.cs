@@ -2,7 +2,7 @@
 
 namespace FS.Application.DTOs.AuthDTOs;
 
-public record RegisterDTO(
+public record RegisterData(
     string Email,
     string Password,
     string FirstName,

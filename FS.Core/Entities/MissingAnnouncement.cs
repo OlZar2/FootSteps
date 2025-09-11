@@ -5,17 +5,21 @@ namespace FS.Core.Entities;
 
 public class MissingAnnouncement : Announcement
 {
-    public string PetName { get; set; }
+    public string PetName { get; private set; }
     
-    public Gender Gender { get; set; }
+    public Gender Gender { get; private set; }
+    
+    public bool IsCompleted { get; private set; }
 
     private MissingAnnouncement(
         string petName,
         Gender gender,
-        Place place,
+        Place fullPlace,
         PetType petType,
         Image[] images,
-        User creator) : base(place, petType, images, creator)
+        User creator,
+        bool isCompleted,
+        District district) : base(fullPlace, petType, images, creator, AnnouncementType.Missing, district)
     {
         PetName = petName;
         Gender = gender;
@@ -27,9 +31,10 @@ public class MissingAnnouncement : Announcement
         Place place,
         PetType petType,
         Image[] images,
-        User creator)
+        User creator,
+        District district)
     {
-        return new MissingAnnouncement(petName, gender, place, petType, images, creator);
+        return new MissingAnnouncement(petName, gender, place, petType, images, creator, false, district);
     }
     
     // EF

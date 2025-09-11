@@ -12,7 +12,7 @@ public class Place
     public static Place Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new DomainException(IssueCodes.Required, "Место не может быть пустым", "Place");
+            throw new DomainException(IssueCodes.Required, "Место не может быть пустым", nameof(Place));
         return new Place(value);
     }
 }

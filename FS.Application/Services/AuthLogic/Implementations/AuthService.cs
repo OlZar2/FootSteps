@@ -21,40 +21,40 @@ public class AuthService(
     IEmailUniqueService emailUniqueService)
     : IAuthService
 {
-    public async Task<CreatedUserDTO> RegisterUserAsync(RegisterDTO userRegisterDTO, CancellationToken ct)
+    public async Task<CreatedUserData> RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct)
     {
         return await transactionService.ExecuteInTransactionAsync(async () =>
         {
-            var emailVo = Email.Create(userRegisterDTO.Email);
+            var emailVo = Email.Create(userRegisterData.Email);
             var fullNameVo = FullName
-                .Create(userRegisterDTO.FirstName, userRegisterDTO.SecondName, userRegisterDTO.Patronymic);
-            var hashedPassword = passwordHasher.GenerateHash(userRegisterDTO.Password);
+                .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
+            var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
 
-            var image = await imageService.CreateImageAsync(userRegisterDTO.AvatarImage, nameof(RegisterDTO.AvatarImage));
+            var image = await imageService.CreateImageAsync(userRegisterData.AvatarImage, nameof(RegisterData.AvatarImage));
 
             var user = await User.RegisterAsync(
                 emailVo,
                 hashedPassword,
                 fullNameVo,
-                userRegisterDTO.Description,
+                userRegisterData.Description,
                 image,
                 emailUniqueService, ct);
 
             await userRepository.CreateAsync(user, ct);
 
-            return CreatedUserDTO.From(user);
+            return CreatedUserData.From(user);
         }, ct);
     }
 
-    public async Task<JwtDTO> LoginAsync(LoginDTO loginDTO, CancellationToken ct)
+    public async Task<JwtData> LoginAsync(LoginData loginData, CancellationToken ct)
     {
         try
         {
-            var account = await userRepository.GetByEmailAsync(loginDTO.Email, ct);
-            passwordHasher.VerifyPassword(loginDTO.Password, account.PasswordHash);
+            var account = await userRepository.GetByEmailAsync(loginData.Email, ct);
+            passwordHasher.VerifyPassword(loginData.Password, account.PasswordHash);
 
             var token = jwtProvider.GenerateToken(account.Id);
-            return new JwtDTO(token);
+            return new JwtData(token);
         }
         catch (NotFoundException)
         {

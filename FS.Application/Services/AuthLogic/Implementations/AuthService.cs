@@ -1,5 +1,7 @@
 ﻿using FS.Application.DTOs.AuthDTOs;
+using FS.Application.Exceptions;
 using FS.Application.Interfaces;
+using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Core.Entities;
@@ -24,7 +26,8 @@ public class AuthService(
         return await transactionService.ExecuteInTransactionAsync(async () =>
         {
             var emailVo = Email.Create(userRegisterDTO.Email);
-            var fullNameVo = FullName.Create(userRegisterDTO.FirstName, userRegisterDTO.SecondName, userRegisterDTO.Patronymic);
+            var fullNameVo = FullName
+                .Create(userRegisterDTO.FirstName, userRegisterDTO.SecondName, userRegisterDTO.Patronymic);
             var hashedPassword = passwordHasher.GenerateHash(userRegisterDTO.Password);
 
             var image = await imageService.CreateImageAsync(userRegisterDTO.AvatarImage, nameof(RegisterDTO.AvatarImage));
@@ -41,5 +44,21 @@ public class AuthService(
 
             return CreatedUserDTO.From(user);
         }, ct);
+    }
+
+    public async Task<JwtDTO> LoginAsync(LoginDTO loginDTO, CancellationToken ct)
+    {
+        try
+        {
+            var account = await userRepository.GetByEmailAsync(loginDTO.Email, ct);
+            passwordHasher.VerifyPassword(loginDTO.Password, account.PasswordHash);
+
+            var token = jwtProvider.GenerateToken(account.Id);
+            return new JwtDTO(token);
+        }
+        catch (NotFoundException)
+        {
+            throw new WrongPasswordException();
+        }
     }
 }

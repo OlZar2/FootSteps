@@ -1,4 +1,5 @@
 ﻿using FS.Application.Services.ImageLogic.Configurations;
+using FS.JWT;
 
 namespace FS.API;
 
@@ -9,6 +10,9 @@ public static class Configuration
     {
         services.Configure<S3StorageConfiguration>(
             configuration.GetSection(nameof(S3StorageConfiguration)));
+        
+        services.Configure<JwtOptions>(
+            configuration.GetSection(nameof(JwtOptions)));
         
         return services;
     }

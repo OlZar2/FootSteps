@@ -23,5 +23,6 @@ public static class IssueCodes
     public const string ValidationFailed= "VALIDATION_FAILED";
     public const string InternalError   = "INTERNAL_ERROR";
     public const string Unauthorized    = "UNAUTHORIZED";
+    public const string NotFound        = "NOT_FOUND";
     public const string InvalidCredentials    = "INVALID_CREDENTIALS";
 }

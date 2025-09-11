@@ -1,4 +1,5 @@
-﻿using FS.Core.Entities;
+﻿using FS.Application.Exceptions;
+using FS.Core.Entities;
 using FS.Core.Stores;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -16,5 +17,11 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     public async Task<bool> IsEmailUnique(string email, CancellationToken cancellationToken)
     {
         return !await context.Users.Where(u => u.Email.Value == email).AnyAsync(cancellationToken);
+    }
+
+    public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return await context.Users.Where(u => u.Email.Value == email).FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException(nameof(User), email);
     }
 }

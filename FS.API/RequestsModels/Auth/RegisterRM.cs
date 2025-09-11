@@ -4,7 +4,8 @@ namespace FS.API.RequestsModels.Auth;
 
 public record RegisterRM
 {
-    [Description("Email пользователя. Должен быть уникальным. issue: NOT_UNIQUE. При неверном формате issue INVALID_FORMAT")]
+    [Description("Email пользователя. Обязательно, issue REQUIRED. Должен быть уникальным. issue: NOT_UNIQUE." +
+                 " При неверном формате issue INVALID_FORMAT")]
     public string Email { get; init; }
 
     [Description("Пароль. Обязательный, issue REQUIRED")]

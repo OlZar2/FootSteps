@@ -5,21 +5,27 @@ using FS.Application.DTOs.AuthDTOs;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Contracts.Error;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FS.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService, IValidator<RegisterRM> validator) : ControllerBase
+public class AuthController(IAuthService authService, IValidator<RegisterRM> registerValidator,
+    IValidator<LoginRM> loginValidator) : ControllerBase
 {
     
     [HttpPost("/register")]
-    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(CreatedUserDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    [SwaggerOperation(
+        Summary = "Регистрация пользователя",
+        Description = "Возвращает объект пользователя, если успешно"
+    )]
     public async Task<CreatedUserDTO> Register([FromForm] RegisterRM request, CancellationToken ct)
     {
-        await validator.ValidateAndThrowAsync(request, ct);
+        await registerValidator.ValidateAndThrowAsync(request, ct);
         
         await using var ms = new MemoryStream();
         await request.AvatarImage.CopyToAsync(ms, ct);
@@ -36,6 +42,24 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> val
         );
         
         var response = await authService.RegisterUserAsync(registerDTO, ct);
+        return response;
+    }
+
+    [HttpPost("/login")]
+    [ProducesResponseType(typeof(JwtDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    [SwaggerOperation(
+        Summary = "Логин",
+        Description = "Возвращает токен, если успешно"
+    )]
+    public async Task<JwtDTO> Login(LoginRM request, CancellationToken ct)
+    {
+        await loginValidator.ValidateAndThrowAsync(request, ct);
+        
+        var loginDTO = new LoginDTO(request.Email, request.Password);
+        
+        var response = await authService.LoginAsync(loginDTO, ct);
         return response;
     }
 }

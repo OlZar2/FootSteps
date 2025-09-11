@@ -2,7 +2,10 @@
 using System.Text.Json;
 using FluentValidation;
 using FS.API.Errors;
+using FS.Application.Exceptions;
+using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Exceptions;
+using FS.Contracts.Error;
 using FS.Core.Exceptions;
 
 namespace FS.API.Middlewares;
@@ -28,16 +31,20 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         catch (ImageValidationException ive)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            var status = IssueToStatusMapper.MapForImageValidation(ive.Issue);
-            var payload = new { error = ErrorFactory.Domain(ive)};
+            var payload = new { error = ErrorFactory.Domain(ive) };
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
         }
         catch (ImageBackendException ibe)
         {
             ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            var payload = new { error = ErrorFactory.Domain(ibe) with
-                    { code = "IMAGE_BACKEND_ERROR", message = "Ошибка подсистемы обработки изображений." }};
+            var payload = new
+            {
+                error = ErrorFactory.Domain(ibe) with
+                {
+                    code = "IMAGE_BACKEND_ERROR", message = "Ошибка подсистемы обработки изображений."
+                }
+            };
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
         }
@@ -49,10 +56,24 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
             var payload = ErrorFactory.Domain(dex);
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
         }
+        catch (NotFoundException nfex)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+            var payload = ErrorFactory.NotFound(nfex);
+
+            await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
+        }
+        catch (WrongPasswordException)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            ctx.Response.ContentType = "application/json";
+            var payload = ErrorFactory.WrongPassword();
+            
+            await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
+        }
         catch (Exception)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            ctx.Response.ContentType = "application/json";
             
             var payload = new { error = new InternalError
             {

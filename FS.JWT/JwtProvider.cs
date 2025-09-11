@@ -7,18 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FS.JWT;
 
-public class JwtProvider : IJwtProvider
+public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
-    private readonly JwtOptions _options;
+    private readonly JwtOptions _options = options.Value;
 
-    public JwtProvider(IOptions<JwtOptions> options)
+    public string GenerateToken(Guid id)
     {
-        _options = options.Value;
-    }
-
-    public string GenerateToken(Guid id, string role)
-    {
-        Claim[] claims = [new(ClaimTypes.NameIdentifier, id.ToString()), new(ClaimTypes.Role, role)];
+        Claim[] claims = [new(ClaimTypes.NameIdentifier, id.ToString())];
 
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), SecurityAlgorithms.HmacSha256);

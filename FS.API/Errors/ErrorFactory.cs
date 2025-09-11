@@ -1,4 +1,5 @@
-﻿using FS.Contracts.Error;
+﻿using FS.Application.Exceptions;
+using FS.Contracts.Error;
 using FS.Core.Exceptions;
 
 namespace FS.API.Errors;
@@ -21,8 +22,26 @@ public static class ErrorFactory
         new(
             code: "DOMAIN_RULE_VIOLATION",
             message: "Нарушено доменное правило.",
-            details: new []
-            {
+            details:
+            [
                 new ErrorDetail(field: de.Field ?? "", issue: de.Issue, message: de.Message)
-            });
+            ]);
+    
+    public static ErrorEnvelope NotFound(NotFoundException nfex) =>
+        new(
+            code: "NOT_FOUND",
+            message: "Не найдено.",
+            details:
+            [
+                new ErrorDetail(field: "", issue: IssueCodes.NotFound, message: nfex.Message)
+            ]);
+    
+    public static ErrorEnvelope WrongPassword() =>
+        new(
+            code: "UNAUTHORIZED",
+            message: "Не найдено.",
+            details:
+            [
+                new ErrorDetail(field: "", issue: IssueCodes.InvalidCredentials, "Неверный логин или пароль")
+            ]);
 }

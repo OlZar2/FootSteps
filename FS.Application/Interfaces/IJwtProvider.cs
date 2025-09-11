@@ -2,5 +2,5 @@
 
 public interface IJwtProvider
 {
-    string GenerateToken(Guid id, string role);
+    string GenerateToken(Guid id);
 }

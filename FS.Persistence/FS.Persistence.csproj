@@ -25,4 +25,8 @@
       <ProjectReference Include="..\FS.JWT\FS.JWT.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Exceptions\" />
+    </ItemGroup>
+
 </Project>

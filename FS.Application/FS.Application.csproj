@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="DTOs\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.S3" Version="4.0.7" />
+      <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+      <PackageReference Include="FluentValidation" Version="12.0.0" />
+      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.8.2" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FS.Core\FS.Core.csproj" />
+    </ItemGroup>
+
+</Project>

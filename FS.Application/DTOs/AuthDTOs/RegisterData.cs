@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FS.Application.DTOs.Shared;
 
 namespace FS.Application.DTOs.AuthDTOs;
 
@@ -9,4 +9,4 @@ public record RegisterData(
     string SecondName,
     string? Patronymic,
     string? Description,
-    byte[] AvatarImage) { }
+    FileData AvatarImage) { }

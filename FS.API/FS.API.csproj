@@ -16,6 +16,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="9.0.4" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
@@ -28,6 +29,10 @@
       <ProjectReference Include="..\FS.JWT\FS.JWT.csproj" />
       <ProjectReference Include="..\FS.Migrations\FS.Migrations.csproj" />
       <ProjectReference Include="..\FS.Persistence\FS.Persistence.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\" />
     </ItemGroup>
 
 </Project>

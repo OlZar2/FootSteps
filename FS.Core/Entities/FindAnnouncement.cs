@@ -1,26 +1,55 @@
 ﻿using FS.Core.Enums;
 using FS.Core.ValueObjects;
+using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
 
-public class FindAnnouncement : Announcement
+public class FindAnnouncement : PetAnnouncement
 {
-    public Gender? Gender { get; private set; }
-    
-    public bool IsCompleted { get; private set; }
-
-    private FindAnnouncement(Gender? gender, Place fullPlace, PetType petType, Image[] images, User creator,
-        bool isCompleted, District district)
-        : base(fullPlace, petType, images, creator, AnnouncementType.Find, district)
+    private FindAnnouncement(
+        Place fullPlace,
+        List<Image> images,
+        User creator,
+        District district,
+        PetType petType,
+        Gender gender,
+        string? color,
+        string? breed,
+        bool isCompleted,
+        Point location,
+        DateTime createdAt,
+        DateTime eventDate)
+        : base(fullPlace, images, creator, district, petType, gender, color, breed, isCompleted, location, createdAt, eventDate)
     {
-        Gender = gender;
-        Creator = creator;
     }
 
-    public static FindAnnouncement Create(Gender? gender, Place place, PetType petType, Image[] images, User creator,
-        District district)
+    public static FindAnnouncement Create(
+        Place fullPlace,
+        List<Image> images,
+        User creator,
+        District district,
+        PetType petType,
+        Gender gender,
+        string? color,
+        string? breed,
+        Point location,
+        DateTime eventDate)
     {
-        return new FindAnnouncement(gender, place, petType, images, creator, false, district);
+        var createdAt = DateTime.UtcNow;
+        
+        return new FindAnnouncement(
+            fullPlace,
+            images,
+            creator,
+            district,
+            petType,
+            gender,
+            color,
+            breed,
+            false,
+            location,
+            createdAt,
+            eventDate);
     }
     
     //EF

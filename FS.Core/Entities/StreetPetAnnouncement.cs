@@ -4,26 +4,39 @@ using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
 
-public class StreetPetAnnouncement : Announcement
+public class StreetPetAnnouncement : AnimalAnnouncement
 {
-    public Point Location { get; private set; }
-
-    private StreetPetAnnouncement(Point location, Place fullPlace, PetType petType, Image[] images, User creator
-        , District district)
-        : base(fullPlace, petType, images, creator, AnnouncementType.Street, district)
-    {
-        Location = location;
-    }
+    private StreetPetAnnouncement(
+        Place fullPlace,
+        List<Image> images,
+        User creator,
+        District district,
+        PetType petType,
+        Gender gender,
+        string? color,
+        string? breed,
+        Point location,
+        DateTime createdAt,
+        DateTime eventDate)
+        : base(fullPlace, images, creator, district, petType, gender, color, breed, location, createdAt, eventDate)
+    { }
 
     public static StreetPetAnnouncement Create(
-        Point location,
-        Place place,
-        PetType petType,
-        Image[] images,
+        Place fullPlace,
+        List<Image> images,
         User creator,
-        District district)
+        District district,
+        PetType petType,
+        Gender gender,
+        string? color,
+        string? breed,
+        Point location,
+        DateTime eventDate)
     {
-        return new StreetPetAnnouncement(location, place, petType, images, creator, district);
+        //TODO:мб вынести в ролдительский класс
+        var createdAt = DateTime.UtcNow;
+        
+        return new StreetPetAnnouncement(fullPlace, images, creator, district, petType, gender, color, breed, location, createdAt, eventDate);
     }
     
     // EF

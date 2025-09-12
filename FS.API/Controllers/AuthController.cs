@@ -2,6 +2,7 @@
 using FS.API.Errors;
 using FS.API.RequestsModels.Auth;
 using FS.Application.DTOs.AuthDTOs;
+using FS.Application.DTOs.Shared;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Contracts.Error;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
     IValidator<LoginRM> loginValidator) : ControllerBase
 {
     
-    [HttpPost("/register")]
+    [HttpPost("register")]
     [ProducesResponseType(typeof(CreatedUserData), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
@@ -38,14 +39,17 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
             request.SecondName,
             request.Patronymic,
             request.Description,
-            ms.ToArray()
+            new FileData
+            {
+                Content = ms.ToArray(),
+            }
         );
         
         var response = await authService.RegisterUserAsync(registerDTO, ct);
         return response;
     }
 
-    [HttpPost("/login")]
+    [HttpPost("login")]
     [ProducesResponseType(typeof(JwtData), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]

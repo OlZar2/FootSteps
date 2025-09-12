@@ -31,6 +31,8 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         catch (ImageValidationException ive)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            ctx.Response.ContentType = "application/json";
+            
             var payload = new { error = ErrorFactory.Domain(ive) };
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
@@ -38,6 +40,8 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         catch (ImageBackendException ibe)
         {
             ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            ctx.Response.ContentType = "application/json";
+            
             var payload = new
             {
                 error = ErrorFactory.Domain(ibe) with
@@ -59,6 +63,8 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         catch (NotFoundException nfex)
         {
             ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+            ctx.Response.ContentType = "application/json";
+            
             var payload = ErrorFactory.NotFound(nfex);
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
@@ -67,6 +73,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         {
             ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
             ctx.Response.ContentType = "application/json";
+            
             var payload = ErrorFactory.WrongPassword();
             
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
@@ -74,6 +81,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         catch (Exception)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            ctx.Response.ContentType = "application/json";
             
             var payload = new { error = new InternalError
             {

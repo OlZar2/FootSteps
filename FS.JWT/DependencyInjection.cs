@@ -5,7 +5,7 @@ namespace FS.JWT;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddJwt(this IServiceCollection services)
+    public static IServiceCollection AddJwtServices(this IServiceCollection services)
     {
         services.AddScoped<IJwtProvider, JwtProvider>();
 

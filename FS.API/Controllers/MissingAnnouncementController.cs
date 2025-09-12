@@ -1,20 +1,108 @@
-﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
+﻿using System.Security.Claims;
+using FluentValidation;
+using FS.API.Errors;
+using FS.API.RequestsModels.Announcements;
+using FS.API.Services.ClaimLogic.Interfaces;
+using FS.Application.DTOs.MissingAnnouncementDTOs;
+using FS.Application.DTOs.Shared;
 using FS.Application.Services.MissingPetLogic.Interfaces;
+using FS.Contracts.Error;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FS.API.Controllers;
 
 [ApiController]
-[Route("api/missingAnnouncement")]
-public class MissingAnnouncementController(IMissingAnnouncementService missingAnnouncementService) : ControllerBase
+[Route("api/missing-announcement")]
+public class MissingAnnouncementController(
+    IMissingAnnouncementService missingAnnouncementService,
+    IClaimService claimService,
+    IValidator<CreateMissingAnnouncementRM> createAnnouncementValidator) : ControllerBase
 {
+    /// <summary>
+    /// Возвращает список объявлений о пропаже.
+    /// </summary>
+    /// <param name="lastDateTime">Дата и время последнего полученного объявления.</param>
+    /// <param name="filter">Фильтр объявлений (например, по типу, категории и т. д.).</param>
+    /// <param name="ct">Токен отмены.</param>
+    [HttpGet("feed")]
+    [ProducesResponseType(typeof(MissingAnnouncementFeed[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)] 
     public async Task<MissingAnnouncementFeed[]> GetMissingAnnouncement(
-        DateTime lastDateTime,
-        AnnouncementFilter filter)
+        [FromQuery] DateTime lastDateTime,
+        [FromQuery] AnnouncementFilter filter,
+        CancellationToken ct)
     {
         var feed = await missingAnnouncementService
-            .GetFilteredMissingAnnouncementsByPageAsync(lastDateTime, filter);
+            .GetFilteredMissingAnnouncementsByPageAsync(lastDateTime, filter, ct);
 
         return feed;
+    }
+    
+    [HttpPost]
+    [Authorize]
+    [ProducesResponseType(typeof(CreatedMissingAnnouncement), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task<CreatedMissingAnnouncement> Create(
+        [FromForm] CreateMissingAnnouncementRM data,
+        CancellationToken ct)
+    {
+        await createAnnouncementValidator.ValidateAndThrowAsync(data, ct);
+        
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = claimService.TryParseGuidClaim(userIdClaim);
+        
+        var semaphore = new SemaphoreSlim(4);
+
+        var tasks = data.Images.Select(async image =>
+        {
+            await semaphore.WaitAsync(ct);
+            try
+            {
+                await using var ms = new MemoryStream();
+                await image.CopyToAsync(ms, ct);
+
+                return new FileData
+                {
+                    Content = ms.ToArray()
+                };
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        var fileInfos = await Task.WhenAll(tasks);
+
+        var createDTO = new CreateMissingAnnouncementData
+        {
+            FullPlace = data.FullPlace,
+            District = data.District,
+            Location = data.Location,
+            Images = fileInfos,
+            CreatorId = userId,
+            Breed = data.Breed,
+            Color = data.Color,
+            Gender = data.Gender!.Value,
+            PetName = data.PetName,
+            PetType = data.PetType!.Value,
+            EventDate = data.EventDate!.Value,
+        };
+        
+        var response = await missingAnnouncementService.Create(createDTO, ct);
+
+        return response;
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(MissingAnnouncementPageData), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task<MissingAnnouncementPageData> GetForPage(Guid id, CancellationToken ct)
+    {
+        return await missingAnnouncementService.GetForPageByIdAsync(id, ct);
     }
 }

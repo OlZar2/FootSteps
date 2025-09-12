@@ -30,7 +30,8 @@ public class AuthService(
                 .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
             var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
 
-            var image = await imageService.CreateImageAsync(userRegisterData.AvatarImage, nameof(RegisterData.AvatarImage));
+            var image = await imageService
+                .CreateImageAsync(userRegisterData.AvatarImage.Content, ct, nameof(RegisterData.AvatarImage));
 
             var user = await User.RegisterAsync(
                 emailVo,

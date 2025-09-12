@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FS.Persistence.Configurations;
 
-public class AnnouncementConfiguration: IEntityTypeConfiguration<Announcement>
+public class AnimalAnnouncementConfiguration: IEntityTypeConfiguration<AnimalAnnouncement>
 {
-    public void Configure(EntityTypeBuilder<Announcement> builder)
+    public void Configure(EntityTypeBuilder<AnimalAnnouncement> builder)
     {
-        builder.ToTable("Announcements");
+        builder.ToTable("AnimalAnnouncements");
         
         builder.HasKey(i => i.Id);
 

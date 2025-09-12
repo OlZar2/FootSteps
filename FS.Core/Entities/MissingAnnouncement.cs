@@ -1,40 +1,61 @@
 ﻿using FS.Core.Enums;
 using FS.Core.ValueObjects;
+using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
 
-public class MissingAnnouncement : Announcement
+public class MissingAnnouncement : PetAnnouncement
 {
     public string PetName { get; private set; }
     
-    public Gender Gender { get; private set; }
-    
-    public bool IsCompleted { get; private set; }
-
     private MissingAnnouncement(
-        string petName,
-        Gender gender,
         Place fullPlace,
-        PetType petType,
-        Image[] images,
+        List<Image> images,
         User creator,
+        District district,
+        PetType petType,
+        Gender gender,
+        string? color,
+        string? breed,
         bool isCompleted,
-        District district) : base(fullPlace, petType, images, creator, AnnouncementType.Missing, district)
+        Point location,
+        string petName,
+        DateTime createdAt,
+        DateTime eventDate)
+        : base(fullPlace, images, creator, district, petType,  gender, color, breed, isCompleted, location, createdAt, eventDate)
     {
         PetName = petName;
-        Gender = gender;
     }
 
     public static MissingAnnouncement Create(
-        string petName,
-        Gender gender,
-        Place place,
-        PetType petType,
-        Image[] images,
+        Place fullPlace,
+        List<Image> images,
         User creator,
-        District district)
+        District district,
+        PetType petType,
+        Gender gender,
+        string? color,
+        string? breed,
+        Point location,
+        string petName,
+        DateTime eventDate)
     {
-        return new MissingAnnouncement(petName, gender, place, petType, images, creator, false, district);
+        var createdAt = DateTime.UtcNow;
+        
+        return new MissingAnnouncement(
+            fullPlace,
+            images,
+            creator,
+            district,
+            petType,
+            gender,
+            color,
+            breed,
+            false,
+            location,
+            petName,
+            createdAt,
+            eventDate);
     }
     
     // EF

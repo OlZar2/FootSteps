@@ -4,5 +4,5 @@ namespace FS.Core.Stores;
 
 public interface IImageRepository
 {
-    Task AddImageAsync(Image image);
+    Task AddImageAsync(Image image, CancellationToken ct);
 }

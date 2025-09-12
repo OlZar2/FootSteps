@@ -1,15 +1,25 @@
 ﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
+using FS.Application.Interfaces;
+using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Interfaces;
+using FS.Core.Entities;
 using FS.Core.Specifications;
 using FS.Core.Stores;
+using FS.Core.ValueObjects;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace FS.Application.Services.MissingPetLogic.Implementations;
 
-public class MissingAnnouncementService(IMissingAnnouncementRepository missingAnnouncementRepository) 
+public class MissingAnnouncementService(
+    IMissingAnnouncementRepository missingAnnouncementRepository,
+    IImageService imageService,
+    IUserRepository userRepository,
+    ITransactionService transactionService) 
     : IMissingAnnouncementService
 {
     public async Task<MissingAnnouncementFeed[]> GetFilteredMissingAnnouncementsByPageAsync(DateTime lastDateTime,
-        AnnouncementFilter announcementFilter)
+        AnnouncementFilter announcementFilter, CancellationToken ct)
     {
         var missingAnnouncementSpecification = new MissingAnnouncementSpecification
             (announcementFilter.District,
@@ -20,7 +30,7 @@ public class MissingAnnouncementService(IMissingAnnouncementRepository missingAn
             a => a.Images);
         
         var feed = await missingAnnouncementRepository.
-            GetFilteredMissingAnnouncementByPageAsync(lastDateTime, missingAnnouncementSpecification);
+            GetFilteredByPageAsync(lastDateTime, missingAnnouncementSpecification, ct);
 
         var response =  feed.Select(a => new MissingAnnouncementFeed
         {
@@ -33,6 +43,55 @@ public class MissingAnnouncementService(IMissingAnnouncementRepository missingAn
             MainImagePath = a.Images[0].Path,
         }).ToArray();
         
+        return response;
+    }
+
+    public async Task<CreatedMissingAnnouncement> Create(CreateMissingAnnouncementData data, CancellationToken ct)
+    {
+        return await transactionService.ExecuteInTransactionAsync(async () =>
+        {
+            var user = await userRepository.GetByIdAsync(data.CreatorId, ct);
+
+            var place = Place.Create(data.FullPlace);
+            var district = District.Create(data.District);
+            //TODO: может можно вынести в DI
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
+            
+            //TODO: сделать параллельно
+            var images = new List<Image>();
+            foreach (var image in  data.Images)
+            {
+                var createdImage = await imageService.CreateImageAsync(image.Content, ct, nameof(data.Images));
+                images.Add(createdImage);
+            }
+            
+            var missingAnnouncement = MissingAnnouncement.Create(
+                place,
+                images,
+                user,
+                district,
+                data.PetType,
+                data.Gender,
+                data.Color,
+                data.Breed,
+                point,
+                data.PetName,
+                data.EventDate
+            );
+
+            await missingAnnouncementRepository.CreateAsync(missingAnnouncement, ct);
+
+            var response = CreatedMissingAnnouncement.From(missingAnnouncement);
+            return response;
+        }, ct);
+    }
+
+    public async Task<MissingAnnouncementPageData> GetForPageByIdAsync(Guid id, CancellationToken ct)
+    {
+        var entity = await missingAnnouncementRepository.GetForPageByIdAsync(id, ct);
+        
+        var response = MissingAnnouncementPageData.From(entity);
         return response;
     }
 }

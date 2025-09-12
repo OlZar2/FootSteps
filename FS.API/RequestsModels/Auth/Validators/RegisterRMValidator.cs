@@ -51,5 +51,5 @@ public class RegisterRMValidator : AbstractValidator<RegisterRM>
                         .WithErrorCode(IssueCodes.TooLarge);
                 });
             });
-}
+    }
 }

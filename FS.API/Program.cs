@@ -1,12 +1,16 @@
+using System.Reflection;
 using System.Text.Json;
 using FluentValidation;
 using FS.API;
 using FS.API.Middlewares;
 using FS.API.RequestsModels.Auth.Validators;
+using FS.API.Services.ClaimLogic.Implementations;
+using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application;
 using FS.JWT;
 using FS.Persistence;
 using FS.Persistence.Context;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -14,6 +18,11 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
 builder.Configuration.AddUserSecrets<Program>(optional: true);
+
+services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
@@ -24,10 +33,14 @@ services.AddDbContext<ApplicationDbContext>(options =>
         }));
 
 services
-    .AddJwt()
+    .AddJwtServices()
     .AddServices()
     .AddRepositories()
-    .AddConfiguration(builder.Configuration);
+    .AddConfiguration(builder.Configuration)
+    .AddJwtAuth(builder.Configuration);
+
+services
+    .AddTransient<IClaimService, ClaimService>();
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(config =>
@@ -37,6 +50,10 @@ services.AddSwaggerGen(config =>
         Title = "Footsteps API",
         Version = "v1"
     });
+    
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    config.IncludeXmlComments(xmlPath);
 
     config.EnableAnnotations();
 });
@@ -57,5 +74,7 @@ app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

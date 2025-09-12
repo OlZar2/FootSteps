@@ -14,6 +14,12 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
+               ?? throw new NotFoundException(nameof(User), id);;
+    }
+
     public async Task<bool> IsEmailUnique(string email, CancellationToken cancellationToken)
     {
         return !await context.Users.Where(u => u.Email.Value == email).AnyAsync(cancellationToken);

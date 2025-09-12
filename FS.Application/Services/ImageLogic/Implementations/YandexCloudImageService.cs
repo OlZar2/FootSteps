@@ -49,7 +49,7 @@ public class YandexCloudImageService : IImageService
         _imageRepository = imageRepository;
     }
 
-    public async Task<Image> CreateImageAsync(byte[] content, string? imageName = null)
+    public async Task<Image> CreateImageAsync(byte[] content, CancellationToken ct, string? imageName = null)
     {
         var (ext, mime) = DetectImage(content);
         if (!AllowedImageExtensions.Contains(ext))
@@ -72,8 +72,8 @@ public class YandexCloudImageService : IImageService
         
         var image = Image.Create(fileName);
 
-        await _s3Client.PutObjectAsync(request);
-        await _imageRepository.AddImageAsync(image);
+        await _s3Client.PutObjectAsync(request, ct);
+        await _imageRepository.AddImageAsync(image, ct);
 
         return image;
     }

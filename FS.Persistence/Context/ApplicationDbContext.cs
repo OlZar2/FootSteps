@@ -10,7 +10,7 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new AnnouncementConfiguration());
+        modelBuilder.ApplyConfiguration(new AnimalAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new FindAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new ImageConfiguration());
         modelBuilder.ApplyConfiguration(new MissingAnnouncementConfiguration());
@@ -20,7 +20,8 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
     
-    public DbSet<Announcement> Announcements { get; set; } = null!;
+    public DbSet<AnimalAnnouncement> AnimalAnnouncements { get; set; } = null!;
+    public DbSet<PetAnnouncement> PetAnnouncements { get; set; } = null!;
     public DbSet<FindAnnouncement> FindAnnouncements { get; set; } = null!;
     public DbSet<Image> Images { get; set; } = null!;
     public DbSet<MissingAnnouncement> MissingAnnouncements { get; set; } = null!;

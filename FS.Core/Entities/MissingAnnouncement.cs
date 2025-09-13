@@ -1,4 +1,7 @@
-﻿using FS.Core.Enums;
+﻿using FS.Contracts.Error;
+using FS.Core.Enums;
+using FS.Core.Exceptions;
+using FS.Core.Policies.AnnouncementPolicies;
 using FS.Core.ValueObjects;
 using NetTopologySuite.Geometries;
 
@@ -8,10 +11,12 @@ public class MissingAnnouncement : PetAnnouncement
 {
     public string PetName { get; private set; }
     
+    public MissingAnnouncementDeleteReasons DeleteReason { get; private set; }
+    
     private MissingAnnouncement(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -22,7 +27,7 @@ public class MissingAnnouncement : PetAnnouncement
         string petName,
         DateTime createdAt,
         DateTime eventDate)
-        : base(fullPlace, images, creator, district, petType,  gender, color, breed, isCompleted, location, createdAt, eventDate)
+        : base(fullPlace, images, creatorId, district, petType,  gender, color, breed, isCompleted, location, createdAt, eventDate)
     {
         PetName = petName;
     }
@@ -30,7 +35,7 @@ public class MissingAnnouncement : PetAnnouncement
     public static MissingAnnouncement Create(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -45,7 +50,7 @@ public class MissingAnnouncement : PetAnnouncement
         return new MissingAnnouncement(
             fullPlace,
             images,
-            creator,
+            creatorId,
             district,
             petType,
             gender,
@@ -56,6 +61,16 @@ public class MissingAnnouncement : PetAnnouncement
             petName,
             createdAt,
             eventDate);
+    }
+
+    public void Delete(MissingAnnouncementDeleteReasons reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)
+    {
+        if (!deletionPolicy.CanDelete())
+            throw new NotEnoughRightsException(IssueCodes.AccessDenied,
+                "Вы не явлвяетесь создателем объявления");
+
+        IsDeleted = true;
+        DeleteReason = reason;
     }
     
     // EF

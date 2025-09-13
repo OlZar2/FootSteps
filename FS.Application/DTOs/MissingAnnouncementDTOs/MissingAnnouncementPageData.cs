@@ -31,22 +31,22 @@ public record MissingAnnouncementPageData
     
     public required DateTime EventDate { get;init; }
 
-    public static MissingAnnouncementPageData From(MissingAnnouncement missingAnnouncement)
-    {
-        return new MissingAnnouncementPageData
-        {
-            Id = missingAnnouncement.Id,
-            FullPlace = missingAnnouncement.FullPlace.Value,
-            District = missingAnnouncement.District.Value,
-            ImagesPaths = missingAnnouncement.Images.Select(i => i.Path).ToArray(),
-            Creator = AnnouncementCreator.From(missingAnnouncement.Creator),
-            PetType = missingAnnouncement.PetType,
-            Gender = missingAnnouncement.Gender,
-            Color = missingAnnouncement.Color,
-            Breed = missingAnnouncement.Breed,
-            Type = missingAnnouncement.Type,
-            Location = Coordiantes.From(missingAnnouncement.Location),
-            EventDate = missingAnnouncement.EventDate
-        };
-    }
+    // public static MissingAnnouncementPageData From(MissingAnnouncement missingAnnouncement)
+    // {
+    //     return new MissingAnnouncementPageData
+    //     {
+    //         Id = missingAnnouncement.Id,
+    //         FullPlace = missingAnnouncement.FullPlace.Value,
+    //         District = missingAnnouncement.District.Value,
+    //         ImagesPaths = missingAnnouncement.Images.Select(i => i.Path).ToArray(),
+    //         Creator = AnnouncementCreator.From(missingAnnouncement.Creator),
+    //         PetType = missingAnnouncement.PetType,
+    //         Gender = missingAnnouncement.Gender,
+    //         Color = missingAnnouncement.Color,
+    //         Breed = missingAnnouncement.Breed,
+    //         Type = missingAnnouncement.Type,
+    //         Location = Coordiantes.From(missingAnnouncement.Location),
+    //         EventDate = missingAnnouncement.EventDate
+    //     };
+    // }
 }

@@ -1,9 +1,11 @@
-﻿using FS.Application.Services.AuthLogic.Implementations;
+﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
+using FS.Application.Services.AuthLogic.Implementations;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Implementations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Implementations;
 using FS.Application.Services.MissingPetLogic.Interfaces;
+using FS.Core.Policies.AnnouncementPolicies;
 using FS.Core.Services;
 using HW.Application.Services.AuthLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,9 @@ public static class DependencyInjection
 
         services
             .AddScoped<IEmailUniqueService, EmailUniqueService>();
+
+        services
+            .AddScoped<IAnimalAnnouncementDeletionPolicy, DefaultAnimalAnnouncementDeletionPolicy>();
 
         return services;
     }

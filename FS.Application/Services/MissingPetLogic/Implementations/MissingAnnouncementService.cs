@@ -1,5 +1,7 @@
-﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
+﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
+using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.Interfaces;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Core.Entities;
@@ -14,8 +16,8 @@ namespace FS.Application.Services.MissingPetLogic.Implementations;
 public class MissingAnnouncementService(
     IMissingAnnouncementRepository missingAnnouncementRepository,
     IImageService imageService,
-    IUserRepository userRepository,
-    ITransactionService transactionService) 
+    ITransactionService transactionService,
+    IMissingAnnouncementQueryService missingAnnouncementQueryService) 
     : IMissingAnnouncementService
 {
     public async Task<MissingAnnouncementFeed[]> GetFilteredMissingAnnouncementsByPageAsync(DateTime lastDateTime,
@@ -50,10 +52,9 @@ public class MissingAnnouncementService(
     {
         return await transactionService.ExecuteInTransactionAsync(async () =>
         {
-            var user = await userRepository.GetByIdAsync(data.CreatorId, ct);
-
             var place = Place.Create(data.FullPlace);
             var district = District.Create(data.District);
+            
             //TODO: может можно вынести в DI
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
             var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
@@ -69,7 +70,7 @@ public class MissingAnnouncementService(
             var missingAnnouncement = MissingAnnouncement.Create(
                 place,
                 images,
-                user,
+                data.CreatorId,
                 district,
                 data.PetType,
                 data.Gender,
@@ -82,16 +83,32 @@ public class MissingAnnouncementService(
 
             await missingAnnouncementRepository.CreateAsync(missingAnnouncement, ct);
 
-            var response = CreatedMissingAnnouncement.From(missingAnnouncement);
+            var response = await missingAnnouncementQueryService
+                .GetCreatedByIdAsync(missingAnnouncement.Id, ct);
+            
             return response;
         }, ct);
     }
 
     public async Task<MissingAnnouncementPageData> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
-        var entity = await missingAnnouncementRepository.GetForPageByIdAsync(id, ct);
+        var entity = await missingAnnouncementQueryService.GetForPageByIdAsync(id, ct);
         
-        var response = MissingAnnouncementPageData.From(entity);
-        return response;
+        return entity;
+    }
+
+    public async Task Delete(DeleteMissingAnnouncementData data, CancellationToken ct)
+    {
+        var announcement = await missingAnnouncementRepository.GetByIdAsync(data.AnnouncementId, ct);
+
+        var deletionPolicy = new DefaultAnimalAnnouncementDeletionPolicy()
+        {
+            UserId = data.DeleterId,
+            Announcement = announcement
+        };
+        
+        announcement.Delete(data.DeleteReason, deletionPolicy);
+        
+        await missingAnnouncementRepository.UpdateAsync(announcement, ct);
     }
 }

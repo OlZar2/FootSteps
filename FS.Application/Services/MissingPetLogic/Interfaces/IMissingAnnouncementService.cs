@@ -10,4 +10,6 @@ public interface IMissingAnnouncementService
     Task<CreatedMissingAnnouncement> Create(CreateMissingAnnouncementData data, CancellationToken ct);
 
     Task<MissingAnnouncementPageData> GetForPageByIdAsync(Guid id, CancellationToken ct);
+
+    Task Delete(DeleteMissingAnnouncementData data, CancellationToken ct);
 }

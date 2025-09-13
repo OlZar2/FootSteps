@@ -17,7 +17,8 @@ namespace FS.API.Controllers;
 public class MissingAnnouncementController(
     IMissingAnnouncementService missingAnnouncementService,
     IClaimService claimService,
-    IValidator<CreateMissingAnnouncementRM> createAnnouncementValidator) : ControllerBase
+    IValidator<CreateMissingAnnouncementRM> createAnnouncementValidator,
+    IValidator<DeleteMissingAnnouncementRM> deleteAnnouncementValidator) : ControllerBase
 {
     /// <summary>
     /// Возвращает список объявлений о пропаже.
@@ -104,5 +105,32 @@ public class MissingAnnouncementController(
     public async Task<MissingAnnouncementPageData> GetForPage(Guid id, CancellationToken ct)
     {
         return await missingAnnouncementService.GetForPageByIdAsync(id, ct);
+    }
+    
+    [Authorize]
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Delete(
+        Guid id,
+        [FromBody] DeleteMissingAnnouncementRM data,
+        CancellationToken ct)
+    {
+        await deleteAnnouncementValidator.ValidateAndThrowAsync(data, ct);
+        
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = claimService.TryParseGuidClaim(userIdClaim);
+
+        var deleteDto = new DeleteMissingAnnouncementData
+        {
+            AnnouncementId = id,
+            DeleterId = userId,
+            DeleteReason = data.DeleteReason!.Value,
+        };
+        
+        await missingAnnouncementService.Delete(deleteDto, ct);
+
+        return NoContent();
     }
 }

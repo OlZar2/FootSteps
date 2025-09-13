@@ -1,5 +1,7 @@
 ﻿using FS.Application.Interfaces;
+using FS.Application.Interfaces.QueryServices;
 using FS.Core.Stores;
+using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;
 using FS.Persistence.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,9 @@ public static class DependencyInjection
             .AddScoped<IImageRepository, ImageRepository>()
             .AddScoped<IMissingAnnouncementRepository, MissingAnnouncementRepository>()
             .AddScoped<ITransactionService, TransactionService>();
+
+        services
+            .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>();
 
         return services;
     }

@@ -9,7 +9,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
     private StreetPetAnnouncement(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -18,13 +18,13 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Point location,
         DateTime createdAt,
         DateTime eventDate)
-        : base(fullPlace, images, creator, district, petType, gender, color, breed, location, createdAt, eventDate)
+        : base(fullPlace, images, creatorId, district, petType, gender, color, breed, location, createdAt, eventDate)
     { }
 
     public static StreetPetAnnouncement Create(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -36,7 +36,18 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         //TODO:мб вынести в ролдительский класс
         var createdAt = DateTime.UtcNow;
         
-        return new StreetPetAnnouncement(fullPlace, images, creator, district, petType, gender, color, breed, location, createdAt, eventDate);
+        return new StreetPetAnnouncement(
+            fullPlace,
+            images,
+            creatorId,
+            district,
+            petType,
+            gender,
+            color,
+            breed, 
+            location,
+            createdAt,
+            eventDate);
     }
     
     // EF

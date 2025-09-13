@@ -30,7 +30,7 @@ public record CreatedMissingAnnouncement
     
     public required DateTime EventDate { get; init; }
     
-    public static CreatedMissingAnnouncement From(MissingAnnouncement missingAnnouncement) => new()
+    public static CreatedMissingAnnouncement From(MissingAnnouncement missingAnnouncement, User creator) => new()
     {
         Id = missingAnnouncement.Id,
         CreatedAt = missingAnnouncement.CreatedAt,
@@ -44,7 +44,7 @@ public record CreatedMissingAnnouncement
         Type = missingAnnouncement.Type,
         Location = Coordiantes.From(missingAnnouncement.Location),
         IsCompleted = missingAnnouncement.IsCompleted,
-        Creator = AnnouncementCreator.From(missingAnnouncement.Creator),
+        Creator = AnnouncementCreator.From(creator),
         EventDate = missingAnnouncement.EventDate
     };
 }

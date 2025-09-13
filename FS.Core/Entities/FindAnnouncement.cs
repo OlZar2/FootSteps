@@ -9,7 +9,7 @@ public class FindAnnouncement : PetAnnouncement
     private FindAnnouncement(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -19,14 +19,14 @@ public class FindAnnouncement : PetAnnouncement
         Point location,
         DateTime createdAt,
         DateTime eventDate)
-        : base(fullPlace, images, creator, district, petType, gender, color, breed, isCompleted, location, createdAt, eventDate)
+        : base(fullPlace, images, creatorId, district, petType, gender, color, breed, isCompleted, location, createdAt, eventDate)
     {
     }
 
     public static FindAnnouncement Create(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -40,7 +40,7 @@ public class FindAnnouncement : PetAnnouncement
         return new FindAnnouncement(
             fullPlace,
             images,
-            creator,
+            creatorId,
             district,
             petType,
             gender,

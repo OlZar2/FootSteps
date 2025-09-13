@@ -20,7 +20,7 @@ public class CreateMissingAnnouncementRMValidator : AbstractValidator<CreateMiss
     };
     private const long MaxBytes = 5 * 1024 * 1024;
     
-    //TODO: Ограничени на кол-во файлов
+    //TODO: Ограничение на кол-во файлов
     public CreateMissingAnnouncementRMValidator()
     {
         RuleFor(x => x.FullPlace)

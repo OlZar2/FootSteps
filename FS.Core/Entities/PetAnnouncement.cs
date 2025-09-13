@@ -11,7 +11,7 @@ public abstract class PetAnnouncement : AnimalAnnouncement
     protected PetAnnouncement(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -21,7 +21,7 @@ public abstract class PetAnnouncement : AnimalAnnouncement
         Point location,
         DateTime createdAt,
         DateTime eventDate) : 
-        base(fullPlace, images, creator, district, petType, gender, color, breed, location, createdAt, eventDate)
+        base(fullPlace, images, creatorId, district, petType, gender, color, breed, location, createdAt, eventDate)
     {
         IsCompleted = isCompleted;
     }

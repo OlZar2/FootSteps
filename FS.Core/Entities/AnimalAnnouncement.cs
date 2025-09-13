@@ -16,7 +16,7 @@ public abstract class AnimalAnnouncement
     
     public List<Image> Images  { get; private set; }
     
-    public User Creator  { get; set; }
+    public Guid CreatorId  { get; set; }
     
     public PetType PetType { get; private set; }
     
@@ -31,11 +31,13 @@ public abstract class AnimalAnnouncement
     public Point Location { get; private set; }
     
     public DateTime EventDate { get; private set; }
+    
+    public bool IsDeleted { get; protected set; } = false;
 
     protected AnimalAnnouncement(
         Place fullPlace,
         List<Image> images,
-        User creator,
+        Guid creatorId,
         District district,
         PetType petType,
         Gender gender,
@@ -47,7 +49,7 @@ public abstract class AnimalAnnouncement
     {
         FullPlace = fullPlace;
         Images = images;
-        Creator = creator;
+        CreatorId = creatorId;
         District = district;
         PetType = petType;
         Gender = gender;

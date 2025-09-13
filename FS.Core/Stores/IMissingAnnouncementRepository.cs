@@ -8,8 +8,9 @@ public interface IMissingAnnouncementRepository
     Task<MissingAnnouncement[]> GetFilteredByPageAsync(DateTime lastDateTime,
         MissingAnnouncementSpecification spec, CancellationToken ct);
 
-    Task CreateAsync(MissingAnnouncement missingAnnouncement,
-        CancellationToken ct);
+    Task CreateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
     
-    Task<MissingAnnouncement> GetForPageByIdAsync(Guid id, CancellationToken ct);
+    Task<MissingAnnouncement> GetByIdAsync(Guid id, CancellationToken ct);
+    
+    Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
 }

@@ -84,7 +84,7 @@ public class FindAnnouncementService(
         return entity;
     }
     
-    public async Task Delete(DeleteFindAnnouncementData data, CancellationToken ct)
+    public async Task Cancel(DeleteFindAnnouncementData data, CancellationToken ct)
     {
         var announcement = await findAnnouncementRepository.GetByIdAsync(data.AnnouncementId, ct);
 
@@ -94,7 +94,7 @@ public class FindAnnouncementService(
             Announcement = announcement
         };
         
-        announcement.Delete(data.DeleteReason, deletionPolicy);
+        announcement.Cancel(data.DeleteReason, deletionPolicy);
         
         await findAnnouncementRepository.UpdateAsync(announcement, ct);
     }

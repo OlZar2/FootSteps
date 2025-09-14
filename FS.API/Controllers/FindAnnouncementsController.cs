@@ -105,11 +105,11 @@ public class FindAnnouncementsController(
     }
     
     [Authorize]
-    [HttpDelete("{id}")]
+    [HttpPost("cancel/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(
+    public async Task<IActionResult> Canacel(
         Guid id,
         [FromBody] DeleteFindAnnouncementRM data,
         CancellationToken ct)
@@ -126,7 +126,7 @@ public class FindAnnouncementsController(
             DeleteReason = data.DeleteReason!.Value,
         };
         
-        await findAnnouncementService.Delete(deleteDto, ct);
+        await findAnnouncementService.Cancel(deleteDto, ct);
 
         return NoContent();
     }

@@ -12,5 +12,5 @@ public interface IMissingAnnouncementService
 
     Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 
-    Task Delete(DeleteMissingAnnouncementData data, CancellationToken ct);
+    Task Cancel(DeleteMissingAnnouncementData data, CancellationToken ct);
 }

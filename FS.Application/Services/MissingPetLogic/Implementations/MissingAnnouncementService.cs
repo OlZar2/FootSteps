@@ -99,7 +99,7 @@ public class MissingAnnouncementService(
         return entity;
     }
 
-    public async Task Delete(DeleteMissingAnnouncementData data, CancellationToken ct)
+    public async Task Cancel(DeleteMissingAnnouncementData data, CancellationToken ct)
     {
         var announcement = await missingAnnouncementRepository.GetByIdAsync(data.AnnouncementId, ct);
 
@@ -109,7 +109,7 @@ public class MissingAnnouncementService(
             Announcement = announcement
         };
         
-        announcement.Delete(data.DeleteReason, deletionPolicy);
+        announcement.Cancel(data.DeleteReason, deletionPolicy);
         
         await missingAnnouncementRepository.UpdateAsync(announcement, ct);
     }

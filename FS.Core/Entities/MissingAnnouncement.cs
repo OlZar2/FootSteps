@@ -79,7 +79,7 @@ public class MissingAnnouncement : PetAnnouncement
             description);
     }
 
-    public void Delete(MissingAnnouncementDeleteReason reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)
+    public void Cancel(MissingAnnouncementDeleteReason reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)
     {
         if (!deletionPolicy.CanDelete())
             throw new NotEnoughRightsException(IssueCodes.AccessDenied,

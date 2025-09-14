@@ -12,5 +12,5 @@ public interface IFindAnnouncementService
 
     Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 
-    Task Delete(DeleteFindAnnouncementData data, CancellationToken ct);
+    Task Cancel(DeleteFindAnnouncementData data, CancellationToken ct);
 }

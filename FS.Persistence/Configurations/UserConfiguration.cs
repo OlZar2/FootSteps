@@ -28,5 +28,8 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
             .HasOne(u => u.AvatarImage)
             .WithOne()
             .HasForeignKey<User>(u => u.AvatarImageId);
+
+        builder.HasMany(u => u.Contacts)
+            .WithOne();
     }
 }

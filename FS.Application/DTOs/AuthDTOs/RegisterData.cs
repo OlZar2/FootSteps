@@ -1,4 +1,5 @@
 ﻿using FS.Application.DTOs.Shared;
+using FS.Application.DTOs.UserDTOs;
 
 namespace FS.Application.DTOs.AuthDTOs;
 
@@ -9,4 +10,5 @@ public record RegisterData(
     string SecondName,
     string? Patronymic,
     string? Description,
-    FileData AvatarImage) { }
+    FileData? AvatarImage,
+    UserContactData[] UserContacts) { }

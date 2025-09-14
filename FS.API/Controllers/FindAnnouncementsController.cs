@@ -2,14 +2,13 @@
 using FluentValidation;
 using FS.API.Errors;
 using FS.API.RequestsModels.FindAnnouncements;
-using FS.API.RequestsModels.MissingAnnouncements;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.FindAnnouncementDTOs;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
-using FS.Application.Services.FindAnnouncementLogic.Implementations;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Contracts.Error;
+using FS.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,8 +84,8 @@ public class FindAnnouncementsController(
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,
-            Gender = data.Gender!.Value,
-            PetType = data.PetType!.Value,
+            Gender = (Gender)data.Gender!.Value,
+            PetType = (PetType)data.PetType!.Value,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };

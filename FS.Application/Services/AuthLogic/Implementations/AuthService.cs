@@ -8,6 +8,7 @@ using FS.Core.Entities;
 using FS.Core.Services;
 using FS.Core.Stores;
 using FS.Core.ValueObjects;
+using FS.Core.ValueObjects.Contacts;
 using HW.Application.Services.AuthLogic.Interfaces;
 
 namespace FS.Application.Services.AuthLogic.Implementations;
@@ -29,9 +30,13 @@ public class AuthService(
             var fullNameVo = FullName
                 .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
             var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
-
-            var image = await imageService
-                .CreateImageAsync(userRegisterData.AvatarImage.Content, ct, nameof(RegisterData.AvatarImage));
+            
+            var image = userRegisterData.AvatarImage != null ? await imageService
+                .CreateImageAsync(userRegisterData.AvatarImage.Content, ct, nameof(RegisterData.AvatarImage)) : null;
+            
+            var userInitContacts =
+                userRegisterData.UserContacts?.Select(uc => new InitialContact(uc.ContactType, uc.Url))
+                    .ToArray() ?? [];
 
             var user = await User.RegisterAsync(
                 emailVo,
@@ -39,7 +44,8 @@ public class AuthService(
                 fullNameVo,
                 userRegisterData.Description,
                 image,
-                emailUniqueService, ct);
+                emailUniqueService,
+                userInitContacts, ct);
 
             await userRepository.CreateAsync(user, ct);
 

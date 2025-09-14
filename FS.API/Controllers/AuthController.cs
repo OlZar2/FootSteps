@@ -3,8 +3,10 @@ using FS.API.Errors;
 using FS.API.RequestsModels.Auth;
 using FS.Application.DTOs.AuthDTOs;
 using FS.Application.DTOs.Shared;
+using FS.Application.DTOs.UserDTOs;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Contracts.Error;
+using FS.Core.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -27,9 +29,15 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
     public async Task<CreatedUserData> Register([FromForm] RegisterRM request, CancellationToken ct)
     {
         await registerValidator.ValidateAndThrowAsync(request, ct);
-        
-        await using var ms = new MemoryStream();
-        await request.AvatarImage.CopyToAsync(ms, ct);
+
+        byte[]? avatarContent = null;
+
+        if (request.AvatarImage != null)
+        {
+            await using var ms = new MemoryStream();
+            await request.AvatarImage.CopyToAsync(ms, ct);
+            avatarContent = ms.ToArray();
+        }
 
         var registerDTO = new RegisterData
         (
@@ -39,12 +47,16 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
             request.SecondName,
             request.Patronymic,
             request.Description,
-            new FileData
+            avatarContent != null 
+                ? new FileData { Content = avatarContent }
+                : null,
+            request.UserContacts?.Select(uc => new UserContactData
             {
-                Content = ms.ToArray(),
-            }
+                ContactType = (ContactType)uc.ContactType,
+                Url = uc.Url,
+            }).ToArray() ?? []
         );
-        
+
         var response = await authService.RegisterUserAsync(registerDTO, ct);
         return response;
     }

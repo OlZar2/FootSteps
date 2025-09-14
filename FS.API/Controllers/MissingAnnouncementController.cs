@@ -1,13 +1,13 @@
 ﻿using System.Security.Claims;
 using FluentValidation;
 using FS.API.Errors;
-using FS.API.RequestsModels.Announcements;
 using FS.API.RequestsModels.MissingAnnouncements;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Contracts.Error;
+using FS.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -88,9 +88,9 @@ public class MissingAnnouncementController(
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,
-            Gender = data.Gender!.Value,
+            Gender = (Gender)data.Gender!.Value,
             PetName = data.PetName,
-            PetType = data.PetType!.Value,
+            PetType = (PetType)data.PetType!.Value,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };

@@ -1,10 +1,10 @@
-﻿using FS.Application.Services.ImageLogic.Configurations;
-using FS.Application.Services.ImageLogic.Interfaces;
-using FS.Core.Entities;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Exceptions;
+using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Contracts.Error;
+using FS.Core.Entities;
 using FS.Core.Stores;
 using ImageMagick;
 using Microsoft.Extensions.Options;

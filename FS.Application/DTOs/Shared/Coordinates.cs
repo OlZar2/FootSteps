@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
 namespace FS.Application.DTOs.Shared;

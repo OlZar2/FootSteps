@@ -5,7 +5,6 @@ using FS.API.Errors;
 using FS.Application.Exceptions;
 using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Exceptions;
-using FS.Contracts.Error;
 using FS.Core.Exceptions;
 
 namespace FS.API.Middlewares;

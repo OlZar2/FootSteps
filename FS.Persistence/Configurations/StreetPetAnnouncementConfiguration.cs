@@ -1,7 +1,6 @@
 ﻿using FS.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using NetTopologySuite.Geometries;
 
 namespace FS.Persistence.Configurations;
 

@@ -1,6 +1,5 @@
 ﻿using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
-using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Core.Stores;
 using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;

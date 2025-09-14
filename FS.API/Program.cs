@@ -13,6 +13,7 @@ using FS.Persistence.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -54,6 +55,7 @@ services.AddSwaggerGen(config =>
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     config.IncludeXmlComments(xmlPath);
+    config.UseInlineDefinitionsForEnums();
 
     config.EnableAnnotations();
 });
@@ -66,6 +68,10 @@ services
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();
+services.AddFluentValidationAutoValidation(c =>
+{
+    c.DisableBuiltInModelValidation = true;
+});
 var app = builder.Build();
 
 app.MapControllers();

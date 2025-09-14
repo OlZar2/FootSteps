@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FS.API.RequestsModels.MissingAnnouncements;
 using FS.Contracts.Error;
 
 namespace FS.API.RequestsModels.FindAnnouncements.Validators;

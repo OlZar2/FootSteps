@@ -35,21 +35,31 @@ public class RegisterRMValidator : AbstractValidator<RegisterRM>
         RuleFor(x => x.Patronymic)
             .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.AvatarImage)
-            .NotNull().WithErrorCode(IssueCodes.Required)
-            .DependentRules(() =>
+            .Custom((file, context) =>
             {
-                When(x => x.AvatarImage is not null, () =>
-                {
-                    RuleFor(x => x.AvatarImage.ContentType)
-                        .Must(ct => AllowedContentTypes.Contains(ct))
-                        .WithMessage("Неверный формат файла")
-                        .WithErrorCode(IssueCodes.InvalidFormat);
+                if (file is null) return;
 
-                    RuleFor(x => x.AvatarImage.Length)
-                        .LessThanOrEqualTo(MaxBytes)
-                        .WithMessage("Максимальный размер файла — 5 МБ.")
-                        .WithErrorCode(IssueCodes.TooLarge);
-                });
+                if (!AllowedContentTypes.Contains(file.ContentType))
+                {
+                    context.AddFailure(new FluentValidation.Results.ValidationFailure(
+                        nameof(context.InstanceToValidate.AvatarImage),
+                        "Неверный формат файла")
+                    {
+                        ErrorCode = IssueCodes.InvalidFormat
+                    });
+                }
+                
+                if (file.Length > MaxBytes)
+                {
+                    context.AddFailure(new FluentValidation.Results.ValidationFailure(
+                        nameof(context.InstanceToValidate.AvatarImage),
+                        "Максимальный размер файла — 5 МБ.")
+                    {
+                        ErrorCode = IssueCodes.TooLarge
+                    });
+                }
             });
+        RuleForEach(x => x.UserContacts)
+            .SetValidator(new UserContactRMValidator());
     }
 }

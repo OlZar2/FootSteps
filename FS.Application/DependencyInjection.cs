@@ -1,6 +1,8 @@
 ﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.Services.AuthLogic.Implementations;
 using FS.Application.Services.AuthLogic.Interfaces;
+using FS.Application.Services.FindAnnouncementLogic.Implementations;
+using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Implementations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Implementations;
@@ -20,7 +22,8 @@ public static class DependencyInjection
             .AddScoped<IAuthService, AuthService>()
             .AddScoped<IImageService, YandexCloudImageService>()
             .AddScoped<IPasswordHasher, PasswordHasher>()
-            .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>();
+            .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>()
+            .AddScoped<IFindAnnouncementService, FindAnnouncementService>();
 
         services
             .AddScoped<IEmailUniqueService, EmailUniqueService>();

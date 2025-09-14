@@ -1,4 +1,7 @@
-﻿using FS.Core.Enums;
+﻿using FS.Contracts.Error;
+using FS.Core.Enums;
+using FS.Core.Exceptions;
+using FS.Core.Policies.AnnouncementPolicies;
 using FS.Core.ValueObjects;
 using NetTopologySuite.Geometries;
 
@@ -6,6 +9,8 @@ namespace FS.Core.Entities;
 
 public class FindAnnouncement : PetAnnouncement
 {
+    public FindAnnouncementDeleteReason DeleteReason { get; private set; }
+    
     private FindAnnouncement(
         Place fullPlace,
         List<Image> images,
@@ -18,8 +23,22 @@ public class FindAnnouncement : PetAnnouncement
         bool isCompleted,
         Point location,
         DateTime createdAt,
-        DateTime eventDate)
-        : base(fullPlace, images, creatorId, district, petType, gender, color, breed, isCompleted, location, createdAt, eventDate)
+        DateTime eventDate,
+        string? description)
+        : base(
+            fullPlace,
+            images,
+            creatorId,
+            district,
+            petType,
+            gender,
+            color,
+            breed,
+            isCompleted,
+            location,
+            createdAt,
+            eventDate,
+            description)
     {
     }
 
@@ -33,7 +52,8 @@ public class FindAnnouncement : PetAnnouncement
         string? color,
         string? breed,
         Point location,
-        DateTime eventDate)
+        DateTime eventDate,
+        string? description)
     {
         var createdAt = DateTime.UtcNow;
         
@@ -49,7 +69,21 @@ public class FindAnnouncement : PetAnnouncement
             false,
             location,
             createdAt,
-            eventDate);
+            eventDate,
+            description);
+    }
+    
+    public void Delete(FindAnnouncementDeleteReason reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)
+    {
+        if (!deletionPolicy.CanDelete())
+            throw new NotEnoughRightsException(IssueCodes.AccessDenied,
+                "Вы не явлвяетесь создателем объявления");
+        
+        if (IsDeleted)
+            throw new DomainException(IssueCodes.Announcement.AlreadyCancelled, "Объявление уже отменено");
+
+        IsDeleted = true;
+        DeleteReason = reason;
     }
     
     //EF

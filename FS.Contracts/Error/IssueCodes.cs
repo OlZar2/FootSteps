@@ -9,6 +9,11 @@ public static class IssueCodes
         public const string NotImageOrCorrupt = "NOT_IMAGE_OR_CORRUPT";
     }
     
+    public static class Announcement
+    {
+        public const string AlreadyCancelled = "ALREADY_CANCELLED";
+    }
+    
     public const string Required        = "REQUIRED";
     public const string InvalidFormat   = "INVALID_FORMAT";
     public const string TooShort        = "TOO_SHORT";

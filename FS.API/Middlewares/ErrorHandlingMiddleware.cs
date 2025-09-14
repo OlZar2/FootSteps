@@ -78,7 +78,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
             
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             ctx.Response.ContentType = "application/json";

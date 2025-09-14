@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using FS.API.RequestsModels.MissingAnnouncements;
 using FS.Contracts.Error;
 
-namespace FS.API.RequestsModels.Announcements.Validators;
+namespace FS.API.RequestsModels.FindAnnouncements.Validators;
 
-public class CreateMissingAnnouncementRMValidator : AbstractValidator<CreateMissingAnnouncementRM>
+public class CreateFindAnnouncementRMValidator : AbstractValidator<CreateFindAnnouncementRM>
 {
     //TODO: Вынести в конфиг
     private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -21,7 +22,7 @@ public class CreateMissingAnnouncementRMValidator : AbstractValidator<CreateMiss
     private const long MaxBytes = 5 * 1024 * 1024;
     
     //TODO: Ограничение на кол-во файлов
-    public CreateMissingAnnouncementRMValidator()
+    public CreateFindAnnouncementRMValidator()
     {
         RuleFor(x => x.FullPlace)
             .NotEmpty().WithErrorCode(IssueCodes.Required);
@@ -63,8 +64,6 @@ public class CreateMissingAnnouncementRMValidator : AbstractValidator<CreateMiss
         RuleFor(x => x.Color)
             .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.Breed)
-            .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);
-        RuleFor(x => x.PetName)
             .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.EventDate)
             .NotNull()

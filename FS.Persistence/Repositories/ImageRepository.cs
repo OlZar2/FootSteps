@@ -4,6 +4,7 @@ using FS.Persistence.Context;
 
 namespace FS.Persistence.Repositories;
 
+//TODO: это не агрегат?
 public class ImageRepository(ApplicationDbContext context) : IImageRepository
 {
     public async Task AddImageAsync(Image image, CancellationToken ct)

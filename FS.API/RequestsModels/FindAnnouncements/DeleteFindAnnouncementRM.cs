@@ -1,0 +1,8 @@
+﻿using FS.Core.Enums;
+
+namespace FS.API.RequestsModels.FindAnnouncements;
+
+public class DeleteFindAnnouncementRM
+{
+    public FindAnnouncementDeleteReason? DeleteReason { get; set; }
+}

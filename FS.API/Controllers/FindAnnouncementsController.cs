@@ -1,12 +1,14 @@
 ﻿using System.Security.Claims;
 using FluentValidation;
 using FS.API.Errors;
-using FS.API.RequestsModels.Announcements;
+using FS.API.RequestsModels.FindAnnouncements;
 using FS.API.RequestsModels.MissingAnnouncements;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.Application.DTOs.FindAnnouncementDTOs;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
-using FS.Application.Services.MissingPetLogic.Interfaces;
+using FS.Application.Services.FindAnnouncementLogic.Implementations;
+using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Contracts.Error;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,29 +16,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace FS.API.Controllers;
 
 [ApiController]
-[Route("api/missing-announcement")]
-public class MissingAnnouncementController(
-    IMissingAnnouncementService missingAnnouncementService,
-    IClaimService claimService,
-    IValidator<CreateMissingAnnouncementRM> createAnnouncementValidator,
-    IValidator<DeleteMissingAnnouncementRM> deleteAnnouncementValidator) : ControllerBase
+[Route("api/find-announcement")]
+public class FindAnnouncementsController(
+    IFindAnnouncementService findAnnouncementService,
+    IValidator<CreateFindAnnouncementRM> createAnnouncementValidator,
+    IValidator<DeleteFindAnnouncementRM> deleteAnnouncementValidator,
+    IClaimService claimService) : ControllerBase
 {
-    /// <summary>
-    /// Возвращает список объявлений о пропаже.
-    /// </summary>
-    /// <param name="lastDateTime">Дата и время последнего полученного объявления.</param>
-    /// <param name="filter">Фильтр объявлений (например, по типу, категории и т. д.).</param>
-    /// <param name="ct">Токен отмены.</param>
     [HttpGet("feed")]
-    [ProducesResponseType(typeof(MissingAnnouncementFeed[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FindAnnouncementFeed[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)] 
-    public async Task<MissingAnnouncementFeed[]> GetMissingAnnouncement(
+    public async Task<FindAnnouncementFeed[]> GetMissingAnnouncement(
         [FromQuery] DateTime lastDateTime,
         [FromQuery] AnnouncementFilter filter,
         CancellationToken ct)
     {
-        var feed = await missingAnnouncementService
+        var feed = await findAnnouncementService
             .GetFeedAsync(lastDateTime, filter, ct);
 
         return feed;
@@ -44,11 +40,11 @@ public class MissingAnnouncementController(
     
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(CreatedMissingAnnouncement), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CreatedFindAnnouncement), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<CreatedMissingAnnouncement> Create(
-        [FromForm] CreateMissingAnnouncementRM data,
+    public async Task<CreatedFindAnnouncement> Create(
+        [FromForm] CreateFindAnnouncementRM data,
         CancellationToken ct)
     {
         await createAnnouncementValidator.ValidateAndThrowAsync(data, ct);
@@ -56,6 +52,7 @@ public class MissingAnnouncementController(
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
         
+        //TODO: картинки в сервис
         var semaphore = new SemaphoreSlim(4);
 
         var tasks = data.Images.Select(async image =>
@@ -79,7 +76,7 @@ public class MissingAnnouncementController(
 
         var fileInfos = await Task.WhenAll(tasks);
 
-        var createDTO = new CreateMissingAnnouncementData
+        var createDTO = new CreateFindAnnouncementData
         {
             FullPlace = data.FullPlace,
             District = data.District,
@@ -89,24 +86,23 @@ public class MissingAnnouncementController(
             Breed = data.Breed,
             Color = data.Color,
             Gender = data.Gender!.Value,
-            PetName = data.PetName,
             PetType = data.PetType!.Value,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };
         
-        var response = await missingAnnouncementService.Create(createDTO, ct);
+        var response = await findAnnouncementService.Create(createDTO, ct);
 
         return response;
     }
-
+    
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(MissingAnnouncementPage), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<MissingAnnouncementPage> GetForPage(Guid id, CancellationToken ct)
+    public async Task<FindAnnouncementPage> GetForPage(Guid id, CancellationToken ct)
     {
-        return await missingAnnouncementService.GetForPageByIdAsync(id, ct);
+        return await findAnnouncementService.GetForPageByIdAsync(id, ct);
     }
     
     [Authorize]
@@ -116,7 +112,7 @@ public class MissingAnnouncementController(
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(
         Guid id,
-        [FromBody] DeleteMissingAnnouncementRM data,
+        [FromBody] DeleteFindAnnouncementRM data,
         CancellationToken ct)
     {
         await deleteAnnouncementValidator.ValidateAndThrowAsync(data, ct);
@@ -124,14 +120,14 @@ public class MissingAnnouncementController(
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
 
-        var deleteDto = new DeleteMissingAnnouncementData
+        var deleteDto = new DeleteFindAnnouncementData
         {
             AnnouncementId = id,
             DeleterId = userId,
             DeleteReason = data.DeleteReason!.Value,
         };
         
-        await missingAnnouncementService.Delete(deleteDto, ct);
+        await findAnnouncementService.Delete(deleteDto, ct);
 
         return NoContent();
     }

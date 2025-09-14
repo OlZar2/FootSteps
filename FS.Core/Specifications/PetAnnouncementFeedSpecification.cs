@@ -5,11 +5,11 @@ using FS.Core.ValueObjects;
 
 namespace FS.Core.Specifications;
 
-public class MissingAnnouncementSpecification
+public class PetAnnouncementFeedSpecification<T> where T : PetAnnouncement
 {
-    public MissingAnnouncementSpecification(
+    public PetAnnouncementFeedSpecification(
         string? district = null, DateTime? from = null, PetType? petType = null, Gender? gender = null,
-        Sorting? sorting = null, params Expression<Func<MissingAnnouncement, object>>[] includes)
+        Sorting? sorting = null, params Expression<Func<T, object>>[] includes)
     {
         Criteria = ma =>
             (string.IsNullOrEmpty(district) || ma.District.Value == district) &&
@@ -18,12 +18,12 @@ public class MissingAnnouncementSpecification
             (gender == null || ma.Gender == gender);
 
         Sorting = sorting;
-        Includes = includes?.ToList() ?? new List<Expression<Func<MissingAnnouncement, object>>>();
+        Includes = includes?.ToList() ?? new List<Expression<Func<T, object>>>();
     }
 
-    public Expression<Func<MissingAnnouncement, bool>> Criteria { get; }
+    public Expression<Func<T, bool>> Criteria { get; }
     
-    public IReadOnlyList<Expression<Func<MissingAnnouncement, object>>> Includes { get; }
+    public IReadOnlyList<Expression<Func<T, object>>> Includes { get; }
     
     public Sorting? Sorting { get; }
 }

@@ -6,7 +6,7 @@ namespace FS.Core.Stores;
 public interface IMissingAnnouncementRepository
 {
     Task<MissingAnnouncement[]> GetFilteredByPageAsync(DateTime lastDateTime,
-        MissingAnnouncementSpecification spec, CancellationToken ct);
+        PetAnnouncementFeedSpecification<MissingAnnouncement> spec, CancellationToken ct);
 
     Task CreateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
     

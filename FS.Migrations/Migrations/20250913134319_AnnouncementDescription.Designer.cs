@@ -3,6 +3,7 @@ using System;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FS.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250913134319_AnnouncementDescription")]
+    partial class AnnouncementDescription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,9 +141,6 @@ namespace FS.Migrations.Migrations
                 {
                     b.HasBaseType("FS.Core.Entities.PetAnnouncement");
 
-                    b.Property<int>("DeleteReason")
-                        .HasColumnType("integer");
-
                     b.HasDiscriminator().HasValue(0);
                 });
 
@@ -154,12 +154,6 @@ namespace FS.Migrations.Migrations
                     b.Property<string>("PetName")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.ToTable("AnimalAnnouncements", t =>
-                        {
-                            t.Property("DeleteReason")
-                                .HasColumnName("MissingAnnouncement_DeleteReason");
-                        });
 
                     b.HasDiscriminator().HasValue(1);
                 });

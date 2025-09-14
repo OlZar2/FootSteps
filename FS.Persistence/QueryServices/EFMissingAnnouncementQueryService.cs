@@ -10,12 +10,12 @@ namespace FS.Persistence.QueryServices;
 
 public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : IMissingAnnouncementQueryService
 {
-    public async Task<MissingAnnouncementPageData> GetForPageByIdAsync(Guid id, CancellationToken ct)
+    public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
         return await (from a in context.MissingAnnouncements.AsNoTracking()
             join u in context.Users.AsNoTracking() on a.CreatorId equals u.Id
             where a.Id == id
-            select new MissingAnnouncementPageData {
+            select new MissingAnnouncementPage {
                 Id = a.Id,
                 FullPlace = a.FullPlace.Value,
                 District = a.District.Value,
@@ -26,8 +26,10 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 Breed = a.Breed,
                 Color = a.Color,
                 Type = a.Type,
-                Location = Coordiantes.From(a.Location),
-                EventDate = a.EventDate
+                Location = Coordinates.From(a.Location),
+                EventDate = a.EventDate,
+                Description = a.Description,
+                PetName = a.PetName,
             }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("MissingAnnouncement", nameof(id));
     }
 
@@ -47,7 +49,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 Color = ma.Color,
                 Breed = ma.Breed,
                 Type = ma.Type,
-                Location = Coordiantes.From(ma.Location),
+                Location = Coordinates.From(ma.Location),
                 IsCompleted = ma.IsCompleted,
                 Creator = AnnouncementCreator.From(u),
                 EventDate = ma.EventDate

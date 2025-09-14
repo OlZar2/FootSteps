@@ -8,5 +8,5 @@ public class DeleteMissingAnnouncementData
     
     public required Guid AnnouncementId { get; set; }
     
-    public required MissingAnnouncementDeleteReasons  DeleteReason { get; set; }
+    public required MissingAnnouncementDeleteReason  DeleteReason { get; set; }
 }

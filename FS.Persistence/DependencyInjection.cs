@@ -1,5 +1,6 @@
 ﻿using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Core.Stores;
 using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;
@@ -16,10 +17,12 @@ public static class DependencyInjection
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IImageRepository, ImageRepository>()
             .AddScoped<IMissingAnnouncementRepository, MissingAnnouncementRepository>()
+            .AddScoped<IFindAnnouncementRepository, FindAnnouncementRepository>()
             .AddScoped<ITransactionService, TransactionService>();
 
         services
-            .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>();
+            .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
+            .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>();
 
         return services;
     }

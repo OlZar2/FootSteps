@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using FS.Contracts.Error;
 
-namespace FS.API.RequestsModels.Announcements.Validators;
+namespace FS.API.RequestsModels.MissingAnnouncements.Validators;
 
 public class DeleteMissingAnnouncementRMValidator : AbstractValidator<DeleteMissingAnnouncementRM>
 {

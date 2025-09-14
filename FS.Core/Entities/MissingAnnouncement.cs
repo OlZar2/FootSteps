@@ -11,7 +11,7 @@ public class MissingAnnouncement : PetAnnouncement
 {
     public string PetName { get; private set; }
     
-    public MissingAnnouncementDeleteReasons DeleteReason { get; private set; }
+    public MissingAnnouncementDeleteReason DeleteReason { get; private set; }
     
     private MissingAnnouncement(
         Place fullPlace,
@@ -26,8 +26,22 @@ public class MissingAnnouncement : PetAnnouncement
         Point location,
         string petName,
         DateTime createdAt,
-        DateTime eventDate)
-        : base(fullPlace, images, creatorId, district, petType,  gender, color, breed, isCompleted, location, createdAt, eventDate)
+        DateTime eventDate,
+        string? description)
+        : base(
+            fullPlace,
+            images,
+            creatorId,
+            district,
+            petType,
+            gender,
+            color,
+            breed,
+            isCompleted,
+            location,
+            createdAt,
+            eventDate,
+            description)
     {
         PetName = petName;
     }
@@ -43,7 +57,8 @@ public class MissingAnnouncement : PetAnnouncement
         string? breed,
         Point location,
         string petName,
-        DateTime eventDate)
+        DateTime eventDate,
+        string? description)
     {
         var createdAt = DateTime.UtcNow;
         
@@ -60,14 +75,18 @@ public class MissingAnnouncement : PetAnnouncement
             location,
             petName,
             createdAt,
-            eventDate);
+            eventDate,
+            description);
     }
 
-    public void Delete(MissingAnnouncementDeleteReasons reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)
+    public void Delete(MissingAnnouncementDeleteReason reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)
     {
         if (!deletionPolicy.CanDelete())
             throw new NotEnoughRightsException(IssueCodes.AccessDenied,
                 "Вы не явлвяетесь создателем объявления");
+
+        if (IsDeleted)
+            throw new DomainException(IssueCodes.Announcement.AlreadyCancelled, "Объявление уже отменено");
 
         IsDeleted = true;
         DeleteReason = reason;

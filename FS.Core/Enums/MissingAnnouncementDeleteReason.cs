@@ -1,6 +1,6 @@
 ﻿namespace FS.Core.Enums;
 
-public enum MissingAnnouncementDeleteReasons
+public enum MissingAnnouncementDeleteReason
 {
     Found,
     Other

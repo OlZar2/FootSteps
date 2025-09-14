@@ -1,19 +1,17 @@
 ﻿using System.ComponentModel;
 using FS.Application.DTOs.Shared;
 using FS.Core.Enums;
-using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 
-namespace FS.API.RequestsModels.Announcements;
+namespace FS.API.RequestsModels.FindAnnouncements;
 
-public class CreateMissingAnnouncementRM
+public class CreateFindAnnouncementRM
 {
     [Description("Полное место(улица, район, дом?). Обязательно, issue REQUIRED.")]
     public required string FullPlace { get; init; }
     [Description("Только район. Обязательно, issue REQUIRED.")]
     public required string District { get; init; }
     [Description("Координаты. Обязательно, issue REQUIRED.")]
-    public required Coordiantes Location { get; init; }
+    public required Coordinates Location { get; init; }
     
     [Description("Картинки. Обязательно, issue REQUIRED. Если расширение неверное " +
                  "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +
@@ -30,9 +28,10 @@ public class CreateMissingAnnouncementRM
     public string? Color { get; init; }
     [Description("Порода питомца. Обязательно, issue REQUIRED. Если больше 50 символов issue TOO_LONG")]
     public string? Breed { get; init; }
-    [Description("Кличка питомца. Обязательно, issue REQUIRED. Если больше 50 символов issue TOO_LONG")]
-    public required string PetName { get; init; }
     
     [Description("Время пропажи. Обязательно, issue REQUIRED.")]
     public required DateTime? EventDate { get; init; }
+    
+    [Description("Описание объявления")]
+    public string? Description { get; init; }
 }

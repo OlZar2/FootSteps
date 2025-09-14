@@ -1,14 +1,14 @@
 ﻿using FS.Application.DTOs.Shared;
 using FS.Core.Enums;
-using NetTopologySuite.Geometries;
+using Coordinates = FS.Application.DTOs.Shared.Coordinates;
 
 namespace FS.Application.DTOs.MissingAnnouncementDTOs;
 
-public class CreateMissingAnnouncementData
+public record CreateMissingAnnouncementData
 {
     public required string FullPlace { get; init; }
     public required string District { get; init; }
-    public required Coordiantes Location { get; init; }
+    public required Coordinates Location { get; init; }
     
     public required FileData[] Images  { get; init; }
     
@@ -21,4 +21,5 @@ public class CreateMissingAnnouncementData
     public required string PetName { get; init; }
     
     public required DateTime EventDate { get; init; }
+    public string? Description { get; init; }
 }

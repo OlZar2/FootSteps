@@ -1,5 +1,6 @@
 ﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
+using FS.Application.DTOs.Shared;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.ImageLogic.Interfaces;
@@ -20,10 +21,10 @@ public class MissingAnnouncementService(
     IMissingAnnouncementQueryService missingAnnouncementQueryService) 
     : IMissingAnnouncementService
 {
-    public async Task<MissingAnnouncementFeed[]> GetFilteredMissingAnnouncementsByPageAsync(DateTime lastDateTime,
+    public async Task<MissingAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
         AnnouncementFilter announcementFilter, CancellationToken ct)
     {
-        var missingAnnouncementSpecification = new MissingAnnouncementSpecification
+        var missingAnnouncementSpecification = new PetAnnouncementFeedSpecification<MissingAnnouncement>
             (announcementFilter.District,
             announcementFilter.From,
             announcementFilter.Type,
@@ -78,7 +79,8 @@ public class MissingAnnouncementService(
                 data.Breed,
                 point,
                 data.PetName,
-                data.EventDate
+                data.EventDate,
+                data.Description
             );
 
             await missingAnnouncementRepository.CreateAsync(missingAnnouncement, ct);
@@ -90,7 +92,7 @@ public class MissingAnnouncementService(
         }, ct);
     }
 
-    public async Task<MissingAnnouncementPageData> GetForPageByIdAsync(Guid id, CancellationToken ct)
+    public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
         var entity = await missingAnnouncementQueryService.GetForPageByIdAsync(id, ct);
         

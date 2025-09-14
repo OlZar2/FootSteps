@@ -11,7 +11,7 @@ public class MissingAnnouncementRepository(ApplicationDbContext context) : IMiss
 {
     //TODO: перенести в queryService
     public async Task<MissingAnnouncement[]> GetFilteredByPageAsync(DateTime lastDateTime, 
-        MissingAnnouncementSpecification spec, CancellationToken ct)
+        PetAnnouncementFeedSpecification<MissingAnnouncement> spec, CancellationToken ct)
     {
         IQueryable<MissingAnnouncement> query = context.MissingAnnouncements;
         

@@ -1,6 +1,6 @@
 ﻿using FS.Core.Enums;
 
-namespace FS.API.RequestsModels.Announcements;
+namespace FS.API.RequestsModels.MissingAnnouncements;
 
 public class AnnouncementFilterRM
 {

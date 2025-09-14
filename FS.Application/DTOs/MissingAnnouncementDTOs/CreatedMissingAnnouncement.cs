@@ -13,7 +13,7 @@ public record CreatedMissingAnnouncement
     
     public required string FullPlace { get; init; }
     public required string District { get; init; }
-    public required Coordiantes Location { get; init; }
+    public required Coordinates Location { get; init; }
     
     public required string[] ImagePaths  { get; init; }
     
@@ -30,6 +30,8 @@ public record CreatedMissingAnnouncement
     
     public required DateTime EventDate { get; init; }
     
+    public string? Description { get; init; }
+    
     public static CreatedMissingAnnouncement From(MissingAnnouncement missingAnnouncement, User creator) => new()
     {
         Id = missingAnnouncement.Id,
@@ -42,9 +44,10 @@ public record CreatedMissingAnnouncement
         Color = missingAnnouncement.Color,
         Breed = missingAnnouncement.Breed,
         Type = missingAnnouncement.Type,
-        Location = Coordiantes.From(missingAnnouncement.Location),
+        Location = Coordinates.From(missingAnnouncement.Location),
         IsCompleted = missingAnnouncement.IsCompleted,
         Creator = AnnouncementCreator.From(creator),
-        EventDate = missingAnnouncement.EventDate
+        EventDate = missingAnnouncement.EventDate,
+        Description = missingAnnouncement.Description
     };
 }

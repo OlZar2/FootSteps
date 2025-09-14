@@ -6,6 +6,8 @@ namespace FS.Core.Entities;
 
 public abstract class PetAnnouncement : AnimalAnnouncement
 {
+    public string? Description { get; private set; }
+    
     public bool IsCompleted { get; private set; }
     
     protected PetAnnouncement(
@@ -20,10 +22,12 @@ public abstract class PetAnnouncement : AnimalAnnouncement
         bool isCompleted,
         Point location,
         DateTime createdAt,
-        DateTime eventDate) : 
+        DateTime eventDate,
+        string? description) : 
         base(fullPlace, images, creatorId, district, petType, gender, color, breed, location, createdAt, eventDate)
     {
         IsCompleted = isCompleted;
+        Description = description;
     }
     
     // EF

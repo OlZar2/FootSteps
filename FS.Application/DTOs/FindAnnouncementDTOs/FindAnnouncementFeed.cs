@@ -1,8 +1,8 @@
 ﻿using FS.Core.Enums;
 
-namespace FS.Application.DTOs.MissingAnnouncementDTOs;
+namespace FS.Application.DTOs.FindAnnouncementDTOs;
 
-public record MissingAnnouncementFeed
+public record FindAnnouncementFeed
 {
     public required Guid Id { get; init; }
     
@@ -13,8 +13,6 @@ public record MissingAnnouncementFeed
     public required PetType PetType { get; init; }
     
     public required string MainImagePath  { get; init; }
-    
-    public required string PetName { get; init; }
     
     public required Gender Gender { get; init; }
 }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using FS.Core.Enums;
 
-namespace FS.Application.DTOs.MissingAnnouncementDTOs;
+namespace FS.Application.DTOs.Shared;
 
 public record AnnouncementFilter
 {

@@ -6,9 +6,9 @@ namespace FS.Application.DTOs.Shared;
 public record Coordinates
 {
     [Description("Долгота. Обязательно, issue REQUIRED.")]
-    public double Latitude { get; set; }
+    public required double Latitude { get; set; }
     [Description("Широта. Обязательно, issue REQUIRED.")]
-    public double Longitude { get; set; }
+    public required double Longitude { get; set; }
 
     public static Coordinates From(Point point)
     {

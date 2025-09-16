@@ -1,4 +1,6 @@
 ﻿using FS.Application.DTOs.UserDTOs;
+using FS.Application.Interfaces;
+using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.UserLogic.Interfaces;
 using FS.Core.Policies.UserPolicies;
 using FS.Core.Stores;
@@ -9,7 +11,9 @@ namespace FS.Application.Services.UserLogic.Implementations;
 
 public class UserService(
     IUserRepository userRepository,
-    IEditUserPolicy editUserPolicy) : IUserService
+    IEditUserPolicy editUserPolicy,
+    IImageService imageService,
+    ITransactionService transactionService) : IUserService
 {
     public async Task UpdateUserInfoAsync(Guid actorId, UpdateUserInfo userInfo, CancellationToken ct)
     {
@@ -34,5 +38,33 @@ public class UserService(
         }
 
         await userRepository.UpdateAsync(user, ct);
+    }
+
+    public async Task UpdateUserAvatarAsync(Guid actorId, UpdateUserAvatar updateUserAvatar, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdWithAvatarAsync(updateUserAvatar.UserId, ct);
+
+        await transactionService.ExecuteInTransactionAsync(async () =>
+        {
+            if (updateUserAvatar.Avatar != null)
+            {
+                var image =
+                    await imageService.CreateImageAsync(updateUserAvatar.Avatar.Content, ct,
+                        nameof(updateUserAvatar.Avatar));
+
+                if (user.AvatarImage != null)
+                {
+                    await imageService.DeleteImageAsync(user.AvatarImage.Id, user.AvatarImage.Path, ct);
+                }
+
+                user.UpdateAvatar(actorId, image, editUserPolicy);
+            }
+            else
+            {
+                user.UpdateAvatar(actorId, null, editUserPolicy);
+            }
+            
+            await userRepository.UpdateAsync(user, ct);
+        }, ct);
     }
 }

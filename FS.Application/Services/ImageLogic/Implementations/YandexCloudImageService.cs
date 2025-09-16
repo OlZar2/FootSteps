@@ -71,22 +71,20 @@ public class YandexCloudImageService : IImageService
                 "Поддерживаются только JPG и PNG.",
                 imageName);
         
-        var fileName = Guid.NewGuid() + ext;
+        var image = Image.Create(ext);
 
         using MemoryStream memoryStream = new(content);
 
         var request = new PutObjectRequest
         {
             BucketName = _bucketName,
-            Key = fileName,
+            Key = image.Path,
             InputStream = memoryStream,
             ContentType = mime,
         };
-        
-        var image = Image.Create(fileName);
 
         await _s3Client.PutObjectAsync(request, ct);
-        await _imageRepository.AddImageAsync(image, ct);
+        await _imageRepository.AddAsync(image, ct);
 
         return image;
     }
@@ -136,5 +134,17 @@ public class YandexCloudImageService : IImageService
             ResponseStream = response.ResponseStream,
             MimeType = MimeTypes[extension],
         };
+    }
+    
+    public async Task DeleteImageAsync(Guid id, string imagePath, CancellationToken ct)
+    {
+        var request = new DeleteObjectRequest()
+        {
+            BucketName = _bucketName,
+            Key = imagePath
+        };
+        
+        await _s3Client.DeleteObjectAsync(request, ct);
+        await _imageRepository.DeleteAsync(id, ct);
     }
 }

@@ -3,10 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FS.API.Controllers;
 
+/// <summary>
+/// Методы для работы с изображениями
+/// </summary>
 [ApiController]
 [Route("api/image")]
 public class ImageController(IImageService imageService) : ControllerBase
 {
+    /// <summary>
+    /// Получение изображения
+    /// </summary>
+    /// <param name="key">название файла</param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     [HttpGet("{key}")]
     public async Task<IActionResult> Get(string key, CancellationToken ct)
     {

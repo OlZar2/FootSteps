@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-using FS.Core.Enums;
-using Coordinates = FS.Application.DTOs.Shared.Coordinates;
+using FS.Application.DTOs.Shared;
 
 namespace FS.API.RequestsModels.MissingAnnouncements;
 

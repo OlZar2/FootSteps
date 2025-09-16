@@ -19,7 +19,15 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await context.Users
                .Include(u => u.Contacts)
                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
-               ?? throw new NotFoundException(nameof(User), id);;
+               ?? throw new NotFoundException(nameof(User), id);
+    }
+
+    public async Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Users
+                   .Include(u => u.AvatarImage)
+                   .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
+               ?? throw new NotFoundException(nameof(User), id);
     }
 
     public async Task<bool> IsEmailUnique(string email, CancellationToken cancellationToken)

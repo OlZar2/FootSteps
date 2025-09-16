@@ -12,5 +12,7 @@ public interface IUserRepository
     
     Task<User> GetByIdWithContactsAsync(Guid id, CancellationToken cancellationToken);
     
+    Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken);
+    
     Task UpdateAsync(User user, CancellationToken cancellationToken);
 }

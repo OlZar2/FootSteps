@@ -97,6 +97,14 @@ public class User
         _contacts.AddRange(contacts);
     }
 
+    public void UpdateAvatar(Guid editorId, Image? avatarImage, IEditUserPolicy editUserPolicy)
+    {
+        if(!editUserPolicy.CanEdit(this, editorId))
+            return;
+        
+        AvatarImage = avatarImage;
+    }
+
     private static void EnsureUniqueKinds(InitialContact[]? contacts)
     {
         if(contacts == null) return;

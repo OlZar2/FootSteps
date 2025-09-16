@@ -12,18 +12,23 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace FS.API.Controllers;
 
+/// <summary>
+/// Методы авторизации
+/// </summary>
 [ApiController]
 [Route("api/auth")]
 public class AuthController(IAuthService authService, IValidator<RegisterRM> registerValidator,
     IValidator<LoginRM> loginValidator) : ControllerBase
 {
-    
+ 
+    /// <summary>
+    /// Регистрация пользователя
+    /// </summary>
     [HttpPost("register")]
     [ProducesResponseType(typeof(CreatedUserData), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
-        Summary = "Регистрация пользователя",
         Description = "Возвращает объект пользователя, если успешно"
     )]
     public async Task<CreatedUserData> Register([FromForm] RegisterRM request, CancellationToken ct)
@@ -61,12 +66,14 @@ public class AuthController(IAuthService authService, IValidator<RegisterRM> reg
         return response;
     }
 
+    /// <summary>
+    /// Логин
+    /// </summary>
     [HttpPost("login")]
     [ProducesResponseType(typeof(JwtData), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
-        Summary = "Логин",
         Description = "Возвращает токен, если успешно"
     )]
     public async Task<JwtData> Login(LoginRM request, CancellationToken ct)

@@ -4,11 +4,11 @@ using FS.Core.Enums;
 
 namespace FS.API.RequestsModels.FindAnnouncements.Validators;
 
-public class DeleteFindAnnouncementRMValidator : AbstractValidator<DeleteFindAnnouncementRM>
+public class CancelFindAnnouncementRMValidator : AbstractValidator<CancelFindAnnouncementRM>
 {
-    public DeleteFindAnnouncementRMValidator()
+    public CancelFindAnnouncementRMValidator()
     {
-        RuleFor(x => x.DeleteReason)
+        RuleFor(x => x.CancelReason)
             .NotEmpty()
             .WithErrorCode(IssueCodes.Required)
             .Must(v => Enum.IsDefined(typeof(FindAnnouncementDeleteReason), v)).WithErrorCode(IssueCodes.InvalidValue)

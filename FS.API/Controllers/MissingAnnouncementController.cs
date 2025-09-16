@@ -13,18 +13,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FS.API.Controllers;
 
+/// <summary>
+/// Методы для работы с объявлениями о пропаже
+/// </summary>
 [ApiController]
 [Route("api/missing-announcement")]
 public class MissingAnnouncementController(
     IMissingAnnouncementService missingAnnouncementService,
     IClaimService claimService,
     IValidator<CreateMissingAnnouncementRM> createAnnouncementValidator,
-    IValidator<DeleteMissingAnnouncementRM> deleteAnnouncementValidator) : ControllerBase
+    IValidator<CancelMissingAnnouncementRM> deleteAnnouncementValidator) : ControllerBase
 {
     /// <summary>
-    /// Возвращает список объявлений о пропаже.
+    /// Возвращает список из 20 объявлений о пропаже.
     /// </summary>
-    /// <param name="lastDateTime">Дата и время последнего полученного объявления.</param>
+    /// <param name="lastDateTime">Дата и время последнего полученного обяъвления о пропаже(для пагинации)</param>
     /// <param name="filter">Фильтр объявлений (например, по типу, категории и т. д.).</param>
     /// <param name="ct">Токен отмены.</param>
     [HttpGet("feed")]
@@ -42,6 +45,9 @@ public class MissingAnnouncementController(
         return feed;
     }
     
+    /// <summary>
+    /// Создание объявления о пропаже
+    /// </summary>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(CreatedMissingAnnouncement), StatusCodes.Status200OK)]
@@ -100,6 +106,9 @@ public class MissingAnnouncementController(
         return response;
     }
 
+    /// <summary>
+    /// Подробная информация об объявлении
+    /// </summary>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(MissingAnnouncementPage), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
@@ -109,14 +118,17 @@ public class MissingAnnouncementController(
         return await missingAnnouncementService.GetForPageByIdAsync(id, ct);
     }
     
+    /// <summary>
+    /// Отмена объявления
+    /// </summary>
     [Authorize]
-    [HttpDelete("cancel/{id}")]
+    [HttpPost("cancel/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Cancel(
         Guid id,
-        [FromBody] DeleteMissingAnnouncementRM data,
+        [FromBody] CancelMissingAnnouncementRM data,
         CancellationToken ct)
     {
         await deleteAnnouncementValidator.ValidateAndThrowAsync(data, ct);

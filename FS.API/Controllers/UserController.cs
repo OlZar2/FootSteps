@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using FS.API.RequestsModels.User;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Services.UserLogic.Interfaces;
 using FS.Core.Enums;
@@ -9,15 +10,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FS.API.Controllers;
 
+/// <summary>
+/// Методы для работы с информацией о пользователе
+/// </summary>
 [ApiController]
 [Route("api/user")]
 public class UserController(
     IUserService userService,
     IClaimService claimService) : ControllerBase
 {
+    /// <summary>
+    /// Обновить информацию о пользователе
+    /// </summary>
     [Authorize]
-    [HttpPut("userInfo/{userId}")]
-    public async Task<IActionResult> UpdateInfo(Guid userId, UpdateUserInfoRM updateInfo, CancellationToken ct)
+    [HttpPut("{userId:guid}/userInfo")]
+    public async Task UpdateInfo(Guid userId, UpdateUserInfoRM updateInfo, CancellationToken ct)
     {
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
@@ -38,7 +45,38 @@ public class UserController(
         };
         
         await userService.UpdateUserInfoAsync(currentUserId ,userInfo, ct);
+    }
+
+    /// <summary>
+    /// Обновить аватар пользователя
+    /// </summary>
+    [Authorize]
+    [HttpPut("{userId:guid}/avatar")]
+    public async Task UpdateAvatar(Guid userId, UpdateUserAvatarRM request, CancellationToken ct)
+    {
+        var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
         
-        return Ok();
+        byte[]? avatarContent = null;
+
+        if (request.AvatarImage != null)
+        {
+            await using var ms = new MemoryStream();
+            await request.AvatarImage.CopyToAsync(ms, ct);
+            avatarContent = ms.ToArray();
+        }
+        
+        var fileInfo = avatarContent != null ? new FileData
+        {
+            Content = avatarContent
+        } : null;
+
+        var dto = new UpdateUserAvatar()
+        {
+            UserId = userId,
+            Avatar = fileInfo
+        };
+        
+        await userService.UpdateUserAvatarAsync(currentUserId, dto, ct);
     }
 }

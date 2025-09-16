@@ -14,14 +14,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FS.API.Controllers;
 
+/// <summary>
+/// Методы для работы с объявлениями о нахождении
+/// </summary>
 [ApiController]
 [Route("api/find-announcement")]
 public class FindAnnouncementsController(
     IFindAnnouncementService findAnnouncementService,
     IValidator<CreateFindAnnouncementRM> createAnnouncementValidator,
-    IValidator<DeleteFindAnnouncementRM> deleteAnnouncementValidator,
+    IValidator<CancelFindAnnouncementRM> deleteAnnouncementValidator,
     IClaimService claimService) : ControllerBase
 {
+    /// <summary>
+    /// Возвращает список из 20 объялений о пропаже
+    /// </summary>
+    /// <param name="lastDateTime">Дата и время последнего полученного обяъвления о пропаже(для пагинации)</param>
+    /// <param name="filter"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     [HttpGet("feed")]
     [ProducesResponseType(typeof(FindAnnouncementFeed[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
@@ -37,6 +47,12 @@ public class FindAnnouncementsController(
         return feed;
     }
     
+    /// <summary>
+    /// Создать объявление о пропаже
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(CreatedFindAnnouncement), StatusCodes.Status200OK)]
@@ -95,6 +111,12 @@ public class FindAnnouncementsController(
         return response;
     }
     
+    /// <summary>
+    /// Получить подробную информацию об объявлении
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(MissingAnnouncementPage), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
@@ -104,14 +126,21 @@ public class FindAnnouncementsController(
         return await findAnnouncementService.GetForPageByIdAsync(id, ct);
     }
     
+    /// <summary>
+    /// Отменить объявление
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="data"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPost("cancel/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Canacel(
+    public async Task<IActionResult> Cancel(
         Guid id,
-        [FromBody] DeleteFindAnnouncementRM data,
+        [FromBody] CancelFindAnnouncementRM data,
         CancellationToken ct)
     {
         await deleteAnnouncementValidator.ValidateAndThrowAsync(data, ct);
@@ -123,7 +152,7 @@ public class FindAnnouncementsController(
         {
             AnnouncementId = id,
             DeleterId = userId,
-            DeleteReason = (FindAnnouncementDeleteReason)data.DeleteReason,
+            DeleteReason = (FindAnnouncementDeleteReason)data.CancelReason,
         };
         
         await findAnnouncementService.Cancel(deleteDto, ct);

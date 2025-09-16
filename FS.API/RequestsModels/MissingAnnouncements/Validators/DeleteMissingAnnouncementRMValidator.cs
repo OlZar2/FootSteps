@@ -4,7 +4,7 @@ using FS.Core.Enums;
 
 namespace FS.API.RequestsModels.MissingAnnouncements.Validators;
 
-public class DeleteMissingAnnouncementRMValidator : AbstractValidator<DeleteMissingAnnouncementRM>
+public class DeleteMissingAnnouncementRMValidator : AbstractValidator<CancelMissingAnnouncementRM>
 {
     public DeleteMissingAnnouncementRMValidator()
     {

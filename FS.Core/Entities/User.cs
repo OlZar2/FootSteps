@@ -1,5 +1,6 @@
 ﻿using FS.Contracts.Error;
 using FS.Core.Exceptions;
+using FS.Core.Policies.UserPolicies;
 using FS.Core.Services;
 using FS.Core.ValueObjects;
 using FS.Core.ValueObjects.Contacts;
@@ -60,7 +61,7 @@ public class User
             "email must be unique.", nameof(email));
 
         EnsureUniqueKinds(initialContacts);
-        var contacts = initialContacts.Select(ic => UserContact.Create(ic.Type, ic.Url)).ToList();
+        var contacts = initialContacts.Select(ic => UserContact.Create(ic.ContactType, ic.Url)).ToList();
 
         return new User(
             email,
@@ -72,12 +73,36 @@ public class User
         );
     }
 
+    public void UpdateFullName(Guid editorId, FullName fullName, IEditUserPolicy editUserPolicy)
+    {
+        if(editUserPolicy.CanEdit(this, editorId))
+            FullName = fullName;
+    }
+
+    public void UpdateDescription(Guid editorId, string description, IEditUserPolicy editUserPolicy)
+    {
+        if(editUserPolicy.CanEdit(this, editorId))
+            Description = description;
+    }
+
+    public void UpdateContacts(Guid editorId, InitialContact[] initialContacts, IEditUserPolicy editUserPolicy)
+    {
+        if(!editUserPolicy.CanEdit(this, editorId))
+            return;
+        
+        EnsureUniqueKinds(initialContacts);
+        var contacts = initialContacts.Select(ic => UserContact.Create(ic.ContactType, ic.Url)).ToList();
+        
+        _contacts.Clear();
+        _contacts.AddRange(contacts);
+    }
+
     private static void EnsureUniqueKinds(InitialContact[]? contacts)
     {
         if(contacts == null) return;
         
         var duplicates = contacts
-            .GroupBy(c => c.Type)
+            .GroupBy(c => c.ContactType)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToList();

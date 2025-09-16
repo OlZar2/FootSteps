@@ -1,17 +1,17 @@
 ﻿using FluentValidation;
-using FS.API.RequestsModels.MissingAnnouncements;
 using FS.Contracts.Error;
+using FS.Core.Enums;
 
 namespace FS.API.RequestsModels.FindAnnouncements.Validators;
 
-public class DeleteFindAnnouncementRMValidator : AbstractValidator<DeleteMissingAnnouncementRM>
+public class DeleteFindAnnouncementRMValidator : AbstractValidator<DeleteFindAnnouncementRM>
 {
     public DeleteFindAnnouncementRMValidator()
     {
         RuleFor(x => x.DeleteReason)
             .NotEmpty()
             .WithErrorCode(IssueCodes.Required)
-            .IsInEnum()
+            .Must(v => Enum.IsDefined(typeof(FindAnnouncementDeleteReason), v)).WithErrorCode(IssueCodes.InvalidValue)
             .WithMessage("Недопустимое значение DeleteReason")
             .WithErrorCode(IssueCodes.InvalidValue);
     }

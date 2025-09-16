@@ -84,8 +84,8 @@ public class FindAnnouncementsController(
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,
-            Gender = (Gender)data.Gender!.Value,
-            PetType = (PetType)data.PetType!.Value,
+            Gender = (Gender)data.Gender,
+            PetType = (PetType)data.PetType,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };
@@ -123,7 +123,7 @@ public class FindAnnouncementsController(
         {
             AnnouncementId = id,
             DeleterId = userId,
-            DeleteReason = data.DeleteReason!.Value,
+            DeleteReason = (FindAnnouncementDeleteReason)data.DeleteReason,
         };
         
         await findAnnouncementService.Cancel(deleteDto, ct);

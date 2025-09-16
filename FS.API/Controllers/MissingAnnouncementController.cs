@@ -88,9 +88,9 @@ public class MissingAnnouncementController(
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,
-            Gender = (Gender)data.Gender!.Value,
+            Gender = (Gender)data.Gender,
             PetName = data.PetName,
-            PetType = (PetType)data.PetType!.Value,
+            PetType = (PetType)data.PetType,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };
@@ -128,7 +128,7 @@ public class MissingAnnouncementController(
         {
             AnnouncementId = id,
             DeleterId = userId,
-            DeleteReason = data.DeleteReason!.Value,
+            DeleteReason = (MissingAnnouncementDeleteReason)data.DeleteReason,
         };
         
         await missingAnnouncementService.Cancel(deleteDto, ct);

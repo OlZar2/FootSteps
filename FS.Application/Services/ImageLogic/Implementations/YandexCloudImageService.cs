@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using FS.Application.DTOs.ImageDTOs;
 using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Interfaces;
@@ -27,6 +28,18 @@ public class YandexCloudImageService : IImageService
         ".avif",
         ".heic",
         ".heif"
+    };
+    
+    private static readonly Dictionary<string, string> MimeTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [".jpg"]  = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
+        [".png"]  = "image/png",
+        [".gif"]  = "image/gif",
+        [".webp"] = "image/webp",
+        [".avif"] = "image/avif",
+        [".heic"] = "image/heic",
+        [".heif"] = "image/heif"
     };
 
     public YandexCloudImageService(IOptions<S3StorageConfiguration> options, IImageRepository imageRepository)
@@ -104,5 +117,24 @@ public class YandexCloudImageService : IImageService
                 "Файл повреждён или не является изображением.",
                 imageName);
         }
+    }
+    
+    public async Task<ImageResponseInfo> DownloadFileAsync(string key, CancellationToken ct)
+    {
+        var request = new GetObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = key
+        };
+        
+        var extension = Path.GetExtension(key);
+
+        var response = await _s3Client.GetObjectAsync(request, ct);
+        
+        return new ImageResponseInfo
+        {
+            ResponseStream = response.ResponseStream,
+            MimeType = MimeTypes[extension],
+        };
     }
 }

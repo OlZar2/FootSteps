@@ -27,5 +27,4 @@ public class ApplicationDbContext : DbContext
     public DbSet<MissingAnnouncement> MissingAnnouncements { get; set; } = null!;
     public DbSet<StreetPetAnnouncement> StreetPetAnnouncements { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
-    public DbSet<UserContact> UserContacts { get; set; } = null!;
 }

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FS.Contracts.Error;
+using FS.Core.Enums;
 
 namespace FS.API.RequestsModels.FindAnnouncements.Validators;
 
@@ -51,13 +52,13 @@ public class CreateFindAnnouncementRMValidator : AbstractValidator<CreateFindAnn
         RuleFor(x => x.PetType)
             .NotNull()
                 .WithErrorCode(IssueCodes.Required)
-            .IsInEnum()
+            .Must(v => Enum.IsDefined(typeof(PetType), v)).WithErrorCode(IssueCodes.InvalidValue)
                 .WithMessage("Недопустимое значение PetType")
                 .WithErrorCode(IssueCodes.InvalidValue);
         RuleFor(x => x.Gender)
             .NotNull()
                 .WithErrorCode(IssueCodes.Required)
-            .IsInEnum()
+            .Must(v => Enum.IsDefined(typeof(Gender), v)).WithErrorCode(IssueCodes.InvalidValue)
                 .WithMessage("Недопустимое значение Gender")
                 .WithErrorCode(IssueCodes.InvalidValue);
         RuleFor(x => x.Color)

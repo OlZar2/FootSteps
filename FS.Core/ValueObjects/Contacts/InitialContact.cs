@@ -3,6 +3,6 @@
 namespace FS.Core.ValueObjects.Contacts;
 
 public record InitialContact(
-    ContactType Type,
+    ContactType ContactType,
     string Url
 );

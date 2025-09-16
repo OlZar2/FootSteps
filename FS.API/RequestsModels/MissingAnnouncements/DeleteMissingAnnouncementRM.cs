@@ -4,5 +4,5 @@ namespace FS.API.RequestsModels.MissingAnnouncements;
 
 public class DeleteMissingAnnouncementRM
 {
-    public MissingAnnouncementDeleteReason? DeleteReason { get; set; }
+    public int DeleteReason { get; set; }
 }

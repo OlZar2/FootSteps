@@ -20,12 +20,6 @@ public abstract class AnimalAnnouncement
     
     public PetType PetType { get; private set; }
     
-    public Gender Gender { get; private set; }
-    
-    public string? Color { get; private set; }
-    
-    public string? Breed { get; private set; }
-    
     public AnnouncementType Type { get; private set; }
     
     public Point Location { get; private set; }
@@ -40,9 +34,6 @@ public abstract class AnimalAnnouncement
         Guid creatorId,
         District district,
         PetType petType,
-        Gender gender,
-        string? color,
-        string? breed,
         Point location,
         DateTime createdAt,
         DateTime eventDate)
@@ -52,9 +43,6 @@ public abstract class AnimalAnnouncement
         CreatorId = creatorId;
         District = district;
         PetType = petType;
-        Gender = gender;
-        Color = color;
-        Breed = breed;
         Location = location;
         CreatedAt = createdAt;
         EventDate = eventDate;

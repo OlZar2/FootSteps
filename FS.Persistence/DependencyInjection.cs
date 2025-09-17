@@ -17,11 +17,13 @@ public static class DependencyInjection
             .AddScoped<IImageRepository, ImageRepository>()
             .AddScoped<IMissingAnnouncementRepository, MissingAnnouncementRepository>()
             .AddScoped<IFindAnnouncementRepository, FindAnnouncementRepository>()
+            .AddScoped<IStreetPetAnnouncementRepository, StreetPetAnnouncementRepository>()
             .AddScoped<ITransactionService, TransactionService>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
-            .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>();
+            .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
+            .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>();
 
         return services;
     }

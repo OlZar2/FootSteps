@@ -10,6 +10,12 @@ public abstract class PetAnnouncement : AnimalAnnouncement
     
     public bool IsCompleted { get; private set; }
     
+    public string? Color { get; private set; }
+    
+    public string? Breed { get; private set; }
+    
+    public Gender Gender { get; private set; }
+    
     protected PetAnnouncement(
         Place fullPlace,
         List<Image> images,
@@ -24,10 +30,13 @@ public abstract class PetAnnouncement : AnimalAnnouncement
         DateTime createdAt,
         DateTime eventDate,
         string? description) : 
-        base(fullPlace, images, creatorId, district, petType, gender, color, breed, location, createdAt, eventDate)
+        base(fullPlace, images, creatorId, district, petType, location, createdAt, eventDate)
     {
         IsCompleted = isCompleted;
         Description = description;
+        Color = color;
+        Gender = gender;
+        Breed = breed;
     }
     
     // EF

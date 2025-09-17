@@ -9,7 +9,7 @@ using FS.Core.Exceptions;
 
 namespace FS.API.Middlewares;
 
-public class ErrorHandlingMiddleware(RequestDelegate next)
+public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -79,6 +79,8 @@ public class ErrorHandlingMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Непредвиденная ошибка при обработке запроса {Path}", ctx.Request.Path);
+            
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             ctx.Response.ContentType = "application/json";
             

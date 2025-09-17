@@ -12,13 +12,10 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Guid creatorId,
         District district,
         PetType petType,
-        Gender gender,
-        string? color,
-        string? breed,
         Point location,
         DateTime createdAt,
         DateTime eventDate)
-        : base(fullPlace, images, creatorId, district, petType, gender, color, breed, location, createdAt, eventDate)
+        : base(fullPlace, images, creatorId, district, petType, location, createdAt, eventDate)
     { }
 
     public static StreetPetAnnouncement Create(
@@ -27,9 +24,6 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Guid creatorId,
         District district,
         PetType petType,
-        Gender gender,
-        string? color,
-        string? breed,
         Point location,
         DateTime eventDate)
     {
@@ -42,9 +36,6 @@ public class StreetPetAnnouncement : AnimalAnnouncement
             creatorId,
             district,
             petType,
-            gender,
-            color,
-            breed, 
             location,
             createdAt,
             eventDate);

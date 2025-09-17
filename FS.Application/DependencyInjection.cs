@@ -8,6 +8,8 @@ using FS.Application.Services.ImageLogic.Implementations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Implementations;
 using FS.Application.Services.MissingPetLogic.Interfaces;
+using FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
+using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Application.Services.UserLogic.Implementations;
 using FS.Application.Services.UserLogic.Interfaces;
 using FS.Core.Policies.AnnouncementPolicies;
@@ -28,6 +30,7 @@ public static class DependencyInjection
             .AddScoped<IPasswordHasher, PasswordHasher>()
             .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>()
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()
+            .AddScoped<IStreetPetAnnouncementService, StreetPetAnnouncementService>()
             .AddScoped<IUserService, UserService>();
 
         services

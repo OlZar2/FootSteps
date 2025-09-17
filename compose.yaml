@@ -1,0 +1,52 @@
+﻿services:
+  fs-api:
+    image: fs-api
+    build:
+      context: .
+      dockerfile: FS.API/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      - fs-pg
+    secrets:
+      - ConnectionStrings__DefaultConnection
+      - JwtOptions__SecretKey
+      - S3StorageConfiguration__AccessKey
+      - S3StorageConfiguration__SecretKey
+    networks:
+      - fs-net
+  fs-pg:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "FootSteps"
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+    secrets:
+      - POSTGRES_PASSWORD
+    networks:
+      - fs-net
+    volumes:
+      - fs-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d FootSteps" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+networks:
+  fs-net:
+    driver: bridge
+volumes:
+  fs-data:
+secrets:
+  POSTGRES_PASSWORD:
+    file: ./secrets/pg_password.txt
+  ConnectionStrings__DefaultConnection:
+    file: ./secrets/ConnectionStrings__DefaultConnection.txt
+  JwtOptions__SecretKey:
+    file: ./secrets/JwtOptions__SecretKey.txt
+  S3StorageConfiguration__AccessKey:
+    file: ./secrets/S3StorageConfiguration__AccessKey.txt
+  S3StorageConfiguration__SecretKey:
+    file: ./secrets/S3StorageConfiguration__SecretKey.txt
+

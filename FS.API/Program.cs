@@ -19,6 +19,11 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
 builder.Configuration.AddUserSecrets<Program>(optional: true);
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables()
+    .AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
 
 services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -74,9 +79,13 @@ services.AddFluentValidationAutoValidation(c =>
 });
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
 app.MapControllers();
-
-
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<ErrorHandlingMiddleware>();

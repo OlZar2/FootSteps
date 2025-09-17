@@ -62,6 +62,7 @@ public class MissingAnnouncementController(
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
         
+        //TODO: в севрис
         var semaphore = new SemaphoreSlim(4);
 
         var tasks = data.Images.Select(async image =>

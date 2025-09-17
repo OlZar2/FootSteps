@@ -46,23 +46,16 @@ public class UserService(
 
         await transactionService.ExecuteInTransactionAsync(async () =>
         {
-            if (updateUserAvatar.Avatar != null)
-            {
-                var image =
-                    await imageService.CreateImageAsync(updateUserAvatar.Avatar.Content, ct,
-                        nameof(updateUserAvatar.Avatar));
+            var image = updateUserAvatar.Avatar != null ?
+                await imageService.CreateImageAsync(updateUserAvatar.Avatar.Content, ct,
+                    nameof(updateUserAvatar.Avatar)) : null;
 
-                if (user.AvatarImage != null)
-                {
-                    await imageService.DeleteImageAsync(user.AvatarImage.Id, user.AvatarImage.Path, ct);
-                }
-
-                user.UpdateAvatar(actorId, image, editUserPolicy);
-            }
-            else
+            if (user.AvatarImage != null)
             {
-                user.UpdateAvatar(actorId, null, editUserPolicy);
+                await imageService.DeleteImageAsync(user.AvatarImage.Id, user.AvatarImage.Path, ct);
             }
+            
+            user.UpdateAvatar(actorId, image, editUserPolicy);
             
             await userRepository.UpdateAsync(user, ct);
         }, ct);

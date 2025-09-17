@@ -18,7 +18,7 @@ public class User
     
     public string? Description { get; private set; }
     
-    public Guid? AvatarImageId { get; set; }
+    public Guid? AvatarImageId { get; private set; }
     public Image? AvatarImage { get; private set; }
     
     public Email Email { get; private set; }

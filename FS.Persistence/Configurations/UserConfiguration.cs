@@ -27,7 +27,8 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
         builder
             .HasOne(u => u.AvatarImage)
             .WithOne()
-            .HasForeignKey<User>(u => u.AvatarImageId);
+            .HasForeignKey<User>(u => u.AvatarImageId)
+            .OnDelete(DeleteBehavior.SetNull);;
         
         builder.OwnsMany(u => u.Contacts, nb =>
         {

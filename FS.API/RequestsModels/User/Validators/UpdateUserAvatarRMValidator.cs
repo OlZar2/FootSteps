@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using FS.Contracts.Error;
 
-namespace FS.API.RequestsModels.Auth.Validators;
+namespace FS.API.RequestsModels.User.Validators;
 
-public class RegisterRMValidator : AbstractValidator<RegisterRM>
+public class UpdateUserAvatarRMValidator : AbstractValidator<UpdateUserAvatarRM>
 {
     //TODO: в конфиг
     private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -20,21 +20,8 @@ public class RegisterRMValidator : AbstractValidator<RegisterRM>
     };
     private const long MaxBytes = 5 * 1024 * 1024;
     
-    public RegisterRMValidator()
+    public UpdateUserAvatarRMValidator()
     {
-        RuleFor(x => x.Email)
-            .NotEmpty().WithErrorCode(IssueCodes.Required)
-            .EmailAddress().WithErrorCode(IssueCodes.InvalidFormat);
-        RuleFor(x => x.Password)
-            .NotEmpty().WithErrorCode(IssueCodes.Required);
-        RuleFor(x => x.FirstName)
-            .NotEmpty().WithErrorCode(IssueCodes.Required)
-            .MaximumLength(30).WithErrorCode(IssueCodes.TooLong);
-        RuleFor(x => x.SecondName)
-            .NotEmpty().WithErrorCode(IssueCodes.Required)
-            .MaximumLength(40).WithErrorCode(IssueCodes.TooLong);
-        RuleFor(x => x.Patronymic)
-            .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.AvatarImage)
             .Custom((file, context) =>
             {
@@ -60,7 +47,5 @@ public class RegisterRMValidator : AbstractValidator<RegisterRM>
                     });
                 }
             });
-        RuleForEach(x => x.UserContacts)
-            .SetValidator(new UserContactRMValidator());
     }
 }

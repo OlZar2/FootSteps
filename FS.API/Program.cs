@@ -73,10 +73,10 @@ services
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();
-services.AddFluentValidationAutoValidation(c =>
-{
-    c.DisableBuiltInModelValidation = true;
-});
+// services.AddFluentValidationAutoValidation(c =>
+// {
+//     c.DisableBuiltInModelValidation = true;
+// });
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

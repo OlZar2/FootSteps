@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using FluentValidation;
 using FS.API.RequestsModels.User;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.Shared;
@@ -17,7 +18,9 @@ namespace FS.API.Controllers;
 [Route("api/user")]
 public class UserController(
     IUserService userService,
-    IClaimService claimService) : ControllerBase
+    IClaimService claimService,
+    IValidator<UpdateUserInfoRM> updateUserInfoValidator,
+    IValidator<UpdateUserAvatarRM> updateUserAvatarValidator) : ControllerBase
 {
     /// <summary>
     /// Обновить информацию о пользователе
@@ -26,6 +29,8 @@ public class UserController(
     [HttpPut("{userId:guid}/userInfo")]
     public async Task UpdateInfo(Guid userId, UpdateUserInfoRM updateInfo, CancellationToken ct)
     {
+        await updateUserInfoValidator.ValidateAndThrowAsync(updateInfo, ct);
+        
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
         
@@ -54,6 +59,8 @@ public class UserController(
     [HttpPut("{userId:guid}/avatar")]
     public async Task UpdateAvatar(Guid userId, UpdateUserAvatarRM request, CancellationToken ct)
     {
+        await updateUserAvatarValidator.ValidateAndThrowAsync(request, ct);
+        
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
         

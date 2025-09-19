@@ -81,4 +81,10 @@ public class StreetPetAnnouncementController(
         var response = await streetPetAnnouncementService.GetFeedAsync(lastDateTime, filter, ct);
         return response;
     }
+
+    [HttpGet("{id}")]
+    public async Task<StreetPetAnnouncementPage> GetPageByIdAsync(Guid id, CancellationToken ct)
+    {
+        return await streetPetAnnouncementService.GetPageByIdAsync(id, ct);
+    }
 }

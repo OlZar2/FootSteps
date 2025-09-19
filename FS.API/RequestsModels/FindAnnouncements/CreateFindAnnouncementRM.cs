@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using FS.Application.DTOs.Shared;
-using FS.Core.Enums;
 
 namespace FS.API.RequestsModels.FindAnnouncements;
 

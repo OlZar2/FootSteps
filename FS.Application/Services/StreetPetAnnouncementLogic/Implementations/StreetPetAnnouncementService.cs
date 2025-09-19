@@ -72,4 +72,11 @@ public class StreetPetAnnouncementService(
             await streetPetAnnouncementQueryService.GetFeedAsync(lastDateTime, specification, ct);
         return response;
     }
+
+    public async Task<StreetPetAnnouncementPage> GetPageByIdAsync(Guid id, CancellationToken ct)
+    {
+        var response = await streetPetAnnouncementQueryService.GetForPageByIdAsync(id, ct);
+        
+        return response;
+    }
 }

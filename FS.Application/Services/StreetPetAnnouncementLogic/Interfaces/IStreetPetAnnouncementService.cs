@@ -9,4 +9,6 @@ public interface IStreetPetAnnouncementService
 
     Task<StreetPetAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, StreetPetAnnouncementFilter filter,
         CancellationToken ct);
+
+    Task<StreetPetAnnouncementPage> GetPageByIdAsync(Guid id, CancellationToken ct);
 }

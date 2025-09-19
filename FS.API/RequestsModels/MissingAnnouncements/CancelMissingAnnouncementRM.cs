@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using FS.Core.Enums;
 
 namespace FS.API.RequestsModels.MissingAnnouncements;
 

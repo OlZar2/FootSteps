@@ -13,7 +13,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
     public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
         return await (from a in context.MissingAnnouncements.AsNoTracking()
-            join u in context.Users.AsNoTracking() on a.CreatorId equals u.Id
+            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
             where a.Id == id
             select new MissingAnnouncementPage {
                 Id = a.Id,
@@ -36,7 +36,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
     public async Task<CreatedMissingAnnouncement> GetCreatedByIdAsync(Guid id, CancellationToken ct)
     {
         return await (from ma in context.MissingAnnouncements.AsNoTracking()
-            join u in context.Users.AsNoTracking() on ma.CreatorId equals u.Id
+            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on ma.CreatorId equals u.Id
             where ma.Id == id
             select new CreatedMissingAnnouncement {
                 Id = ma.Id,

@@ -15,7 +15,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
     public async Task<CreatedFindAnnouncement> GetCreatedFindAnnouncement(Guid id, CancellationToken ct)
     {
         return await (from ma in context.FindAnnouncements.AsNoTracking()
-            join u in context.Users.AsNoTracking() on ma.CreatorId equals u.Id
+            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on ma.CreatorId equals u.Id
             where ma.Id == id
             select new CreatedFindAnnouncement {
                 Id = ma.Id,
@@ -64,7 +64,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
     public async Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
         return await (from a in context.MissingAnnouncements.AsNoTracking()
-            join u in context.Users.AsNoTracking() on a.CreatorId equals u.Id
+            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
             where a.Id == id
             select new FindAnnouncementPage {
                 Id = a.Id,

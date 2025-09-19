@@ -1,5 +1,4 @@
-﻿using FS.Application.DTOs.FindAnnouncementDTOs;
-using FS.Application.DTOs.Shared;
+﻿using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Exceptions;
@@ -16,7 +15,7 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
     public async Task<CreatedStreetPetAnnouncement> GetCreatedByIdAsync(Guid id, CancellationToken ct)
     {
         return await (from a in context.StreetPetAnnouncements.AsNoTracking()
-            join u in context.Users.AsNoTracking() on a.CreatorId equals u.Id
+            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
             where a.Id == id
             select new CreatedStreetPetAnnouncement {
                 Id = a.Id,
@@ -58,5 +57,21 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
             })
             .AsNoTracking()
             .ToArrayAsync(ct);
+    }
+
+    public async Task<StreetPetAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
+    {
+        return await (from a in context.StreetPetAnnouncements.AsNoTracking()
+            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
+            where a.Id == id
+            select new StreetPetAnnouncementPage {
+                FullPlace = a.FullPlace.Value,
+                ImagePaths = a.Images.Select(image => image.Path).ToArray(),
+                Creator = AnnouncementCreator.From(u),
+                PetType = a.PetType,
+                Location = Coordinates.From(a.Location),
+                EventDate = a.EventDate,
+                PlaceDescription = a.PlaceDescription,
+            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("StreetPetAnnouncement", nameof(id));
     }
 }

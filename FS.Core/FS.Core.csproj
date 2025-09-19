@@ -14,4 +14,8 @@
       <ProjectReference Include="..\FS.Contracts\FS.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Events\" />
+    </ItemGroup>
+
 </Project>

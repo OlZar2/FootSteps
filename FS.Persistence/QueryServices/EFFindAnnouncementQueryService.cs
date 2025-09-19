@@ -56,6 +56,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 Gender = fa.Gender,
                 MainImagePath = fa.Images[0].Path,
                 PetType = fa.PetType,
+                EventDate = fa.EventDate,
             })
             .AsNoTracking()
             .ToArrayAsync(ct);

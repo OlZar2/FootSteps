@@ -23,9 +23,9 @@ public class CreateMissingAnnouncementRM
     [Description("Пол питомца. Обязательно, issue REQUIRED. Если неверное значение " +
                  "issue INVALID_VALUE. Значения: 0 = М, 1 = Ж, 2 = Неизвестно")]
     public required int? Gender { get; init; }
-    [Description("Окраска питомца. Обязательно, issue REQUIRED. Если больше 50 символов issue TOO_LONG")]
+    [Description("Окраска питомца. Если больше 50 символов issue TOO_LONG")]
     public string? Color { get; init; }
-    [Description("Порода питомца. Обязательно, issue REQUIRED. Если больше 50 символов issue TOO_LONG")]
+    [Description("Порода питомца. Если больше 50 символов issue TOO_LONG")]
     public string? Breed { get; init; }
     [Description("Кличка питомца. Обязательно, issue REQUIRED. Если больше 50 символов issue TOO_LONG")]
     public required string PetName { get; init; }

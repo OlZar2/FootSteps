@@ -23,7 +23,8 @@ public static class DependencyInjection
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
             .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
-            .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>();
+            .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
+            .AddScoped<IUserQueryService, EFUserQueryService>();
 
         return services;
     }

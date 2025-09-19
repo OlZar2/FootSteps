@@ -7,4 +7,6 @@ public interface IAuthService
     Task<CreatedUserData> RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct);
 
     Task<JwtData> LoginAsync(LoginData loginData, CancellationToken ct);
+
+    Task<MeInfo> GetMeAsync(Guid userId, CancellationToken ct);
 }

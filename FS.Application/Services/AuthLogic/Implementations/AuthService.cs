@@ -1,6 +1,7 @@
 ﻿using FS.Application.DTOs.AuthDTOs;
 using FS.Application.Exceptions;
 using FS.Application.Interfaces;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Interfaces;
@@ -19,7 +20,8 @@ public class AuthService(
     IUserRepository userRepository,
     IImageService imageService,
     ITransactionService transactionService,
-    IEmailUniqueService emailUniqueService)
+    IEmailUniqueService emailUniqueService,
+    IUserQueryService userQueryService)
     : IAuthService
 {
     public async Task<CreatedUserData> RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct)
@@ -67,5 +69,11 @@ public class AuthService(
         {
             throw new WrongPasswordException();
         }
+    }
+
+    public async Task<MeInfo> GetMeAsync(Guid userId, CancellationToken ct)
+    {
+        var info = await userQueryService.GetUserMainInfoByIdAsync(userId, ct);
+        return info;
     }
 }

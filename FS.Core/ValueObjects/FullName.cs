@@ -16,7 +16,7 @@ public class FullName : ValueObject
         Patronymic = patronymic;
     }
 
-    public static FullName Create(string firstName, string secondName, string? patronymic)
+    public static FullName Create(string firstName, string? secondName, string? patronymic)
     {
         if (string.IsNullOrWhiteSpace(firstName))
         {

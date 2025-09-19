@@ -29,7 +29,6 @@ public class MissingAnnouncementController(
     /// </summary>
     /// <param name="lastDateTime">Дата и время последнего полученного обяъвления о пропаже(для пагинации)</param>
     /// <param name="filter">Фильтр объявлений (например, по типу, категории и т. д.).</param>
-    /// <param name="ct">Токен отмены.</param>
     [HttpGet("feed")]
     [ProducesResponseType(typeof(MissingAnnouncementFeed[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]

@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
 using FluentValidation;
+using FS.API.Errors;
 using FS.API.RequestsModels.StreetPetAnnouncement;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
+using FS.Contracts.Error;
 using FS.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +23,10 @@ public class StreetPetAnnouncementController(
     /// <summary>
     /// Создание объявлений о замеченых питомцах
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="ct"></param>
     [HttpPost]
+    [ProducesResponseType(typeof(CreatedStreetPetAnnouncement), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)] 
     [Authorize]
     public async Task<CreatedStreetPetAnnouncement> Create([FromForm] CreateStreetPetAnnouncementRM request, CancellationToken ct)
     {
@@ -72,7 +75,15 @@ public class StreetPetAnnouncementController(
         return response;
     }
 
+    /// <summary>
+    /// Возвращает список из 20 объявлений о замеченых животных.
+    /// </summary>
+    /// <param name="lastDateTime">Дата и время последнего полученного обяъвления о пропаже(для пагинации)</param>
+    /// <param name="filter">Фильтр объявлений (например, по типу, категории и т. д.).</param>
     [HttpGet("feed")]
+    [ProducesResponseType(typeof(StreetPetAnnouncementFeed[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     public async Task<StreetPetAnnouncementFeed[]> GetFeed(
         [FromQuery] DateTime lastDateTime,
         [FromQuery] StreetPetAnnouncementFilter filter,
@@ -82,7 +93,13 @@ public class StreetPetAnnouncementController(
         return response;
     }
 
+    /// <summary>
+    /// Подробная информация об объявлении
+    /// </summary>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(StreetPetAnnouncementPage), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     public async Task<StreetPetAnnouncementPage> GetPageByIdAsync(Guid id, CancellationToken ct)
     {
         return await streetPetAnnouncementService.GetPageByIdAsync(id, ct);

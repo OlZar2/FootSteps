@@ -50,9 +50,6 @@ public class FindAnnouncementsController(
     /// <summary>
     /// Создать объявление о нахождении
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="ct"></param>
-    /// <returns></returns>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(CreatedFindAnnouncement), StatusCodes.Status200OK)]
@@ -100,8 +97,8 @@ public class FindAnnouncementsController(
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,
-            Gender = (Gender)data.Gender,
-            PetType = (PetType)data.PetType,
+            Gender = (Gender)data.Gender!.Value,
+            PetType = (PetType)data.PetType!.Value,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };

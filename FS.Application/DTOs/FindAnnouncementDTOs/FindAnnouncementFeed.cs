@@ -2,6 +2,8 @@
 
 namespace FS.Application.DTOs.FindAnnouncementDTOs;
 
+
+//TODO: не хвататет данных для фида
 public record FindAnnouncementFeed
 {
     public required Guid Id { get; init; }

@@ -6,10 +6,10 @@ namespace FS.Core.ValueObjects;
 public class FullName : ValueObject
 {
     public string FirstName { get; }
-    public string SecondName { get; }
+    public string? SecondName { get; }
     public string? Patronymic { get; }
 
-    private FullName(string firstName, string secondName, string? patronymic)
+    private FullName(string firstName, string? secondName, string? patronymic)
     {
         FirstName = firstName;
         SecondName = secondName;
@@ -21,10 +21,6 @@ public class FullName : ValueObject
         if (string.IsNullOrWhiteSpace(firstName))
         {
             throw new ValidationException("Имя не может быть пустым");
-        }
-        if (string.IsNullOrWhiteSpace(secondName))
-        {
-            throw new ValidationException("Фамилия не может быть пустой");
         }
 
         return new FullName(firstName, secondName, patronymic);

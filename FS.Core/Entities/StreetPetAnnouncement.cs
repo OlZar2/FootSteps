@@ -6,6 +6,8 @@ namespace FS.Core.Entities;
 
 public class StreetPetAnnouncement : AnimalAnnouncement
 {
+    public string? PlaceDescription  { get; private set; }
+
     private StreetPetAnnouncement(
         Place fullPlace,
         List<Image> images,
@@ -14,9 +16,12 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         PetType petType,
         Point location,
         DateTime createdAt,
-        DateTime eventDate)
+        DateTime eventDate,
+        string? placeDescription)
         : base(fullPlace, images, creatorId, district, petType, location, createdAt, eventDate)
-    { }
+    {
+        PlaceDescription = placeDescription;
+    }
 
     public static StreetPetAnnouncement Create(
         Place fullPlace,
@@ -25,7 +30,8 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         District district,
         PetType petType,
         Point location,
-        DateTime eventDate)
+        DateTime eventDate,
+        string? placeDescription)
     {
         //TODO:мб вынести в ролдительский класс
         var createdAt = DateTime.UtcNow;
@@ -38,7 +44,8 @@ public class StreetPetAnnouncement : AnimalAnnouncement
             petType,
             location,
             createdAt,
-            eventDate);
+            eventDate,
+            placeDescription);
     }
     
     // EF

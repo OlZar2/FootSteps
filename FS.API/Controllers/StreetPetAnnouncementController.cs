@@ -65,9 +65,20 @@ public class StreetPetAnnouncementController(
             FullPlace = request.FullPlace,
             PetType = (PetType)request.PetType!.Value,
             Images = fileInfos,
+            PlaceDescription = request.PlaceDescription,
         };
 
         var response = await streetPetAnnouncementService.CreateAsync(dto, ct);
+        return response;
+    }
+
+    [HttpGet("feed")]
+    public async Task<StreetPetAnnouncementFeed[]> GetFeed(
+        [FromQuery] DateTime lastDateTime,
+        [FromQuery] StreetPetAnnouncementFilter filter,
+        CancellationToken ct)
+    {
+        var response = await streetPetAnnouncementService.GetFeedAsync(lastDateTime, filter, ct);
         return response;
     }
 }

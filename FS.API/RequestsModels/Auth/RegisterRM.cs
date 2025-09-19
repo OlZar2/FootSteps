@@ -14,8 +14,8 @@ public record RegisterRM
     [Description("Имя. Обязательно, issue REQUIRED. Если больше 30 символов issue TOO_LONG")]
     public required string FirstName { get; init; }
 
-    [Description("Фамилия. Обязательно, issue REQUIRED. Если больше 30 символов issue TOO_LONG")]
-    public required string SecondName { get; init; }
+    [Description("Фамилия. Если больше 30 символов issue TOO_LONG")]
+    public string? SecondName { get; init; }
 
     [Description("Отчество. Опционально. Если больше 50 символов issue TOO_LONG")]
     public string? Patronymic { get; init; }

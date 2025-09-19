@@ -31,7 +31,6 @@ public class RegisterRMValidator : AbstractValidator<RegisterRM>
             .NotEmpty().WithErrorCode(IssueCodes.Required)
             .MaximumLength(30).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.SecondName)
-            .NotEmpty().WithErrorCode(IssueCodes.Required)
             .MaximumLength(40).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.Patronymic)
             .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);

@@ -26,7 +26,7 @@ public class FindAnnouncementsController(
     IClaimService claimService) : ControllerBase
 {
     /// <summary>
-    /// Возвращает список из 20 объялений о пропаже
+    /// Возвращает список из 20 объялений о нахождении питомца
     /// </summary>
     /// <param name="lastDateTime">Дата и время последнего полученного обяъвления о пропаже(для пагинации)</param>
     /// <param name="filter"></param>
@@ -48,7 +48,7 @@ public class FindAnnouncementsController(
     }
     
     /// <summary>
-    /// Создать объявление о пропаже
+    /// Создать объявление о нахождении
     /// </summary>
     /// <param name="data"></param>
     /// <param name="ct"></param>

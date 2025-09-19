@@ -25,4 +25,7 @@ public class CreateStreetPetAnnouncementRM
     
     [Description("Время пропажи. Обязательно, issue REQUIRED.")]
     public required DateTime? EventDate { get; init; }
+    
+    [Description("Описание места.")]
+    public string? PlaceDescription { get; init; }
 }

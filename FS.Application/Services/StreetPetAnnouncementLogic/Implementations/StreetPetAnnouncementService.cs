@@ -1,9 +1,11 @@
-﻿using FS.Application.DTOs.StreetPetAnnouncementDTOs;
+﻿using FS.Application.DTOs.Shared;
+using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Core.Entities;
+using FS.Core.Specifications;
 using FS.Core.Stores;
 using FS.Core.ValueObjects;
 using NetTopologySuite;
@@ -44,7 +46,8 @@ public class StreetPetAnnouncementService(
                 district,
                 data.PetType,
                 point,
-                data.EventDate);
+                data.EventDate,
+                data.PlaceDescription);
 
             await streetPetAnnouncementRepository.CreateAsync(streetPetAnnouncement, ct);
 
@@ -53,5 +56,20 @@ public class StreetPetAnnouncementService(
             
             return response;
         }, ct);
+    }
+
+    public async Task<StreetPetAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, StreetPetAnnouncementFilter filter,
+        CancellationToken ct)
+    {
+        var specification = new StreetPetAnnouncementFeedSpecification(
+            filter.District,
+            filter.From,
+            filter.Type,
+            null,
+            a => a.Images);
+        
+        var response = 
+            await streetPetAnnouncementQueryService.GetFeedAsync(lastDateTime, specification, ct);
+        return response;
     }
 }

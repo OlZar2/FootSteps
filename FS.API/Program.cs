@@ -6,6 +6,7 @@ using FS.API.Middlewares;
 using FS.API.RequestsModels.Auth.Validators;
 using FS.API.Services.ClaimLogic.Implementations;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.API.Services.ImageLogic;
 using FS.Application;
 using FS.JWT;
 using FS.Persistence;
@@ -45,7 +46,8 @@ services
     .AddJwtAuth(builder.Configuration);
 
 services
-    .AddTransient<IClaimService, ClaimService>();
+    .AddTransient<IClaimService, ClaimService>()
+    .AddTransient<ImageService>();
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(config =>

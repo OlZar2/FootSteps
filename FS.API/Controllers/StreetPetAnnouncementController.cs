@@ -3,6 +3,7 @@ using FluentValidation;
 using FS.API.Errors;
 using FS.API.RequestsModels.StreetPetAnnouncement;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.API.Services.ImageLogic;
 using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
@@ -18,7 +19,8 @@ namespace FS.API.Controllers;
 public class StreetPetAnnouncementController(
     IStreetPetAnnouncementService streetPetAnnouncementService,
     IValidator<CreateStreetPetAnnouncementRM> createStreetPetAnnouncementValidator,
-    IClaimService claimService) : ControllerBase
+    IClaimService claimService,
+    ImageService imageService) : ControllerBase
 {
     /// <summary>
     /// Создание объявлений о замеченых питомцах
@@ -34,10 +36,9 @@ public class StreetPetAnnouncementController(
         
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
-        
-        //TODO: в севрис
-        var semaphore = new SemaphoreSlim(4);
 
+        var semaphore = new SemaphoreSlim(4);
+        
         var tasks = request.Images.Select(async image =>
         {
             await semaphore.WaitAsync(ct);
@@ -80,6 +81,7 @@ public class StreetPetAnnouncementController(
     /// </summary>
     /// <param name="lastDateTime">Дата и время последнего полученного обяъвления о пропаже(для пагинации)</param>
     /// <param name="filter">Фильтр объявлений (например, по типу, категории и т. д.).</param>
+    /// <param name="ct"></param>
     [HttpGet("feed")]
     [ProducesResponseType(typeof(StreetPetAnnouncementFeed[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]

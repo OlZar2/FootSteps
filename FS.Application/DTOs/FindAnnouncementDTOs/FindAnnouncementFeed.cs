@@ -17,4 +17,6 @@ public record FindAnnouncementFeed
     public required Gender Gender { get; init; }
     
     public required DateTime EventDate { get; init; }
+    
+    public required string? Description { get; init; }
 }

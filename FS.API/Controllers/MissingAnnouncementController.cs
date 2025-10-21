@@ -51,6 +51,7 @@ public class MissingAnnouncementController(
     /// </summary>
     [HttpPost]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     public async Task Create(
@@ -151,5 +152,18 @@ public class MissingAnnouncementController(
         await missingAnnouncementService.Cancel(deleteDto, ct);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("me/feed")]
+    [ProducesResponseType(typeof(MyAnnouncementFeed[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task<MyAnnouncementFeed[]> GetUserFeed([FromQuery] DateTime lastDateTime, CancellationToken ct)
+    {
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = claimService.TryParseGuidClaim(userIdClaim);
+
+        return await missingAnnouncementService.GetFeedItemsByCreatorByPage(userId, lastDateTime, ct);
     }
 }

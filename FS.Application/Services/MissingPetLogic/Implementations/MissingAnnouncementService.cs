@@ -31,6 +31,7 @@ public class MissingAnnouncementService(
             null,
             a => a.Images);
         
+        //TODO: переенести из репозитория в queryService
         var feed = await missingAnnouncementRepository.
             GetFilteredByPageAsync(lastDateTime, missingAnnouncementSpecification, ct);
 
@@ -43,6 +44,7 @@ public class MissingAnnouncementService(
             PetType = a.PetType,
             Gender = a.Gender,
             MainImagePath = a.Images[0].Path,
+            Description = a.Description,
         }).ToArray();
         
         return response;
@@ -84,12 +86,8 @@ public class MissingAnnouncementService(
         }, ct);
     }
 
-    public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
-    {
-        var entity = await missingAnnouncementQueryService.GetForPageByIdAsync(id, ct);
-        
-        return entity;
-    }
+    public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct) =>
+        await missingAnnouncementQueryService.GetForPageByIdAsync(id, ct);
 
     public async Task Cancel(DeleteMissingAnnouncementData data, CancellationToken ct)
     {
@@ -105,4 +103,10 @@ public class MissingAnnouncementService(
         
         await missingAnnouncementRepository.UpdateAsync(announcement, ct);
     }
+
+    public async Task<MyAnnouncementFeed[]> GetFeedItemsByCreatorByPage(
+        Guid creatorId,
+        DateTime lastDateTime,
+        CancellationToken ct) =>
+    await missingAnnouncementQueryService.GetFeedForUserAsync(creatorId, lastDateTime, ct);
 }

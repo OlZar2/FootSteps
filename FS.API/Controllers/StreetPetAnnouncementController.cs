@@ -26,6 +26,7 @@ public class StreetPetAnnouncementController(
     /// Создание объявлений о замеченых питомцах
     /// </summary>
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)] 
     [Authorize]

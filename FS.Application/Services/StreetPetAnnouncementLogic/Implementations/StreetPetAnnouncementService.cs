@@ -53,6 +53,7 @@ public class StreetPetAnnouncementService(
     public async Task<StreetPetAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, StreetPetAnnouncementFilter filter,
         CancellationToken ct)
     {
+        //TODO: подумать нужна ли спецификация
         var specification = new StreetPetAnnouncementFeedSpecification(
             filter.District,
             filter.From,

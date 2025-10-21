@@ -18,7 +18,7 @@ public class PetAnnouncementFeedSpecification<T> where T : PetAnnouncement
             (gender == null || ma.Gender == gender);
 
         Sorting = sorting;
-        Includes = includes?.ToList() ?? new List<Expression<Func<T, object>>>();
+        Includes = includes.ToList();
     }
 
     public Expression<Func<T, bool>> Criteria { get; }

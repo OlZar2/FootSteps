@@ -33,4 +33,21 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 PetName = a.PetName,
             }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("MissingAnnouncement", nameof(id));
     }
+
+    public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct)
+    {
+        return await context.MissingAnnouncements
+            .Where(ma => ma.CreatedAt > lastDateTime && ma.CreatorId == id)
+            .Select(ma => new MyAnnouncementFeed
+            {   
+                Id = ma.Id,
+                CreatedAt = ma.CreatedAt,
+                Description = ma.Description,
+                District = ma.District,
+                Street = ma.Street,
+                Breed = ma.Breed,
+            })
+            .Take(20)
+            .ToArrayAsync(ct);
+    }
 }

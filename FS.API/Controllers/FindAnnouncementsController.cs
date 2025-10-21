@@ -137,7 +137,7 @@ public class FindAnnouncementsController(
     /// <returns></returns>
     [Authorize]
     [HttpPost("cancel/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Cancel(
@@ -160,5 +160,18 @@ public class FindAnnouncementsController(
         await findAnnouncementService.Cancel(deleteDto, ct);
 
         return NoContent();
+    }
+    
+    [Authorize]
+    [HttpGet("me/feed")]
+    [ProducesResponseType(typeof(MyAnnouncementFeed[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task<MyAnnouncementFeed[]> GetUserFeed([FromQuery] DateTime lastDateTime, CancellationToken ct)
+    {
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = claimService.TryParseGuidClaim(userIdClaim);
+
+        return await findAnnouncementService.GetFeedItemsByCreatorByPage(userId, lastDateTime, ct);
     }
 }

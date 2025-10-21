@@ -91,4 +91,10 @@ public class FindAnnouncementService(
         
         await findAnnouncementRepository.UpdateAsync(announcement, ct);
     }
+
+    public async Task<MyAnnouncementFeed[]> GetFeedItemsByCreatorByPage(
+        Guid userId,
+        DateTime lastDateTime,
+        CancellationToken ct)
+    => await findAnnouncementQueryService.GetFeedForUserAsync(userId, lastDateTime, ct);
 }

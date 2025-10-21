@@ -22,6 +22,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
         return await query
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
+            .Where(ma => !ma.IsCompleted && !ma.IsDeleted)
             .Where(ma => ma.CreatedAt > lastDateTime)
             .Take(20)
             .Select(fa => new FindAnnouncementFeed
@@ -29,6 +30,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 Id = fa.Id,
                 CreatedAt = fa.CreatedAt,
                 District = fa.District,
+                Description = fa.Description,
                 Gender = fa.Gender,
                 MainImagePath = fa.Images[0].Path,
                 PetType = fa.PetType,
@@ -59,5 +61,22 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 EventDate = a.EventDate,
                 Description = a.Description,
             }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("MissingAnnouncement", nameof(id));
+    }
+    
+    public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct)
+    {
+        return await context.FindAnnouncements
+            .Where(ma => ma.CreatedAt > lastDateTime && ma.CreatorId == id)
+            .Select(ma => new MyAnnouncementFeed
+            {   
+                Id = ma.Id,
+                CreatedAt = ma.CreatedAt,
+                Description = ma.Description,
+                District = ma.District,
+                Street = ma.Street,
+                Breed = ma.Breed,
+            })
+            .Take(20)
+            .ToArrayAsync(ct);
     }
 }

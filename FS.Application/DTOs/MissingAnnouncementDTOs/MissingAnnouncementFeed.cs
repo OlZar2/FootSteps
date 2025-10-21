@@ -17,4 +17,6 @@ public record MissingAnnouncementFeed
     public required string PetName { get; init; }
     
     public required Gender Gender { get; init; }
+    
+    public required string? Description { get; init; }
 }

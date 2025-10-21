@@ -1,4 +1,5 @@
 ﻿using FS.Application.DTOs.FindAnnouncementDTOs;
+using FS.Application.DTOs.Shared;
 using FS.Core.Entities;
 using FS.Core.Specifications;
 
@@ -10,4 +11,6 @@ public interface IFindAnnouncementQueryService
         PetAnnouncementFeedSpecification<FindAnnouncement> spec, CancellationToken ct);
 
     Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
+
+    Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct);
 }

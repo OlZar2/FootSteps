@@ -13,4 +13,9 @@ public interface IMissingAnnouncementService
     Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 
     Task Cancel(DeleteMissingAnnouncementData data, CancellationToken ct);
+
+    Task<MyAnnouncementFeed[]> GetFeedItemsByCreatorByPage(
+        Guid creatorId,
+        DateTime lastDateTime,
+        CancellationToken ct);
 }

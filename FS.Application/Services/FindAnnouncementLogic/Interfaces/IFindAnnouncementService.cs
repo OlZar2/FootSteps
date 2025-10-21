@@ -13,4 +13,6 @@ public interface IFindAnnouncementService
     Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 
     Task Cancel(DeleteFindAnnouncementData data, CancellationToken ct);
+
+    Task<MyAnnouncementFeed[]> GetFeedItemsByCreatorByPage(Guid userId, DateTime lastDateTime, CancellationToken ct);
 }

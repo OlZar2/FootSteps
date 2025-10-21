@@ -3,6 +3,7 @@ using FluentValidation;
 using FS.API.Errors;
 using FS.API.RequestsModels.MissingAnnouncements;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.API.Services.GeoLogic.Interfaces;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Services.MissingPetLogic.Interfaces;
@@ -22,7 +23,8 @@ public class MissingAnnouncementController(
     IMissingAnnouncementService missingAnnouncementService,
     IClaimService claimService,
     IValidator<CreateMissingAnnouncementRM> createAnnouncementValidator,
-    IValidator<CancelMissingAnnouncementRM> deleteAnnouncementValidator) : ControllerBase
+    IValidator<CancelMissingAnnouncementRM> deleteAnnouncementValidator,
+    IGeocoder geocoder) : ControllerBase
 {
     /// <summary>
     /// Возвращает список из 20 объявлений о пропаже.
@@ -49,10 +51,9 @@ public class MissingAnnouncementController(
     /// </summary>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(CreatedMissingAnnouncement), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<CreatedMissingAnnouncement> Create(
+    public async Task Create(
         [FromForm] CreateMissingAnnouncementRM data,
         CancellationToken ct)
     {
@@ -85,25 +86,29 @@ public class MissingAnnouncementController(
 
         var fileInfos = await Task.WhenAll(tasks);
 
+        var house = await geocoder.GetHouseOrNull(data.Location, ct);
+        var street = await geocoder.GetStreetOrNull(data.Location, ct);
+        var district = await geocoder.GetDistrictOrNull(data.Location, ct)
+                       ?? await geocoder.GetLocalityOrNull(data.Location, ct);
+
         var createDTO = new CreateMissingAnnouncementData
         {
-            FullPlace = data.FullPlace,
-            District = data.District,
+            Street = street,
+            House = house,
+            District = district,
             Location = data.Location,
             Images = fileInfos,
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,
-            Gender = (Gender)data.Gender,
+            Gender = (Gender)data.Gender!.Value,
             PetName = data.PetName,
-            PetType = (PetType)data.PetType,
+            PetType = (PetType)data.PetType!.Value,
             EventDate = data.EventDate!.Value,
             Description = data.Description,
         };
         
-        var response = await missingAnnouncementService.Create(createDTO, ct);
-
-        return response;
+        await missingAnnouncementService.Create(createDTO, ct);
     }
 
     /// <summary>

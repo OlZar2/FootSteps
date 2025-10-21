@@ -6,8 +6,6 @@ namespace FS.Application.Interfaces.QueryServices;
 
 public interface IFindAnnouncementQueryService
 {
-    Task<CreatedFindAnnouncement> GetCreatedFindAnnouncement(Guid id, CancellationToken ct);
-
     Task<FindAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
         PetAnnouncementFeedSpecification<FindAnnouncement> spec, CancellationToken ct);
 

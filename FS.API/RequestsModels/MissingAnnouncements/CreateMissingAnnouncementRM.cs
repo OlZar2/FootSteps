@@ -5,10 +5,6 @@ namespace FS.API.RequestsModels.MissingAnnouncements;
 
 public class CreateMissingAnnouncementRM
 {
-    [Description("Полное место(улица, район, дом?). Обязательно, issue REQUIRED.")]
-    public required string FullPlace { get; init; }
-    [Description("Только район. Обязательно, issue REQUIRED.")]
-    public required string District { get; init; }
     [Description("Координаты. Обязательно, issue REQUIRED.")]
     public required Coordinates Location { get; init; }
     

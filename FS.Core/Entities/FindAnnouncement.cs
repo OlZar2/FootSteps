@@ -2,7 +2,6 @@
 using FS.Core.Enums;
 using FS.Core.Exceptions;
 using FS.Core.Policies.AnnouncementPolicies;
-using FS.Core.ValueObjects;
 using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
@@ -12,10 +11,11 @@ public class FindAnnouncement : PetAnnouncement
     public FindAnnouncementDeleteReason DeleteReason { get; private set; }
     
     private FindAnnouncement(
-        Place fullPlace,
+        string? street,
+        string? house,
         List<Image> images,
         Guid creatorId,
-        District district,
+        string? district,
         PetType petType,
         Gender gender,
         string? color,
@@ -25,28 +25,28 @@ public class FindAnnouncement : PetAnnouncement
         DateTime createdAt,
         DateTime eventDate,
         string? description)
-        : base(
-            fullPlace,
-            images,
-            creatorId,
-            district,
-            petType,
-            gender,
-            color,
-            breed,
-            isCompleted,
-            location,
-            createdAt,
-            eventDate,
-            description)
-    {
-    }
+        : base( 
+            street:street,
+            house:house,
+            images: images,
+            creatorId:creatorId,
+            district:district,
+            petType:petType,
+            gender:gender,
+            color:color,
+            breed:breed,
+            isCompleted:isCompleted,
+            location:location,
+            createdAt:createdAt,
+            eventDate:eventDate,
+            description:description) { }
 
     public static FindAnnouncement Create(
-        Place fullPlace,
+        string? street,
+        string? house,
         List<Image> images,
         Guid creatorId,
-        District district,
+        string? district,
         PetType petType,
         Gender gender,
         string? color,
@@ -58,19 +58,20 @@ public class FindAnnouncement : PetAnnouncement
         var createdAt = DateTime.UtcNow;
         
         return new FindAnnouncement(
-            fullPlace,
-            images,
-            creatorId,
-            district,
-            petType,
-            gender,
-            color,
-            breed,
-            false,
-            location,
-            createdAt,
-            eventDate,
-            description);
+            street: street,
+            house: house,
+            images: images,
+            creatorId: creatorId,
+            district: district,
+            petType: petType,
+            gender: gender,
+            color: color,
+            breed: breed,
+            isCompleted: false,
+            location: location,
+            createdAt: createdAt,
+            eventDate: eventDate,
+            description: description);
     }
     
     public void Cancel(FindAnnouncementDeleteReason reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)

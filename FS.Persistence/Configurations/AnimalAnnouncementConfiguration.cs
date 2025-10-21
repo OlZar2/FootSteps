@@ -17,20 +17,10 @@ public class AnimalAnnouncementConfiguration: IEntityTypeConfiguration<AnimalAnn
             .HasMany(p => p.Images)
             .WithOne();
         
-        builder.OwnsOne(u => u.FullPlace, b =>
-        {
-            b.Property(pn => pn.Value).HasColumnName("FullPlace");
-        });
-        
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(x => x.CreatorId)
             .OnDelete(DeleteBehavior.Restrict);
-        
-        builder.OwnsOne(u => u.District, b =>
-        {
-            b.Property(pn => pn.Value).HasColumnName("District");
-        });
         
         builder
             .HasDiscriminator(a => a.Type)

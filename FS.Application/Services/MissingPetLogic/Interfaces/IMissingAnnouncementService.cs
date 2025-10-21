@@ -8,7 +8,7 @@ public interface IMissingAnnouncementService
     Task<MissingAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
         AnnouncementFilter announcementFilter, CancellationToken ct);
 
-    Task<CreatedMissingAnnouncement> Create(CreateMissingAnnouncementData data, CancellationToken ct);
+    Task Create(CreateMissingAnnouncementData data, CancellationToken ct);
 
     Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 

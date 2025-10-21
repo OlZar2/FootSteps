@@ -12,7 +12,7 @@ public class PetAnnouncementFeedSpecification<T> where T : PetAnnouncement
         Sorting? sorting = null, params Expression<Func<T, object>>[] includes)
     {
         Criteria = ma =>
-            (string.IsNullOrEmpty(district) || ma.District.Value == district) &&
+            (string.IsNullOrEmpty(district) || ma.District == district) &&
             (from == null || ma.CreatedAt >= from) &&
             (petType == null || ma.PetType == petType) &&
             (gender == null || ma.Gender == gender);

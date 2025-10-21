@@ -1,4 +1,5 @@
-﻿using FS.Application.Services.ImageLogic.Configurations;
+﻿using FS.API.Services.GeoLogic.Options;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.JWT;
 
 namespace FS.API;
@@ -13,6 +14,9 @@ public static class Configuration
         
         services.Configure<JwtOptions>(
             configuration.GetSection(nameof(JwtOptions)));
+        
+        services.Configure<YandexApiOptions>(
+            configuration.GetSection(nameof(YandexApiOptions)));
         
         return services;
     }

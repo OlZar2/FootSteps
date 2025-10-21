@@ -1,5 +1,4 @@
 ﻿using FS.Core.Enums;
-using FS.Core.ValueObjects;
 using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
@@ -10,9 +9,11 @@ public abstract class AnimalAnnouncement
     
     public DateTime CreatedAt { get; private set; }
     
-    public Place FullPlace { get; private set; }
+    public string? Street { get; private set; }
     
-    public District District { get; private set; }
+    public string? House { get; private set; }
+    
+    public string? District { get; private set; }
     
     public List<Image> Images  { get; private set; }
     
@@ -29,16 +30,18 @@ public abstract class AnimalAnnouncement
     public bool IsDeleted { get; protected set; } = false;
 
     protected AnimalAnnouncement(
-        Place fullPlace,
         List<Image> images,
         Guid creatorId,
-        District district,
+        string? district,
+        string? street,
+        string? house,
         PetType petType,
         Point location,
         DateTime createdAt,
         DateTime eventDate)
     {
-        FullPlace = fullPlace;
+        Street = street;
+        House = house;
         Images = images;
         CreatorId = creatorId;
         District = district;

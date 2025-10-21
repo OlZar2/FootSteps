@@ -23,10 +23,6 @@ public class CreateStreetPetAnnouncementRMValidator : AbstractValidator<CreateSt
     
     public CreateStreetPetAnnouncementRMValidator()
     {
-        RuleFor(x => x.FullPlace)
-            .NotEmpty().WithErrorCode(IssueCodes.Required);
-        RuleFor(x => x.District)
-            .NotEmpty().WithErrorCode(IssueCodes.Required);
         RuleFor(x => x.Images)
             .NotEmpty()
             .WithErrorCode(IssueCodes.Required);
@@ -48,6 +44,7 @@ public class CreateStreetPetAnnouncementRMValidator : AbstractValidator<CreateSt
             .WithErrorCode(IssueCodes.Required)
             .Must(v => Enum.IsDefined(typeof(PetType), v)).WithErrorCode(IssueCodes.InvalidValue)
             .WithErrorCode(IssueCodes.InvalidValue);
+        //TODO: Location может прийти null
         RuleFor(x => x.Location.Latitude)
             .NotEmpty().WithErrorCode(IssueCodes.Required);
         RuleFor(x => x.Location.Longitude)

@@ -3,6 +3,7 @@ using FluentValidation;
 using FS.API.Errors;
 using FS.API.RequestsModels.FindAnnouncements;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.API.Services.GeoLogic.Interfaces;
 using FS.Application.DTOs.FindAnnouncementDTOs;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
@@ -23,7 +24,8 @@ public class FindAnnouncementsController(
     IFindAnnouncementService findAnnouncementService,
     IValidator<CreateFindAnnouncementRM> createAnnouncementValidator,
     IValidator<CancelFindAnnouncementRM> deleteAnnouncementValidator,
-    IClaimService claimService) : ControllerBase
+    IClaimService claimService,
+    IGeocoder geocoder) : ControllerBase
 {
     /// <summary>
     /// Возвращает список из 20 объялений о нахождении питомца
@@ -52,10 +54,9 @@ public class FindAnnouncementsController(
     /// </summary>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(CreatedFindAnnouncement), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<CreatedFindAnnouncement> Create(
+    public async Task Create(
         [FromForm] CreateFindAnnouncementRM data,
         CancellationToken ct)
     {
@@ -87,11 +88,17 @@ public class FindAnnouncementsController(
         });
 
         var fileInfos = await Task.WhenAll(tasks);
+        
+        var house = await geocoder.GetHouseOrNull(data.Location, ct);
+        var street = await geocoder.GetStreetOrNull(data.Location, ct);
+        var district = await geocoder.GetDistrictOrNull(data.Location, ct)
+            ?? await geocoder.GetLocalityOrNull(data.Location, ct);
 
         var createDTO = new CreateFindAnnouncementData
         {
-            FullPlace = data.FullPlace,
-            District = data.District,
+            House = house,
+            Street = street,
+            District = district,
             Location = data.Location,
             Images = fileInfos,
             CreatorId = userId,
@@ -103,9 +110,7 @@ public class FindAnnouncementsController(
             Description = data.Description,
         };
         
-        var response = await findAnnouncementService.Create(createDTO, ct);
-
-        return response;
+        await findAnnouncementService.Create(createDTO, ct);
     }
     
     /// <summary>

@@ -5,9 +5,9 @@ namespace FS.Application.DTOs.StreetPetAnnouncementDTOs;
 
 public class CreateStreetPetAnnouncementData
 {
-    public required string FullPlace { get; init; }
-    
-    public required string District { get; init; }
+    public required string? House { get; init; }
+    public required string? Street { get; init; }
+    public required string? District { get; init; }
     
     public required FileData[] Images  { get; init; }
     

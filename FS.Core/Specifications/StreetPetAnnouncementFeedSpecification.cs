@@ -12,7 +12,7 @@ public class StreetPetAnnouncementFeedSpecification
         Sorting? sorting = null, params Expression<Func<StreetPetAnnouncement, object>>[] includes)
     {
         Criteria = ma =>
-            (string.IsNullOrEmpty(district) || ma.District.Value == district) &&
+            (string.IsNullOrEmpty(district) || ma.District == district) &&
             (from == null || ma.CreatedAt >= from) &&
             (petType == null || ma.PetType == petType);
 

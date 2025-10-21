@@ -12,30 +12,6 @@ namespace FS.Persistence.QueryServices;
 
 public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFindAnnouncementQueryService
 {
-    public async Task<CreatedFindAnnouncement> GetCreatedFindAnnouncement(Guid id, CancellationToken ct)
-    {
-        return await (from ma in context.FindAnnouncements.AsNoTracking()
-            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on ma.CreatorId equals u.Id
-            where ma.Id == id
-            select new CreatedFindAnnouncement {
-                Id = ma.Id,
-                CreatedAt = ma.CreatedAt,
-                FullPlace = ma.FullPlace.Value,
-                District = ma.District.Value,
-                ImagePaths = ma.Images.Select(i => i.Path).ToArray(),
-                PetType = ma.PetType,
-                Gender = ma.Gender,
-                Color = ma.Color,
-                Breed = ma.Breed,
-                Type = ma.Type,
-                Location = Coordinates.From(ma.Location),
-                IsCompleted = ma.IsCompleted,
-                Creator = AnnouncementCreator.From(u),
-                EventDate = ma.EventDate,
-                Description = ma.Description
-            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(FindAnnouncement), nameof(id));
-    }
-    
     public async Task<FindAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, 
         PetAnnouncementFeedSpecification<FindAnnouncement> spec, CancellationToken ct)
     {
@@ -52,7 +28,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
             {
                 Id = fa.Id,
                 CreatedAt = fa.CreatedAt,
-                District = fa.District.Value,
+                District = fa.District,
                 Gender = fa.Gender,
                 MainImagePath = fa.Images[0].Path,
                 PetType = fa.PetType,
@@ -69,8 +45,9 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
             where a.Id == id
             select new FindAnnouncementPage {
                 Id = a.Id,
-                FullPlace = a.FullPlace.Value,
-                District = a.District.Value,
+                Street = a.Street,
+                House = a.House,
+                District = a.District,
                 ImagesPaths = a.Images.Select(image => image.Path).ToArray(),
                 Creator = AnnouncementCreator.From(u),
                 PetType = a.PetType,

@@ -5,12 +5,6 @@ namespace FS.API.RequestsModels.StreetPetAnnouncement;
 
 public class CreateStreetPetAnnouncementRM
 {
-    [Description("Полное место(улица, район, дом?). Обязательно, issue REQUIRED.")]
-    public required string FullPlace { get; init; }
-    
-    [Description("Только район. Обязательно, issue REQUIRED.")]
-    public required string District { get; init; }
-    
     [Description("Картинки. Обязательно, issue REQUIRED. Если расширение неверное " +
                  "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +
                  "Если больше 5МБ issue TOO_LARGE. Если файл пустой EMPTY_FILE")]

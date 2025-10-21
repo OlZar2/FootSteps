@@ -5,7 +5,7 @@ namespace FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 
 public interface IStreetPetAnnouncementService
 {
-    Task<CreatedStreetPetAnnouncement> CreateAsync(CreateStreetPetAnnouncementData data, CancellationToken ct);
+    Task CreateAsync(CreateStreetPetAnnouncementData data, CancellationToken ct);
 
     Task<StreetPetAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, StreetPetAnnouncementFilter filter,
         CancellationToken ct);

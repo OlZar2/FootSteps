@@ -44,4 +44,13 @@ public static class ErrorFactory
             [
                 new ErrorDetail(field: "", issue: IssueCodes.InvalidCredentials, "Неверный логин или пароль")
             ]);
+    
+    public static ErrorEnvelope BadCoordinates() =>
+        new(
+            code: "BAD_COORDINATES",
+            message: "Cannot find home/street/district by coordinates",
+            details:
+            [
+                new ErrorDetail(field: "", issue: IssueCodes.Coordinates.CannotHandle, "Cannot find home/street/district by coordinates")
+            ]);
 }

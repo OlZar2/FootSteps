@@ -8,7 +8,7 @@ public record MissingAnnouncementFeed
     
     public required DateTime CreatedAt { get; init; }
     
-    public required string District { get; init; }
+    public required string? District { get; init; }
     
     public required PetType PetType { get; init; }
     

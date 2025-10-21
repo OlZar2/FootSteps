@@ -8,9 +8,9 @@ public class FindAnnouncementPage
 {
     public required Guid Id { get; init; }
     
-    public required string FullPlace { get; init; }
-    
-    public required string District { get; init; }
+    public required string? Street { get; init; }
+    public required string? House { get; init; }
+    public required string? District { get; init; }
     
     public required string[] ImagesPaths  { get; init; }
     

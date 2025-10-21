@@ -25,10 +25,6 @@ public class CreateMissingAnnouncementRMValidator : AbstractValidator<CreateMiss
     //TODO: Ограничение на кол-во файлов
     public CreateMissingAnnouncementRMValidator()
     {
-        RuleFor(x => x.FullPlace)
-            .NotEmpty().WithErrorCode(IssueCodes.Required);
-        RuleFor(x => x.District)
-            .NotEmpty().WithErrorCode(IssueCodes.Required);
         RuleFor(x => x.Location.Latitude)
             .NotEmpty().WithErrorCode(IssueCodes.Required);
         RuleFor(x => x.Location.Longitude)

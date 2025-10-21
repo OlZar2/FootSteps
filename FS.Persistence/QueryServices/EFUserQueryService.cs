@@ -1,5 +1,4 @@
 ﻿using FS.Application.DTOs.AuthDTOs;
-using FS.Application.DTOs.UserDTOs;
 using FS.Application.Exceptions;
 using FS.Application.Interfaces.QueryServices;
 using FS.Persistence.Context;

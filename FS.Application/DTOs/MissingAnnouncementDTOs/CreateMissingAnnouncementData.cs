@@ -6,8 +6,10 @@ namespace FS.Application.DTOs.MissingAnnouncementDTOs;
 
 public record CreateMissingAnnouncementData
 {
-    public required string FullPlace { get; init; }
-    public required string District { get; init; }
+    public required string? Street { get; init; }
+    public required string? House { get; init; }
+    public required string? District { get; init; }
+    
     public required Coordinates Location { get; init; }
     
     public required FileData[] Images  { get; init; }

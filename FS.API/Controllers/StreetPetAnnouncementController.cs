@@ -3,7 +3,7 @@ using FluentValidation;
 using FS.API.Errors;
 using FS.API.RequestsModels.StreetPetAnnouncement;
 using FS.API.Services.ClaimLogic.Interfaces;
-using FS.API.Services.ImageLogic;
+using FS.API.Services.GeoLogic.Interfaces;
 using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
@@ -20,17 +20,16 @@ public class StreetPetAnnouncementController(
     IStreetPetAnnouncementService streetPetAnnouncementService,
     IValidator<CreateStreetPetAnnouncementRM> createStreetPetAnnouncementValidator,
     IClaimService claimService,
-    ImageService imageService) : ControllerBase
+    IGeocoder geocoder) : ControllerBase
 {
     /// <summary>
     /// Создание объявлений о замеченых питомцах
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(typeof(CreatedStreetPetAnnouncement), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)] 
     [Authorize]
-    public async Task<CreatedStreetPetAnnouncement> Create([FromForm] CreateStreetPetAnnouncementRM request, CancellationToken ct)
+    public async Task Create([FromForm] CreateStreetPetAnnouncementRM request, CancellationToken ct)
     {
         await createStreetPetAnnouncementValidator.ValidateAndThrowAsync(request, ct);
         
@@ -59,21 +58,26 @@ public class StreetPetAnnouncementController(
         });
 
         var fileInfos = await Task.WhenAll(tasks);
+        
+        var house = await geocoder.GetHouseOrNull(request.Location, ct);
+        var street = await geocoder.GetStreetOrNull(request.Location, ct);
+        var district = await geocoder.GetDistrictOrNull(request.Location, ct)
+                       ?? await geocoder.GetLocalityOrNull(request.Location, ct);
 
         var dto = new CreateStreetPetAnnouncementData
         {
             CreatorId = userId,
-            District = request.District,
+            District = district,
             EventDate = request.EventDate!.Value,
             Location = request.Location,
-            FullPlace = request.FullPlace,
+            House = house,
+            Street = street,
             PetType = (PetType)request.PetType!.Value,
             Images = fileInfos,
             PlaceDescription = request.PlaceDescription,
         };
 
-        var response = await streetPetAnnouncementService.CreateAsync(dto, ct);
-        return response;
+        await streetPetAnnouncementService.CreateAsync(dto, ct);
     }
 
     /// <summary>

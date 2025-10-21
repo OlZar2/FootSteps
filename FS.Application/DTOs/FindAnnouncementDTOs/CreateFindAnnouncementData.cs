@@ -19,11 +19,11 @@ public record CreateFindAnnouncementData
     
     public required DateTime EventDate { get; init; }
     
-    public required string FullPlace { get; init; }
-    
     public required Coordinates Location { get; init; }
     
     public required Guid CreatorId { get; init; }
     
-    public required string District { get; init; }
+    public required string? District { get; init; }
+    public required string? House { get; init; }
+    public required string? Street { get; init; }
 }

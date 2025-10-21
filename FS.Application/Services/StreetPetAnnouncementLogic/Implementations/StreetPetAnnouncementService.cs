@@ -7,7 +7,6 @@ using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Core.Entities;
 using FS.Core.Specifications;
 using FS.Core.Stores;
-using FS.Core.ValueObjects;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -20,9 +19,9 @@ public class StreetPetAnnouncementService(
     IStreetPetAnnouncementQueryService streetPetAnnouncementQueryService)
     : IStreetPetAnnouncementService
 {
-    public async Task<CreatedStreetPetAnnouncement> CreateAsync(CreateStreetPetAnnouncementData data, CancellationToken ct)
+    public async Task CreateAsync(CreateStreetPetAnnouncementData data, CancellationToken ct)
     {
-        return await transactionService.ExecuteInTransactionAsync(async () =>
+        await transactionService.ExecuteInTransactionAsync(async () =>
         {
             //TODO: может можно вынести в DI
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
@@ -36,25 +35,18 @@ public class StreetPetAnnouncementService(
                 images.Add(createdImage);
             }
 
-            var fullPlace = Place.Create(data.FullPlace);
-            var district = District.Create(data.District);
-
             var streetPetAnnouncement = StreetPetAnnouncement.Create(
-                fullPlace,
+                street:data.Street,
+                house:data.House,
                 images,
                 data.CreatorId,
-                district,
+                data.District,
                 data.PetType,
                 point,
                 data.EventDate,
                 data.PlaceDescription);
 
             await streetPetAnnouncementRepository.CreateAsync(streetPetAnnouncement, ct);
-
-            var response = 
-                await streetPetAnnouncementQueryService.GetCreatedByIdAsync(streetPetAnnouncement.Id, ct);
-            
-            return response;
         }, ct);
     }
 

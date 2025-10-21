@@ -8,7 +8,6 @@ using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Core.Entities;
 using FS.Core.Specifications;
 using FS.Core.Stores;
-using FS.Core.ValueObjects;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -40,7 +39,7 @@ public class MissingAnnouncementService(
             Id = a.Id,
             PetName = a.PetName,
             CreatedAt = a.CreatedAt,
-            District = a.District.Value,
+            District = a.District,
             PetType = a.PetType,
             Gender = a.Gender,
             MainImagePath = a.Images[0].Path,
@@ -49,13 +48,10 @@ public class MissingAnnouncementService(
         return response;
     }
 
-    public async Task<CreatedMissingAnnouncement> Create(CreateMissingAnnouncementData data, CancellationToken ct)
+    public async Task Create(CreateMissingAnnouncementData data, CancellationToken ct)
     {
-        return await transactionService.ExecuteInTransactionAsync(async () =>
+        await transactionService.ExecuteInTransactionAsync(async () =>
         {
-            var place = Place.Create(data.FullPlace);
-            var district = District.Create(data.District);
-            
             //TODO: может можно вынести в DI
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
             var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
@@ -69,10 +65,11 @@ public class MissingAnnouncementService(
             }
             
             var missingAnnouncement = MissingAnnouncement.Create(
-                place,
+                street: data.Street,
+                house: data.House,
                 images,
                 data.CreatorId,
-                district,
+                data.District,
                 data.PetType,
                 data.Gender,
                 data.Color,
@@ -84,11 +81,6 @@ public class MissingAnnouncementService(
             );
 
             await missingAnnouncementRepository.CreateAsync(missingAnnouncement, ct);
-
-            var response = await missingAnnouncementQueryService
-                .GetCreatedByIdAsync(missingAnnouncement.Id, ct);
-            
-            return response;
         }, ct);
     }
 

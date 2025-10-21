@@ -8,7 +8,6 @@ using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Core.Entities;
 using FS.Core.Specifications;
 using FS.Core.Stores;
-using FS.Core.ValueObjects;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -20,13 +19,10 @@ public class FindAnnouncementService(
     ITransactionService transactionService,
     IImageService imageService) : IFindAnnouncementService
 {
-    public async Task<CreatedFindAnnouncement> Create(CreateFindAnnouncementData data, CancellationToken ct)
+    public async Task Create(CreateFindAnnouncementData data, CancellationToken ct)
     {
-        return await transactionService.ExecuteInTransactionAsync(async () =>
+        await transactionService.ExecuteInTransactionAsync(async () =>
         {
-            var place = Place.Create(data.FullPlace);
-            var district = District.Create(data.District);
-
             var images = new List<Image>();
             foreach (var image in data.Images)
             {
@@ -38,10 +34,11 @@ public class FindAnnouncementService(
             var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
 
             var findAnnouncement = FindAnnouncement.Create(
-                place,
+                street:data.Street,
+                house:data.House,
                 images,
                 data.CreatorId,
-                district,
+                data.District,
                 data.PetType,
                 data.Gender,
                 data.Color,
@@ -51,10 +48,6 @@ public class FindAnnouncementService(
                 data.Description);
             
             await findAnnouncementRepository.CreateAsync(findAnnouncement, ct);
-
-            var response = await 
-                findAnnouncementQueryService.GetCreatedFindAnnouncement(findAnnouncement.Id, ct);
-            return response;
         }, ct);
     }
 

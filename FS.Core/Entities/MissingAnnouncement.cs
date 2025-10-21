@@ -2,7 +2,6 @@
 using FS.Core.Enums;
 using FS.Core.Exceptions;
 using FS.Core.Policies.AnnouncementPolicies;
-using FS.Core.ValueObjects;
 using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
@@ -14,10 +13,11 @@ public class MissingAnnouncement : PetAnnouncement
     public MissingAnnouncementDeleteReason DeleteReason { get; private set; }
     
     private MissingAnnouncement(
-        Place fullPlace,
+        string? street,
+        string? house,
         List<Image> images,
         Guid creatorId,
-        District district,
+        string? district,
         PetType petType,
         Gender gender,
         string? color,
@@ -29,7 +29,8 @@ public class MissingAnnouncement : PetAnnouncement
         DateTime eventDate,
         string? description)
         : base(
-            fullPlace,
+            street: street,
+            house: house,
             images,
             creatorId,
             district,
@@ -47,10 +48,11 @@ public class MissingAnnouncement : PetAnnouncement
     }
 
     public static MissingAnnouncement Create(
-        Place fullPlace,
+        string? street,
+        string? house,
         List<Image> images,
         Guid creatorId,
-        District district,
+        string? district,
         PetType petType,
         Gender gender,
         string? color,
@@ -63,7 +65,8 @@ public class MissingAnnouncement : PetAnnouncement
         var createdAt = DateTime.UtcNow;
         
         return new MissingAnnouncement(
-            fullPlace,
+            street: street,
+            house: house,
             images,
             creatorId,
             district,

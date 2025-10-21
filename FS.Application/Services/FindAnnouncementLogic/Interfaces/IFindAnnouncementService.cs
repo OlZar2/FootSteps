@@ -5,7 +5,7 @@ namespace FS.Application.Services.FindAnnouncementLogic.Interfaces;
 
 public interface IFindAnnouncementService
 {
-    Task<CreatedFindAnnouncement> Create(CreateFindAnnouncementData data, CancellationToken ct);
+    Task Create(CreateFindAnnouncementData data, CancellationToken ct);
 
     Task<FindAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
         AnnouncementFilter announcementFilter, CancellationToken ct);

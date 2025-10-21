@@ -12,25 +12,6 @@ namespace FS.Persistence.QueryServices;
 
 public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) : IStreetPetAnnouncementQueryService
 {
-    public async Task<CreatedStreetPetAnnouncement> GetCreatedByIdAsync(Guid id, CancellationToken ct)
-    {
-        return await (from a in context.StreetPetAnnouncements.AsNoTracking()
-            join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
-            where a.Id == id
-            select new CreatedStreetPetAnnouncement {
-                Id = a.Id,
-                FullPlace = a.FullPlace.Value,
-                District = a.District.Value,
-                ImagePaths = a.Images.Select(image => image.Path).ToArray(),
-                Creator = AnnouncementCreator.From(u),
-                PetType = a.PetType,
-                Type = a.Type,
-                Location = Coordinates.From(a.Location),
-                EventDate = a.EventDate,
-                CreatedAt = a.CreatedAt,
-            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("StreetPetAnnouncement", nameof(id));
-    }
-    
     public async Task<StreetPetAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, 
         StreetPetAnnouncementFeedSpecification spec, CancellationToken ct)
     {
@@ -47,10 +28,11 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
             {
                 Id = fa.Id,
                 CreatedAt = fa.CreatedAt,
-                District = fa.District.Value,
+                District = fa.District,
+                Street = fa.Street,
+                House = fa.House,
                 MainImagePath = fa.Images[0].Path,
                 PetType = fa.PetType,
-                FullPlace =  fa.FullPlace.Value,
                 EventDate = fa.EventDate,
                 Location = Coordinates.From(fa.Location),
                 PlaceDescription = fa.PlaceDescription,
@@ -65,7 +47,8 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
             join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
             where a.Id == id
             select new StreetPetAnnouncementPage {
-                FullPlace = a.FullPlace.Value,
+                Street = a.Street,
+                House = a.House,
                 ImagePaths = a.Images.Select(image => image.Path).ToArray(),
                 Creator = AnnouncementCreator.From(u),
                 PetType = a.PetType,

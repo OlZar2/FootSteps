@@ -13,6 +13,11 @@ public static class IssueCodes
     {
         public const string AlreadyCancelled = "ALREADY_CANCELLED";
     }
+
+    public static class Coordinates
+    {
+        public const string CannotHandle = "CANNOT_HANDLE";
+    }
     
     public const string Required        = "REQUIRED";
     public const string InvalidFormat   = "INVALID_FORMAT";

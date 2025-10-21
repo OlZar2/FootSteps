@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using FluentValidation;
@@ -6,11 +7,14 @@ using FS.API.Middlewares;
 using FS.API.RequestsModels.Auth.Validators;
 using FS.API.Services.ClaimLogic.Implementations;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.API.Services.GeoLogic.Implementations;
+using FS.API.Services.GeoLogic.Interfaces;
 using FS.API.Services.ImageLogic;
 using FS.Application;
 using FS.JWT;
 using FS.Persistence;
 using FS.Persistence.Context;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -47,7 +51,8 @@ services
 
 services
     .AddTransient<IClaimService, ClaimService>()
-    .AddTransient<ImageService>();
+    .AddTransient<ImageService>()
+    .AddHttpClient<IGeocoder, YandexGeocoder>();
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(config =>
@@ -74,11 +79,23 @@ services
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();
-// services.AddFluentValidationAutoValidation(c =>
-// {
-//     c.DisableBuiltInModelValidation = true;
-// });
 var app = builder.Build();
+
+var enUS = new CultureInfo("en-US");
+
+CultureInfo.DefaultThreadCurrentCulture = enUS;
+CultureInfo.DefaultThreadCurrentUICulture = enUS;
+
+var locOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(enUS),
+    SupportedCultures = new[] { enUS },
+    SupportedUICultures = new[] { enUS }
+};
+
+locOptions.RequestCultureProviders.Clear();
+
+app.UseRequestLocalization(locOptions);
 
 using (var scope = app.Services.CreateScope())
 {

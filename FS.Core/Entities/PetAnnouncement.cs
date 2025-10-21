@@ -1,5 +1,4 @@
 ﻿using FS.Core.Enums;
-using FS.Core.ValueObjects;
 using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
@@ -17,10 +16,11 @@ public abstract class PetAnnouncement : AnimalAnnouncement
     public Gender Gender { get; private set; }
     
     protected PetAnnouncement(
-        Place fullPlace,
+        string? street,
+        string? house,
         List<Image> images,
         Guid creatorId,
-        District district,
+        string? district,
         PetType petType,
         Gender gender,
         string? color,
@@ -30,7 +30,17 @@ public abstract class PetAnnouncement : AnimalAnnouncement
         DateTime createdAt,
         DateTime eventDate,
         string? description) : 
-        base(fullPlace, images, creatorId, district, petType, location, createdAt, eventDate)
+        base(
+            street: street,
+            house: house,
+            images: images,
+            creatorId: creatorId,
+            district:district,
+            petType:petType,
+            location:location,
+            createdAt:createdAt,
+            eventDate:eventDate
+        )
     {
         IsCompleted = isCompleted;
         Description = description;

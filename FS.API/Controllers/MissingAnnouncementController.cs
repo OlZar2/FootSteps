@@ -154,6 +154,12 @@ public class MissingAnnouncementController(
         return NoContent();
     }
 
+    /// <summary>
+    /// Возвращает объявления о пропаже текущего пользователя
+    /// </summary>
+    /// <param name="lastDateTime">Дата и время последнего полученного обяъвления(для пагинации)</param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("me/feed")]
     [ProducesResponseType(typeof(MyAnnouncementFeed[]), StatusCodes.Status200OK)]

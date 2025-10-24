@@ -1,6 +1,7 @@
 ﻿using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
 using FS.Core.Stores;
+using FS.Persistence.Outbox;
 using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;
 using FS.Persistence.Services;
@@ -18,13 +19,16 @@ public static class DependencyInjection
             .AddScoped<IMissingAnnouncementRepository, MissingAnnouncementRepository>()
             .AddScoped<IFindAnnouncementRepository, FindAnnouncementRepository>()
             .AddScoped<IStreetPetAnnouncementRepository, StreetPetAnnouncementRepository>()
-            .AddScoped<ITransactionService, TransactionService>();
+            .AddScoped<ITransactionService, TransactionService>()
+            .AddScoped<IOutboxRepository, OutboxRepository>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
             .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
             .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
             .AddScoped<IUserQueryService, EFUserQueryService>();
+        
+        services.AddHostedService<OutboxDispatcher>();
 
         return services;
     }

@@ -5,6 +5,7 @@ public class Image
 {
     public Guid Id { get; private set; }
     public string Path { get; private set; }
+    public float[]? Embedding { get; set; }
 
     private Image(Guid id, string path)
     {

@@ -14,6 +14,7 @@ using FS.Application;
 using FS.JWT;
 using FS.Persistence;
 using FS.Persistence.Context;
+using FS.RabbitMq;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,8 @@ services
     .AddRepositories()
     .AddConfiguration(builder.Configuration)
     .AddJwtAuth(builder.Configuration);
+
+services.AddRabbitMq();
 
 services
     .AddTransient<IClaimService, ClaimService>()

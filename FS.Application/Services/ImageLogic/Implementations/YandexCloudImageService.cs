@@ -1,4 +1,5 @@
-﻿using Amazon.S3;
+﻿using System.Text.Json;
+using Amazon.S3;
 using Amazon.S3.Model;
 using FS.Application.DTOs.ImageDTOs;
 using FS.Application.Services.ImageLogic.Configurations;
@@ -7,6 +8,7 @@ using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Contracts.Error;
 using FS.Core.Entities;
 using FS.Core.Stores;
+using FS.Persistence.Repositories;
 using ImageMagick;
 using Microsoft.Extensions.Options;
 
@@ -17,6 +19,7 @@ public class YandexCloudImageService : IImageService
     private readonly AmazonS3Client _s3Client;
     private readonly string _bucketName;
     private readonly IImageRepository _imageRepository;
+    private readonly IOutboxRepository _outboxRepository;
     
     private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -42,7 +45,10 @@ public class YandexCloudImageService : IImageService
         [".heif"] = "image/heif"
     };
 
-    public YandexCloudImageService(IOptions<S3StorageConfiguration> options, IImageRepository imageRepository)
+    public YandexCloudImageService(
+        IOptions<S3StorageConfiguration> options,
+        IImageRepository imageRepository,
+        IOutboxRepository outboxRepository)
     {
         var config = new AmazonS3Config
         {
@@ -60,6 +66,23 @@ public class YandexCloudImageService : IImageService
         _bucketName = options.Value.BucketName;
 
         _imageRepository = imageRepository;
+        _outboxRepository = outboxRepository;
+    }
+
+    public async Task<Image> CreateImageForAnnouncementAsync(
+        byte[] content,
+        CancellationToken ct,
+        string? imageName = null)
+    {
+        var image = await CreateImageAsync(content, ct, imageName);
+        
+        var outboxPayload = JsonSerializer.Serialize(new {
+            imageId = image.Id, imageUrl = $"http://79.141.79.120:5000/api/image/{image.Path}"
+        });
+        var outboxEvent = OutboxEvent.Create("image.embed.request", outboxPayload);
+        await _outboxRepository.AddAsync(outboxEvent, ct);
+
+        return image;
     }
 
     public async Task<Image> CreateImageAsync(byte[] content, CancellationToken ct, string? imageName = null)

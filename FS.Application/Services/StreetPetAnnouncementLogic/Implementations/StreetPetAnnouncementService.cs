@@ -31,7 +31,7 @@ public class StreetPetAnnouncementService(
             var images = new List<Image>();
             foreach (var image in data.Images)
             {
-                var createdImage = await imageService.CreateImageAsync(image.Content, ct, nameof(data.Images));
+                var createdImage = await imageService.CreateImageForAnnouncementAsync(image.Content, ct, nameof(data.Images));
                 images.Add(createdImage);
             }
 

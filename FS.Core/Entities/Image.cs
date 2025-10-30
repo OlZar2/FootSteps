@@ -1,11 +1,15 @@
-﻿namespace FS.Core.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Pgvector;
+
+namespace FS.Core.Entities;
 
 //TODO: переработать всю систему картинок. Надо сделать VO, а не агрегат
 public class Image
 {
     public Guid Id { get; private set; }
     public string Path { get; private set; }
-    public float[]? Embedding { get; set; }
+    [Column(TypeName = "vector(512)")]
+    public Vector? Embedding { get; set; }
 
     private Image(Guid id, string path)
     {

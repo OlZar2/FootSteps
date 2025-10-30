@@ -2,7 +2,7 @@
 
 namespace FS.Application.Interfaces.Events;
 
-public record EmbedRequest(
-    [property: JsonPropertyName("imageId")] string ImageId,
+public record SearchRequestEvent(
+    [property: JsonPropertyName("imageId")] string SearchId,
     [property: JsonPropertyName("imageUrl")] string ImageUrl
 );

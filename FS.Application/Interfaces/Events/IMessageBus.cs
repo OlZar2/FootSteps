@@ -3,4 +3,6 @@
 public interface IMessageBus
 {
     Task PublishEmbedRequestAsync(EmbedRequest req, CancellationToken ct = default);
+
+    Task PublishSearchRequestAsync(SearchRequestEvent req, CancellationToken ct = default);
 }

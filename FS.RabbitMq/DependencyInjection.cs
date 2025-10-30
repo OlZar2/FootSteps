@@ -8,8 +8,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddRabbitMq(this IServiceCollection services)
     {
-        services.AddSingleton<IMessageBus, RabbitMqPublisher>();
-        services.AddHostedService<EmbedResponseConsumer>();
+        services.AddSingleton<IMessageBus, RabbitMqPublisher>()
+            .AddHostedService<EmbedResponseConsumer>()
+            .AddHostedService<SearchResponseConsumer>();
         
         return services;
     }

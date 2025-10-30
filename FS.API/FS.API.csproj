@@ -32,6 +32,7 @@
       <ProjectReference Include="..\FS.Migrations\FS.Migrations.csproj" />
       <ProjectReference Include="..\FS.Persistence\FS.Persistence.csproj" />
       <ProjectReference Include="..\FS.RabbitMq\FS.RabbitMq.csproj" />
+      <ProjectReference Include="..\FS.SignalR\FS.SignalR.csproj" />
     </ItemGroup>
 
     <ItemGroup>

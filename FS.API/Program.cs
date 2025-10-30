@@ -15,6 +15,7 @@ using FS.JWT;
 using FS.Persistence;
 using FS.Persistence.Context;
 using FS.RabbitMq;
+using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,8 @@ services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
         x =>
         {
+            var test = builder.Configuration.GetConnectionString("DefaultConnection");
+            x.UseVector();
             x.UseNetTopologySuite();
             x.MigrationsAssembly("FS.Migrations");
         }));
@@ -56,6 +59,8 @@ services
     .AddTransient<IClaimService, ClaimService>()
     .AddTransient<ImageService>()
     .AddHttpClient<IGeocoder, YandexGeocoder>();
+
+services.AddSignalR();
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(config =>
@@ -82,6 +87,19 @@ services
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();
+
+services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5500")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 var enUS = new CultureInfo("en-US");
@@ -97,6 +115,11 @@ var locOptions = new RequestLocalizationOptions
 };
 
 locOptions.RequestCultureProviders.Clear();
+
+app.UseCors("DevCors");
+
+app.MapHub<SearchAnnouncementsHub>("/hubs/search-announcements")
+    .RequireAuthorization();;
 
 app.UseRequestLocalization(locOptions);
 

@@ -16,7 +16,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MissingAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new StreetPetAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new SearchRequestConfiguration());
 
+        modelBuilder.HasPostgresExtension("vector");
+        
         base.OnModelCreating(modelBuilder);
     }
     
@@ -28,4 +31,5 @@ public class ApplicationDbContext : DbContext
     public DbSet<StreetPetAnnouncement> StreetPetAnnouncements { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<OutboxEvent> OutboxEvents { get; set; } = null!;
+    public DbSet<SearchRequest> SearchRequests { get; set; } = null!;
 }

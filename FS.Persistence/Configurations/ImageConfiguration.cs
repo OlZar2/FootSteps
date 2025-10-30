@@ -11,5 +11,8 @@ public class ImageConfiguration: IEntityTypeConfiguration<Image>
         builder.ToTable("Images");
         
         builder.HasKey(i => i.Id);
+        
+        builder.Property(x => x.Embedding)
+            .HasColumnType("vector(512)");
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using FS.Application.Interfaces.Events;
+using FS.Application.Services.SearchLogic.Implementations;
+using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +46,21 @@ public sealed class OutboxDispatcher(IServiceProvider sp, ILogger<OutboxDispatch
                         {
                             var req = JsonSerializer.Deserialize<EmbedRequest>(e.Payload)!;
                             await bus.PublishEmbedRequestAsync(req, ct);
+                        }
+                        else if (e.Type == "image.search.match")
+                        {
+                            var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
+                            var req = JsonSerializer.Deserialize<SearchOutboxEvent>(e.Payload)!;
+                            await searchService.DoSearch(req.SearchId, ct);
+                        }
+                        else if (e.Type == "image.search.request")
+                        {
+                            var req = JsonSerializer.Deserialize<SearchRequestEvent>(e.Payload)!;
+                            await bus.PublishSearchRequestAsync(req, ct);
+                        }
+                        else
+                        {
+                            log.LogError("Unknown outbox event type: {EType}", e.Type);
                         }
                         e.MarkAsPublished();
                     }

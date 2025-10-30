@@ -15,4 +15,6 @@ public interface IImageService
     Task<ImageResponseInfo> DownloadFileAsync(string key, CancellationToken ct);
     
     Task DeleteImageAsync(Guid id, string imagePath, CancellationToken ct);
+
+    Task<string> PutInS3(byte[] content, CancellationToken ct, string? imageName = null);
 }

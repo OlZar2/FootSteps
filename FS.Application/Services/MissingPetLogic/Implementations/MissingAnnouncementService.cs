@@ -45,6 +45,7 @@ public class MissingAnnouncementService(
             Gender = a.Gender,
             MainImagePath = a.Images[0].Path,
             Description = a.Description,
+            Breed = a.Breed,
         }).ToArray();
         
         return response;

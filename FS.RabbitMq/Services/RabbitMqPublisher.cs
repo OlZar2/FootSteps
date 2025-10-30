@@ -25,56 +25,50 @@ public sealed class RabbitMqPublisher(
     {
         if (_initialized) return;
 
-        var factory = new ConnectionFactory
-        {
-            Uri = new Uri(_rabbitMqOptions.Uri),
-            AutomaticRecoveryEnabled = true,
-            TopologyRecoveryEnabled = true
-        };
-
-        _conn = await factory.CreateConnectionAsync().ConfigureAwait(false);
-        _ch   = await _conn.CreateChannelAsync().ConfigureAwait(false);
-        
-        await _ch.ExchangeDeclareAsync(
-            exchange: _imageEmbeddingRabbitOptions.ExchangeName,
-            type: ExchangeType.Topic,
-            durable: true,
-            autoDelete: false,
-            arguments: null
-        ).ConfigureAwait(false);
-
-        _initialized = true;
-    }
-    
-    public async Task PublishEmbedRequestAsync(EmbedRequest req, CancellationToken ct = default)
-    {
-        await EnsureInitializedAsync().ConfigureAwait(false);
-
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(req));
-        
-        var props = new BasicProperties
-        {
-            DeliveryMode = DeliveryModes.Persistent,
-            CorrelationId = req.ImageId,
-            ContentType = "application/json",
-        };
-        
-        await _pubLock.WaitAsync(ct).ConfigureAwait(false);
+        await _pubLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            await _ch.BasicPublishAsync(
+            if (_initialized) return; // double-check после захвата лока
+
+            var factory = new ConnectionFactory
+            {
+                Uri = new Uri(_rabbitMqOptions.Uri),
+                AutomaticRecoveryEnabled = true,
+                TopologyRecoveryEnabled  = true
+            };
+
+            _conn = await factory.CreateConnectionAsync().ConfigureAwait(false);
+            _ch   = await _conn.CreateChannelAsync().ConfigureAwait(false);
+
+            await _ch.ExchangeDeclareAsync(
                 exchange: _imageEmbeddingRabbitOptions.ExchangeName,
-                routingKey: _imageEmbeddingRabbitOptions.RequestKey,
-                mandatory: false,
-                basicProperties: props,
-                body: body, cancellationToken: ct
+                type: ExchangeType.Topic,
+                durable: true,
+                autoDelete: false,
+                arguments: null
             ).ConfigureAwait(false);
+
+            _initialized = true;
         }
         finally
         {
             _pubLock.Release();
         }
     }
+    
+    public Task PublishEmbedRequestAsync(EmbedRequest req, CancellationToken ct = default)
+        => PublishInternalAsync(
+            message: req,
+            routingKey: _imageEmbeddingRabbitOptions.RequestKey,
+            correlationId: req.ImageId,
+            ct);
+
+    public Task PublishSearchRequestAsync(SearchRequestEvent req, CancellationToken ct = default)
+        => PublishInternalAsync(
+            message: req,
+            routingKey: _imageEmbeddingRabbitOptions.SearchRequestKey,
+            correlationId: req.SearchId,
+            ct);
 
     public async ValueTask DisposeAsync()
     {
@@ -84,5 +78,40 @@ public sealed class RabbitMqPublisher(
         if (_ch is IAsyncDisposable adCh) await adCh.DisposeAsync();
         _conn?.Dispose();
         _pubLock.Dispose();
+    }
+    
+    private async Task PublishInternalAsync<T>(
+        T message,
+        string routingKey,
+        string correlationId,
+        CancellationToken ct)
+    {
+        await EnsureInitializedAsync().ConfigureAwait(false);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+
+        var props = new BasicProperties
+        {
+            DeliveryMode = DeliveryModes.Persistent,
+            CorrelationId = correlationId,
+            ContentType = "application/json",
+        };
+
+        await _pubLock.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            await _ch.BasicPublishAsync(
+                exchange: _imageEmbeddingRabbitOptions.ExchangeName,
+                routingKey: routingKey,
+                mandatory: false, // можно сделать true, см. выше
+                basicProperties: props,
+                body: body,
+                cancellationToken: ct
+            ).ConfigureAwait(false);
+        }
+        finally
+        {
+            _pubLock.Release();
+        }
     }
 }

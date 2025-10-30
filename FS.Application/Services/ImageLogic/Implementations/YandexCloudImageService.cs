@@ -84,6 +84,22 @@ public class YandexCloudImageService : IImageService
 
         return image;
     }
+    
+    public async Task<Image> CreateImageForSearchRequestAsync(
+        byte[] content,
+        CancellationToken ct,
+        string? imageName = null)
+    {
+        var image = await CreateImageAsync(content, ct, imageName);
+        
+        var outboxPayload = JsonSerializer.Serialize(new {
+            imageId = image.Id, imageUrl = $"http://79.141.79.120:5000/api/image/{image.Path}"
+        });
+        var outboxEvent = OutboxEvent.Create("image.embed.request", outboxPayload);
+        await _outboxRepository.AddAsync(outboxEvent, ct);
+
+        return image;
+    }
 
     public async Task<Image> CreateImageAsync(byte[] content, CancellationToken ct, string? imageName = null)
     {
@@ -110,6 +126,30 @@ public class YandexCloudImageService : IImageService
         await _imageRepository.AddAsync(image, ct);
 
         return image;
+    }
+
+    public async Task<string> PutInS3(byte[] content, CancellationToken ct, string? imageName = null)
+    {
+        var (ext, mime) = DetectImage(content);
+        if (!AllowedImageExtensions.Contains(ext))
+            throw new ImageValidationException(
+                IssueCodes.File.UnsupportedFormat,
+                "Поддерживаются только JPG и PNG.",
+                imageName);
+
+        using MemoryStream memoryStream = new(content);
+
+        var request = new PutObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = Guid.NewGuid() + ext,
+            InputStream = memoryStream,
+            ContentType = mime,
+        };
+
+        await _s3Client.PutObjectAsync(request, ct);
+
+        return request.Key;
     }
 
     private static (string ExtWithDot, string Mime) DetectImage(byte[] content, string? imageName = null)

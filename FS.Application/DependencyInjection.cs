@@ -1,5 +1,6 @@
 ﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.DomainPolicies.UserPolicies;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.AuthLogic.Implementations;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.FindAnnouncementLogic.Implementations;
@@ -8,6 +9,8 @@ using FS.Application.Services.ImageLogic.Implementations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Implementations;
 using FS.Application.Services.MissingPetLogic.Interfaces;
+using FS.Application.Services.SearchLogic.Implementations;
+using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Application.Services.UserLogic.Implementations;
@@ -31,7 +34,8 @@ public static class DependencyInjection
             .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>()
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()
             .AddScoped<IStreetPetAnnouncementService, StreetPetAnnouncementService>()
-            .AddScoped<IUserService, UserService>();
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<ISearchService, SearchService>();
 
         services
             .AddScoped<IEmailUniqueService, EmailUniqueService>();

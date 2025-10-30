@@ -19,4 +19,6 @@ public record FindAnnouncementFeed
     public required DateTime EventDate { get; init; }
     
     public required string? Description { get; init; }
+    
+    public required string? Breed { get; init; }
 }

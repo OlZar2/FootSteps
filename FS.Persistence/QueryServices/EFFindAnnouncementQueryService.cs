@@ -35,6 +35,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 MainImagePath = fa.Images[0].Path,
                 PetType = fa.PetType,
                 EventDate = fa.EventDate,
+                Breed = fa.Breed,
             })
             .AsNoTracking()
             .ToArrayAsync(ct);
@@ -42,7 +43,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
     
     public async Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
-        return await (from a in context.MissingAnnouncements.AsNoTracking()
+        return await (from a in context.FindAnnouncements.AsNoTracking()
             join u in context.Users.Include(u=> u.AvatarImage).AsNoTracking() on a.CreatorId equals u.Id
             where a.Id == id
             select new FindAnnouncementPage {
@@ -60,7 +61,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 Location = Coordinates.From(a.Location),
                 EventDate = a.EventDate,
                 Description = a.Description,
-            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("MissingAnnouncement", nameof(id));
+            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(FindAnnouncement), nameof(id));
     }
     
     public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct)

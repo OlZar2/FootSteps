@@ -20,15 +20,18 @@ public static class DependencyInjection
             .AddScoped<IFindAnnouncementRepository, FindAnnouncementRepository>()
             .AddScoped<IStreetPetAnnouncementRepository, StreetPetAnnouncementRepository>()
             .AddScoped<ITransactionService, TransactionService>()
-            .AddScoped<IOutboxRepository, OutboxRepository>();
+            .AddScoped<IOutboxRepository, OutboxRepository>()
+            .AddScoped<ISearchRequestRepository, EFSearchRequestRepository>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
             .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
             .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
-            .AddScoped<IUserQueryService, EFUserQueryService>();
+            .AddScoped<IUserQueryService, EFUserQueryService>()
+            .AddScoped<ISearchQueryService, EFSearchQueryService>();
         
-        services.AddHostedService<OutboxDispatcher>();
+        services
+            .AddHostedService<OutboxDispatcher>();
 
         return services;
     }

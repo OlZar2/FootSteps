@@ -2,7 +2,8 @@
 
 namespace FS.Application.Interfaces.Events;
 
-public record EmbedResponse(
-    [property: JsonPropertyName("imageId")] string ImageId,
+public record SearchResponse
+(
+    [property: JsonPropertyName("searchId")] string SearchId,
     [property: JsonPropertyName("embedding")] float[]? Embedding
 );

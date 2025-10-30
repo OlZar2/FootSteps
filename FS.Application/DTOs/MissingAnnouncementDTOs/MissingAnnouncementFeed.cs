@@ -19,4 +19,6 @@ public record MissingAnnouncementFeed
     public required Gender Gender { get; init; }
     
     public required string? Description { get; init; }
+    
+    public required string? Breed { get; init; }
 }

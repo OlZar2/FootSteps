@@ -5,6 +5,7 @@ using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Core.Entities;
+using FS.Core.Enums;
 using FS.Core.Specifications;
 using FS.Core.Stores;
 using NetTopologySuite;
@@ -31,7 +32,11 @@ public class StreetPetAnnouncementService(
             var images = new List<Image>();
             foreach (var image in data.Images)
             {
-                var createdImage = await imageService.CreateImageForAnnouncementAsync(image.Content, ct, nameof(data.Images));
+                var createdImage = await imageService.CreateImageForAnnouncementAsync(
+                    image.Content,
+                    AnnouncementType.Street,
+                    ct,
+                    nameof(data.Images));
                 images.Add(createdImage);
             }
 
@@ -71,5 +76,13 @@ public class StreetPetAnnouncementService(
         var response = await streetPetAnnouncementQueryService.GetForPageByIdAsync(id, ct);
         
         return response;
+    }
+
+    public async Task UpdateSimilarAnnouncementAsync(
+        Guid missingAnnouncementImageId,
+        CancellationToken ct)
+    {
+        var mi
+        var similarStreetPetAnnouncements 
     }
 }

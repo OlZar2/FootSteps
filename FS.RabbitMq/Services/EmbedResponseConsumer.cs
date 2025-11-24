@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
 using FS.Application.Interfaces.Events;
+using FS.Application.Services.ImageLogic.Interfaces;
+using FS.Core.Enums;
 using FS.Core.Stores;
 using FS.RabbitMq.Options;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,15 +82,13 @@ public sealed class EmbedResponseConsumer(
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             using var scope = serviceProvider.CreateScope();
-            var imageRepository = scope.ServiceProvider.GetRequiredService<IImageRepository>();
+            var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
 
             Guid.TryParse(res.ImageId, out var imageGuid);
-            var entity = await imageRepository.GetByIdAsync(imageGuid, CancellationToken.None);
-            if (entity.Embedding == null)
-            {
-                entity.Embedding = new Pgvector.Vector(res.Embedding);
-                await imageRepository.UpdateAsync(entity, CancellationToken.None);
-            }
+            var vector = new Pgvector.Vector(res.Embedding);
+            
+            //TODO: транзакция
+            await imageService.UpdateEmbeddingAsync(imageGuid, vector, res.AnnouncementType, CancellationToken.None);
 
             if (_ch is not null)
                 await _ch.BasicAckAsync(ea.DeliveryTag, multiple: false);

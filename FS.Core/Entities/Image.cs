@@ -3,7 +3,7 @@ using Pgvector;
 
 namespace FS.Core.Entities;
 
-//TODO: переработать всю систему картинок. Надо сделать VO, а не агрегат
+//TODO: переработать всю систему картинок. Надо сделать Entity, а не агрегат
 public class Image
 {
     public Guid Id { get; private set; }
@@ -27,5 +27,10 @@ public class Image
         var path = id + ext;
 
         return new Image(id, path);
+    }
+    
+    public void SetEmbedding(Vector embedding)
+    {
+        Embedding = embedding;
     }
 }

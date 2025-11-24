@@ -14,4 +14,6 @@ public interface ISearchService
         CancellationToken ct);
 
     Task RequestSearchAsync(SearchRequestDto searchRequestDto, CancellationToken ct);
+
+    Task SetSearchEmbeddingAsync(Guid searchId, float[] vector, CancellationToken ct);
 }

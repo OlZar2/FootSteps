@@ -38,4 +38,9 @@ public class SearchRequest
     {
         Results = results;
     }
+    
+    public void SetEmbedding(Vector embedding)
+    {
+        Embedding = embedding;
+    }
 }

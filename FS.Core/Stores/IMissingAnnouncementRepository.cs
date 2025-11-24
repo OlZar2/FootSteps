@@ -13,4 +13,6 @@ public interface IMissingAnnouncementRepository
     Task<MissingAnnouncement> GetByIdAsync(Guid id, CancellationToken ct);
     
     Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
+    
+    Task<MissingAnnouncement?> GetByImageIdAsync(Guid imageId, CancellationToken ct);
 }

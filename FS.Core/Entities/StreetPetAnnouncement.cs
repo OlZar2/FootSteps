@@ -5,7 +5,11 @@ namespace FS.Core.Entities;
 
 public class StreetPetAnnouncement : AnimalAnnouncement
 {
+    private readonly List<MissingAnnouncement> _similarMissingAnnouncements = [];
+    
     public string? PlaceDescription  { get; private set; }
+    
+    public IReadOnlyList<MissingAnnouncement> SimilarMissingAnnouncements => _similarMissingAnnouncements;
 
     private StreetPetAnnouncement(
         string? street,
@@ -57,6 +61,11 @@ public class StreetPetAnnouncement : AnimalAnnouncement
             createdAt,
             eventDate,
             placeDescription);
+    }
+    
+    public void AddSimilarStreetPets(MissingAnnouncement[] similar)
+    {
+        _similarMissingAnnouncements.AddRange(similar);
     }
     
     // EF

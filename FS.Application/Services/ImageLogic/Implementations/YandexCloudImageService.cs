@@ -2,15 +2,18 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using FS.Application.DTOs.ImageDTOs;
+using FS.Application.Interfaces.Events;
 using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Contracts.Error;
 using FS.Core.Entities;
+using FS.Core.Enums;
 using FS.Core.Stores;
 using FS.Persistence.Repositories;
 using ImageMagick;
 using Microsoft.Extensions.Options;
+using Pgvector;
 
 namespace FS.Application.Services.ImageLogic.Implementations;
 
@@ -69,31 +72,19 @@ public class YandexCloudImageService : IImageService
         _outboxRepository = outboxRepository;
     }
 
+    //TODO: трназакция
     public async Task<Image> CreateImageForAnnouncementAsync(
         byte[] content,
+        AnnouncementType announcementType,
         CancellationToken ct,
         string? imageName = null)
     {
         var image = await CreateImageAsync(content, ct, imageName);
         
-        var outboxPayload = JsonSerializer.Serialize(new {
-            imageId = image.Id, imageUrl = $"http://79.141.79.120:5000/api/image/{image.Path}"
-        });
-        var outboxEvent = OutboxEvent.Create("image.embed.request", outboxPayload);
-        await _outboxRepository.AddAsync(outboxEvent, ct);
-
-        return image;
-    }
-    
-    public async Task<Image> CreateImageForSearchRequestAsync(
-        byte[] content,
-        CancellationToken ct,
-        string? imageName = null)
-    {
-        var image = await CreateImageAsync(content, ct, imageName);
-        
-        var outboxPayload = JsonSerializer.Serialize(new {
-            imageId = image.Id, imageUrl = $"http://79.141.79.120:5000/api/image/{image.Path}"
+        var outboxPayload = JsonSerializer.Serialize(new EmbedRequest{
+            ImageId = image.Id.ToString(),
+            ImageUrl = $"http://79.141.79.120:5000/api/image/{image.Path}",
+            AnnouncementType = announcementType,
         });
         var outboxEvent = OutboxEvent.Create("image.embed.request", outboxPayload);
         await _outboxRepository.AddAsync(outboxEvent, ct);
@@ -126,6 +117,29 @@ public class YandexCloudImageService : IImageService
         await _imageRepository.AddAsync(image, ct);
 
         return image;
+    }
+
+    //TODO: транзакиця
+    public async Task UpdateEmbeddingAsync(Guid imageId, Vector vector, AnnouncementType announcementType, CancellationToken ct)
+    {
+        var image = await _imageRepository.GetByIdAsync(imageId, ct);
+        image.SetEmbedding(vector);
+        
+        var outboxPayload = JsonSerializer.Serialize(new EmbedRequest{
+            ImageId = image.Id.ToString(),
+        });
+
+        if (announcementType == AnnouncementType.Street)
+        {
+            var outboxEvent = OutboxEvent.Create("image.find.similar.missing", outboxPayload);
+            await _outboxRepository.AddAsync(outboxEvent, ct);
+        }
+        if (announcementType == AnnouncementType.Missing)
+        {
+            var outboxEvent = OutboxEvent.Create("image.find.similar.find", outboxPayload);
+            await _outboxRepository.AddAsync(outboxEvent, ct);
+        }
+        await _imageRepository.UpdateAsync(image, ct);
     }
 
     public async Task<string> PutInS3(byte[] content, CancellationToken ct, string? imageName = null)

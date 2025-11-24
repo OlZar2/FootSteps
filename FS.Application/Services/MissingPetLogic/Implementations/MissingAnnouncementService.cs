@@ -6,6 +6,7 @@ using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Core.Entities;
+using FS.Core.Enums;
 using FS.Core.Specifications;
 using FS.Core.Stores;
 using NetTopologySuite;
@@ -17,7 +18,8 @@ public class MissingAnnouncementService(
     IMissingAnnouncementRepository missingAnnouncementRepository,
     IImageService imageService,
     ITransactionService transactionService,
-    IMissingAnnouncementQueryService missingAnnouncementQueryService) 
+    IMissingAnnouncementQueryService missingAnnouncementQueryService,
+    IStreetPetAnnouncementRepository streetPetAnnouncementRepository) 
     : IMissingAnnouncementService
 {
     public async Task<MissingAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
@@ -63,7 +65,11 @@ public class MissingAnnouncementService(
             var images = new List<Image>();
             foreach (var image in  data.Images)
             {
-                var createdImage = await imageService.CreateImageForAnnouncementAsync(image.Content, ct, nameof(data.Images));
+                var createdImage = await imageService.CreateImageForAnnouncementAsync(
+                    image.Content,
+                    AnnouncementType.Missing,
+                    ct,
+                    nameof(data.Images));
                 images.Add(createdImage);
             }
             
@@ -110,4 +116,13 @@ public class MissingAnnouncementService(
         DateTime lastDateTime,
         CancellationToken ct) =>
     await missingAnnouncementQueryService.GetFeedForUserAsync(creatorId, lastDateTime, ct);
+    
+    public async Task UpdateSimilarAnnouncementAsync(
+        Guid missingAnnouncementImageId,
+        CancellationToken ct)
+    {
+        var missingAnnouncement = await missingAnnouncementRepository.GetByImageIdAsync(missingAnnouncementImageId, ct);
+        var similarStreetPetAnnouncements = await streetPetAnnouncementRepository.GetSimilarStreetPets(
+            missingAnnouncement.I)
+    }
 }

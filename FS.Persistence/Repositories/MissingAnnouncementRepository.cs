@@ -40,6 +40,15 @@ public class MissingAnnouncementRepository(ApplicationDbContext context) : IMiss
         
         return missingAnnouncement;
     }
+    
+    public async Task<MissingAnnouncement?> GetByImageIdAsync(Guid imageId, CancellationToken ct)
+    {
+        var missingAnnouncement = await context.MissingAnnouncements
+            .Where(ma => ma.Images.Any(i => i.Id == imageId))
+            .FirstOrDefaultAsync(ct);
+        
+        return missingAnnouncement;
+    }
 
     public async Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct)
     {

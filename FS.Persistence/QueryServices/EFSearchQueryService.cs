@@ -11,6 +11,7 @@ namespace FS.Persistence.QueryServices;
 
 public class EFSearchQueryService(ApplicationDbContext context) : ISearchQueryService
 {
+    //TODO: сделать не топ 5, а по процентам
     public async Task<List<AnimalAnnouncement>> DoVectorSearch(Guid searchId, CancellationToken ct)
     {
         var search = await context.SearchRequests

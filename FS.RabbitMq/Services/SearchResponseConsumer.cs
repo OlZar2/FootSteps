@@ -1,7 +1,9 @@
 ﻿using System.Text;
 using System.Text.Json;
+using FS.Application.DTOs.OutboxDto;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.Events;
+using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Core.Entities;
 using FS.Core.Stores;
 using FS.Persistence.Repositories;
@@ -92,36 +94,23 @@ public sealed class SearchResponseConsumer(
             }
 
             using var scope = serviceProvider.CreateScope();
-            var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
-
-            await transactionService.ExecuteInTransactionAsync(async () =>
+            var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
+            
+            if (!Guid.TryParse(res.SearchId, out var searchId))
             {
-                var searchRequestRepository = scope.ServiceProvider.GetRequiredService<ISearchRequestRepository>();
-                var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
-
-                if (!Guid.TryParse(res.SearchId, out var searchId))
-                {
-                    logger.LogError("Invalid SearchId '{SearchId}' in message: {Json}", res.SearchId, json);
-                    if (_ch is not null)
-                        await _ch.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-                    return;
-                }
-
-                var entity = await searchRequestRepository.GetByIdAsync(searchId, CancellationToken.None);
-                if (entity.Embedding == null)
-                {
-                    entity.Embedding = new Vector(res.Embedding);
-                    await searchRequestRepository.UpdateAsync(entity, CancellationToken.None);
-                }
-
-                var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent{ SearchId = entity.Id });
-
-                var outboxEvent = OutboxEvent.Create(
-                    "image.search.match",
-                    jobPayload
-                );
-                await outboxRepository.AddAsync(outboxEvent, CancellationToken.None);
-            }, CancellationToken.None);
+                logger.LogError("Invalid SearchId '{SearchId}' in message: {Json}", res.SearchId, json);
+                if (_ch is not null)
+                    await _ch.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+                return;
+            }
+            if (res.Embedding is null)
+            {
+                logger.LogError("Embedding is null in message: {Json}", json);
+                if (_ch is not null)
+                    await _ch.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+                return;
+            }
+            await searchService.SetSearchEmbeddingAsync(searchId, res.Embedding, CancellationToken.None);
             
             if (_ch is not null)
                 await _ch.BasicAckAsync(ea.DeliveryTag, multiple: false);

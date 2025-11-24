@@ -28,7 +28,7 @@ public sealed class RabbitMqPublisher(
         await _pubLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            if (_initialized) return; // double-check после захвата лока
+            if (_initialized) return;
 
             var factory = new ConnectionFactory
             {

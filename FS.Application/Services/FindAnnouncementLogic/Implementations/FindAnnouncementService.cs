@@ -6,6 +6,7 @@ using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Core.Entities;
+using FS.Core.Enums;
 using FS.Core.Specifications;
 using FS.Core.Stores;
 using NetTopologySuite;
@@ -26,7 +27,8 @@ public class FindAnnouncementService(
             var images = new List<Image>();
             foreach (var image in data.Images)
             {
-                var createdImage = await imageService.CreateImageForAnnouncementAsync(image.Content, ct, nameof(data.Images));
+                var createdImage = await imageService.CreateImageForAnnouncementAsync(
+                    image.Content, AnnouncementType.Find, ct, nameof(data.Images));
                 images.Add(createdImage);
             }
 

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using FS.Application.DTOs.OutboxDto;
 using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.Events;
@@ -12,6 +13,7 @@ using FS.Core.Stores;
 using FS.Persistence.Repositories;
 using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Pgvector;
 
 namespace FS.Application.Services.SearchLogic.Implementations;
 
@@ -64,7 +66,21 @@ public class SearchService(
                 SearchId: searchRequest.Id.ToString(),
                 ImageUrl: $"http://79.141.79.120:5000/api/image/{path}"
             ));
+            
             var outboxEvent = OutboxEvent.Create("image.search.request", outboxPayload);
             await outboxRepository.AddAsync(outboxEvent, ct);
+        }, ct);
+
+    public async Task SetSearchEmbeddingAsync(Guid searchId, float[] vector, CancellationToken ct) =>
+        await transactionService.ExecuteInTransactionAsync(async () =>
+        {
+            var searchRequest = await searchRequestRepository.GetByIdAsync(searchId, ct);
+            var pgVector = new Vector(vector);
+            searchRequest.SetEmbedding(pgVector);
+
+            var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
+            var outboxEvent = OutboxEvent.Create("image.search.request", jobPayload);
+            await outboxRepository.AddAsync(outboxEvent, ct);
+            await searchRequestRepository.UpdateAsync(searchRequest, ct);
         }, ct);
 }

@@ -8,6 +8,7 @@ using FS.Core.Entities;
 using FS.Core.Enums;
 using FS.Core.Specifications;
 using FS.Core.Stores;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -17,7 +18,10 @@ public class StreetPetAnnouncementService(
     IStreetPetAnnouncementRepository streetPetAnnouncementRepository,
     ITransactionService transactionService,
     IImageService imageService,
-    IStreetPetAnnouncementQueryService streetPetAnnouncementQueryService)
+    IStreetPetAnnouncementQueryService streetPetAnnouncementQueryService,
+    IMissingAnnouncementRepository missingAnnouncementRepository,
+    IImageRepository imageRepository,
+    ILogger<StreetPetAnnouncementService> logger)
     : IStreetPetAnnouncementService
 {
     public async Task CreateAsync(CreateStreetPetAnnouncementData data, CancellationToken ct)
@@ -79,10 +83,27 @@ public class StreetPetAnnouncementService(
     }
 
     public async Task UpdateSimilarAnnouncementAsync(
-        Guid missingAnnouncementImageId,
+        Guid streetAnnouncementImageId,
         CancellationToken ct)
     {
-        var mi
-        var similarStreetPetAnnouncements 
+        var streetPetAnnouncement = await streetPetAnnouncementRepository.GetByImageIdAsync(
+            streetAnnouncementImageId,
+            ct);
+        if (streetPetAnnouncement is null)
+        {
+            logger.LogWarning("Announcement is null when finding similar announcements");
+            return;
+        }
+
+        var image = imageRepository.GetByIdAsync(streetAnnouncementImageId, ct).Result;
+        if (image.Embedding == null)
+        {
+            logger.LogWarning("Embedding is null when finding similar announcements");
+            return;
+        }
+        
+        var similarMissingAnnouncements = await missingAnnouncementRepository
+            .GetSimilarMissingAnnouncementAsync(image.Embedding, ct);
+        streetPetAnnouncement.AddSimilarMissingAnnouncements(similarMissingAnnouncements);
     }
 }

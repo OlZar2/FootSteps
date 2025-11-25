@@ -63,7 +63,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
             placeDescription);
     }
     
-    public void AddSimilarStreetPets(MissingAnnouncement[] similar)
+    public void AddSimilarMissingAnnouncements(MissingAnnouncement[] similar)
     {
         _similarMissingAnnouncements.AddRange(similar);
     }

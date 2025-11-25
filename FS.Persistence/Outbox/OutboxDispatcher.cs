@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using FS.Application.Interfaces.Events;
-using FS.Application.Services.SearchLogic.Implementations;
 using FS.Application.Services.SearchLogic.Interfaces;
+using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +57,13 @@ public sealed class OutboxDispatcher(IServiceProvider sp, ILogger<OutboxDispatch
                         {
                             var req = JsonSerializer.Deserialize<SearchRequestEvent>(e.Payload)!;
                             await bus.PublishSearchRequestAsync(req, ct);
+                        }
+                        else if (e.Type == "image.find.similar.missing")
+                        {
+                            var streetPetAnnouncementService = scope.ServiceProvider
+                                .GetRequiredService<IStreetPetAnnouncementService>();
+                            var req = JsonSerializer.Deserialize<EmbedRequest>(e.Payload)!;
+                            await streetPetAnnouncementService.UpdateSimilarAnnouncementAsync(req.ImageId, ct);
                         }
                         else
                         {

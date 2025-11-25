@@ -2,8 +2,6 @@
 using System.Text.Json;
 using FS.Application.Interfaces.Events;
 using FS.Application.Services.ImageLogic.Interfaces;
-using FS.Core.Enums;
-using FS.Core.Stores;
 using FS.RabbitMq.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

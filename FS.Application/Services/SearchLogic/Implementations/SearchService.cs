@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using FS.Application.DTOs.OutboxDto;
 using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.Events;

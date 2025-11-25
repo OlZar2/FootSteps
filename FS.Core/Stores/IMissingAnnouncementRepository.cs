@@ -1,5 +1,6 @@
 ﻿using FS.Core.Entities;
 using FS.Core.Specifications;
+using Pgvector;
 
 namespace FS.Core.Stores;
 
@@ -13,6 +14,6 @@ public interface IMissingAnnouncementRepository
     Task<MissingAnnouncement> GetByIdAsync(Guid id, CancellationToken ct);
     
     Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
-    
-    Task<MissingAnnouncement?> GetByImageIdAsync(Guid imageId, CancellationToken ct);
+
+     Task<MissingAnnouncement[]> GetSimilarMissingAnnouncementAsync(Vector vector, CancellationToken ct);
 }

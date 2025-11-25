@@ -11,4 +11,6 @@ public interface IStreetPetAnnouncementService
         CancellationToken ct);
 
     Task<StreetPetAnnouncementPage> GetPageByIdAsync(Guid id, CancellationToken ct);
+
+    Task UpdateSimilarAnnouncementAsync(Guid streetAnnouncementImageId, CancellationToken ct);
 }

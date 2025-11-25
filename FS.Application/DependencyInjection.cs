@@ -1,6 +1,5 @@
 ﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.DomainPolicies.UserPolicies;
-using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.AuthLogic.Implementations;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.FindAnnouncementLogic.Implementations;

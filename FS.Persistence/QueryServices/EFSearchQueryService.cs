@@ -5,7 +5,6 @@ using FS.Core.Entities;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Pgvector;
 
 namespace FS.Persistence.QueryServices;
 

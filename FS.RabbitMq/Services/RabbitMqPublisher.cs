@@ -60,7 +60,7 @@ public sealed class RabbitMqPublisher(
         => PublishInternalAsync(
             message: req,
             routingKey: _imageEmbeddingRabbitOptions.RequestKey,
-            correlationId: req.ImageId,
+            correlationId: req.ImageId.ToString(),
             ct);
 
     public Task PublishSearchRequestAsync(SearchRequestEvent req, CancellationToken ct = default)

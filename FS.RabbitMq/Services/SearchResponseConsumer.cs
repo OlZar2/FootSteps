@@ -1,18 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
-using FS.Application.DTOs.OutboxDto;
-using FS.Application.Interfaces;
 using FS.Application.Interfaces.Events;
 using FS.Application.Services.SearchLogic.Interfaces;
-using FS.Core.Entities;
-using FS.Core.Stores;
-using FS.Persistence.Repositories;
 using FS.RabbitMq.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Pgvector;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 

@@ -116,13 +116,4 @@ public class MissingAnnouncementService(
         DateTime lastDateTime,
         CancellationToken ct) =>
     await missingAnnouncementQueryService.GetFeedForUserAsync(creatorId, lastDateTime, ct);
-    
-    public async Task UpdateSimilarAnnouncementAsync(
-        Guid missingAnnouncementImageId,
-        CancellationToken ct)
-    {
-        var missingAnnouncement = await missingAnnouncementRepository.GetByImageIdAsync(missingAnnouncementImageId, ct);
-        var similarStreetPetAnnouncements = await streetPetAnnouncementRepository.GetSimilarStreetPets(
-            missingAnnouncement.I)
-    }
 }

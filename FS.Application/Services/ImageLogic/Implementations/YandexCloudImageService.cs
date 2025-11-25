@@ -82,7 +82,7 @@ public class YandexCloudImageService : IImageService
         var image = await CreateImageAsync(content, ct, imageName);
         
         var outboxPayload = JsonSerializer.Serialize(new EmbedRequest{
-            ImageId = image.Id.ToString(),
+            ImageId = image.Id,
             ImageUrl = $"http://79.141.79.120:5000/api/image/{image.Path}",
             AnnouncementType = announcementType,
         });
@@ -126,17 +126,12 @@ public class YandexCloudImageService : IImageService
         image.SetEmbedding(vector);
         
         var outboxPayload = JsonSerializer.Serialize(new EmbedRequest{
-            ImageId = image.Id.ToString(),
+            ImageId = image.Id,
         });
 
         if (announcementType == AnnouncementType.Street)
         {
             var outboxEvent = OutboxEvent.Create("image.find.similar.missing", outboxPayload);
-            await _outboxRepository.AddAsync(outboxEvent, ct);
-        }
-        if (announcementType == AnnouncementType.Missing)
-        {
-            var outboxEvent = OutboxEvent.Create("image.find.similar.find", outboxPayload);
             await _outboxRepository.AddAsync(outboxEvent, ct);
         }
         await _imageRepository.UpdateAsync(image, ct);

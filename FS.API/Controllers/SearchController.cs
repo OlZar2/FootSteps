@@ -4,7 +4,6 @@ using FS.API.Errors;
 using FS.API.RequestsModels.Search;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.SearchDTOs;
-using FS.Application.DTOs.Shared;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Contracts.Error;
 using Microsoft.AspNetCore.Authorization;

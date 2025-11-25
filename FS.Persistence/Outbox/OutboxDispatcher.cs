@@ -1,8 +1,5 @@
-﻿using System.Text.Json;
-using FS.Application.Interfaces.Events;
-using FS.Application.Services.SearchLogic.Interfaces;
-using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
-using FS.Persistence.Context;
+﻿using FS.Persistence.Context;
+using FS.Persistence.Outbox.Handlers.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,7 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace FS.Persistence.Outbox;
 
-public sealed class OutboxDispatcher(IServiceProvider sp, ILogger<OutboxDispatcher> log, IMessageBus bus)
+public sealed class OutboxDispatcher(
+    IServiceProvider sp,
+    ILogger<OutboxDispatcher> log)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken ct)
@@ -38,37 +37,13 @@ public sealed class OutboxDispatcher(IServiceProvider sp, ILogger<OutboxDispatch
                     continue;
                 }
 
+                var outboxHandlerChain = scope.ServiceProvider.GetRequiredService<IOutboxHandler>();
+                
                 foreach (var e in events)
                 {
                     try
                     {
-                        if (e.Type == "image.embed.request")
-                        {
-                            var req = JsonSerializer.Deserialize<EmbedRequest>(e.Payload)!;
-                            await bus.PublishEmbedRequestAsync(req, ct);
-                        }
-                        else if (e.Type == "image.search.match")
-                        {
-                            var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
-                            var req = JsonSerializer.Deserialize<SearchOutboxEvent>(e.Payload)!;
-                            await searchService.DoSearch(req.SearchId, ct);
-                        }
-                        else if (e.Type == "image.search.request")
-                        {
-                            var req = JsonSerializer.Deserialize<SearchRequestEvent>(e.Payload)!;
-                            await bus.PublishSearchRequestAsync(req, ct);
-                        }
-                        else if (e.Type == "image.find.similar.missing")
-                        {
-                            var streetPetAnnouncementService = scope.ServiceProvider
-                                .GetRequiredService<IStreetPetAnnouncementService>();
-                            var req = JsonSerializer.Deserialize<EmbedRequest>(e.Payload)!;
-                            await streetPetAnnouncementService.UpdateSimilarAnnouncementAsync(req.ImageId, ct);
-                        }
-                        else
-                        {
-                            log.LogError("Unknown outbox event type: {EType}", e.Type);
-                        }
+                        await outboxHandlerChain.HandleAsync(e, ct);
                         e.MarkAsPublished();
                     }
                     catch (Exception ex)

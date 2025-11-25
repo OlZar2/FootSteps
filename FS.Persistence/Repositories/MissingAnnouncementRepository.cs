@@ -66,7 +66,7 @@ public class MissingAnnouncementRepository(ApplicationDbContext context) : IMiss
                         ) AS rn
                     FROM ""Images"" i
                     JOIN ""AnimalAnnouncements"" a ON a.""Id"" = i.""AnimalAnnouncementId""
-                    WHERE a.""Type"" = 2
+                    WHERE a.""Type"" = 1
                       AND (i.""Embedding"" <=> @embedding) <= @maxDistance
                 )
                 SELECT a.*

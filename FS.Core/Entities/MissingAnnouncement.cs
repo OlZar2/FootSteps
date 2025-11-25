@@ -8,7 +8,11 @@ namespace FS.Core.Entities;
 
 public class MissingAnnouncement : PetAnnouncement
 {
+    private readonly List<StreetPetAnnouncement> _similarStreetAnnouncements = [];
+    
     public string PetName { get; private set; }
+    
+    public IReadOnlyList<StreetPetAnnouncement> SimilarStreetAnnouncements => _similarStreetAnnouncements;
     
     public MissingAnnouncementDeleteReason DeleteReason { get; private set; }
     

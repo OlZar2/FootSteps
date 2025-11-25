@@ -17,10 +17,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new StreetPetAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new SearchRequestConfiguration());
-
-        modelBuilder.HasPostgresExtension("vector");
         
         base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.HasPostgresExtension("vector");
     }
     
     public DbSet<AnimalAnnouncement> AnimalAnnouncements { get; set; } = null!;

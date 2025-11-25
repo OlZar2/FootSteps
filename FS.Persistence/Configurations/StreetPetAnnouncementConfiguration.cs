@@ -10,5 +10,11 @@ public class StreetPetAnnouncementConfiguration : IEntityTypeConfiguration<Stree
     {
         builder.Property(sp => sp.Location)
             .HasColumnType("geometry(Point,4326)");
+        
+        builder.HasMany(sp => sp.SimilarMissingAnnouncements)
+            .WithMany(ma => ma.SimilarStreetAnnouncements)
+            .UsingEntity(
+                "SimilarAnnouncements"
+            );
     }
 }

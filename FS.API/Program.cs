@@ -50,6 +50,7 @@ services
     .AddJwtServices()
     .AddServices()
     .AddRepositories()
+    .AddOutboxHandling()
     .AddConfiguration(builder.Configuration)
     .AddJwtAuth(builder.Configuration);
 

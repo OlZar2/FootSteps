@@ -35,8 +35,7 @@ public static class DependencyInjection
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()
             .AddScoped<IStreetPetAnnouncementService, StreetPetAnnouncementService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<ISearchService, SearchService>()
-            .AddScoped<IOutboxService, IOutboxService>();
+            .AddScoped<ISearchService, SearchService>();
 
         services
             .AddScoped<IEmailUniqueService, EmailUniqueService>();

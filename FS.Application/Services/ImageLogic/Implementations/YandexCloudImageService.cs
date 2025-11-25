@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using FS.Application.DTOs.ImageDTOs;
 using FS.Application.Interfaces.Events;
+using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Interfaces;
@@ -23,6 +24,7 @@ public class YandexCloudImageService : IImageService
     private readonly string _bucketName;
     private readonly IImageRepository _imageRepository;
     private readonly IOutboxRepository _outboxRepository;
+    private readonly ITransactionFactory _transactionFactory;
     
     private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -51,7 +53,8 @@ public class YandexCloudImageService : IImageService
     public YandexCloudImageService(
         IOptions<S3StorageConfiguration> options,
         IImageRepository imageRepository,
-        IOutboxRepository outboxRepository)
+        IOutboxRepository outboxRepository,
+        ITransactionFactory transactionFactory)
     {
         var config = new AmazonS3Config
         {
@@ -70,15 +73,17 @@ public class YandexCloudImageService : IImageService
 
         _imageRepository = imageRepository;
         _outboxRepository = outboxRepository;
+        _transactionFactory = transactionFactory;
     }
-
-    //TODO: трназакция
+    
     public async Task<Image> CreateImageForAnnouncementAsync(
         byte[] content,
         AnnouncementType announcementType,
         CancellationToken ct,
         string? imageName = null)
     {
+        await using var transaction = await _transactionFactory.BeginAsync(ct);
+        
         var image = await CreateImageAsync(content, ct, imageName);
         
         var outboxPayload = JsonSerializer.Serialize(new EmbedRequest{
@@ -88,6 +93,8 @@ public class YandexCloudImageService : IImageService
         });
         var outboxEvent = OutboxEvent.Create("image.embed.request", outboxPayload);
         await _outboxRepository.AddAsync(outboxEvent, ct);
+        
+        await transaction.CommitAsync(ct);
 
         return image;
     }
@@ -118,10 +125,11 @@ public class YandexCloudImageService : IImageService
 
         return image;
     }
-
-    //TODO: транзакиця
+    
     public async Task UpdateEmbeddingAsync(Guid imageId, Vector vector, AnnouncementType announcementType, CancellationToken ct)
     {
+        await using var transaction = await _transactionFactory.BeginAsync(ct);
+        
         var image = await _imageRepository.GetByIdAsync(imageId, ct);
         image.SetEmbedding(vector);
         
@@ -135,6 +143,8 @@ public class YandexCloudImageService : IImageService
             await _outboxRepository.AddAsync(outboxEvent, ct);
         }
         await _imageRepository.UpdateAsync(image, ct);
+
+        await transaction.CommitAsync(ct);
     }
 
     public async Task<string> PutInS3(byte[] content, CancellationToken ct, string? imageName = null)

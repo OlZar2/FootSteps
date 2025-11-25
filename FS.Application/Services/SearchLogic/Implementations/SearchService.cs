@@ -3,6 +3,7 @@ using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.Events;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Contracts.Error;
@@ -22,7 +23,7 @@ public class SearchService(
     IHubContext<SearchAnnouncementsHub> searchAnnouncementsHub,
     IImageService imageService,
     IOutboxRepository outboxRepository,
-    ITransactionService transactionService) : ISearchService
+    ITransactionFactory transactionFactory) : ISearchService
 {
     public async Task DoSearch(Guid searchId, CancellationToken ct)
     {
@@ -53,33 +54,39 @@ public class SearchService(
         return await searchQueryService.GetSearchResultsBySearchRequestId(searchRequestId, ct);
     }
 
-    public async Task RequestSearchAsync(SearchRequestDto searchRequestDto, CancellationToken ct) =>
-        await transactionService.ExecuteInTransactionAsync(async () =>
-        {
-            var path = await imageService.PutInS3(searchRequestDto.Image, ct);
-            var searchRequest = SearchRequest.Create(path, searchRequestDto.UserId);
+    public async Task RequestSearchAsync(SearchRequestDto searchRequestDto, CancellationToken ct)
+    {
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+        
+        var path = await imageService.PutInS3(searchRequestDto.Image, ct);
+        var searchRequest = SearchRequest.Create(path, searchRequestDto.UserId);
 
-            await searchRequestRepository.AddAsync(searchRequest, ct);
+        await searchRequestRepository.AddAsync(searchRequest, ct);
 
-            var outboxPayload = JsonSerializer.Serialize(new SearchRequestEvent(
-                SearchId: searchRequest.Id.ToString(),
-                ImageUrl: $"http://79.141.79.120:5000/api/image/{path}"
-            ));
-            
-            var outboxEvent = OutboxEvent.Create("image.search.request", outboxPayload);
-            await outboxRepository.AddAsync(outboxEvent, ct);
-        }, ct);
+        var outboxPayload = JsonSerializer.Serialize(new SearchRequestEvent(
+            SearchId: searchRequest.Id.ToString(),
+            ImageUrl: $"http://79.141.79.120:5000/api/image/{path}"
+        ));
 
-    public async Task SetSearchEmbeddingAsync(Guid searchId, float[] vector, CancellationToken ct) =>
-        await transactionService.ExecuteInTransactionAsync(async () =>
-        {
-            var searchRequest = await searchRequestRepository.GetByIdAsync(searchId, ct);
-            var pgVector = new Vector(vector);
-            searchRequest.SetEmbedding(pgVector);
+        var outboxEvent = OutboxEvent.Create("image.search.request", outboxPayload);
+        await outboxRepository.AddAsync(outboxEvent, ct);
+        
+        await transaction.CommitAsync(ct);
+    }
 
-            var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
-            var outboxEvent = OutboxEvent.Create("image.search.request", jobPayload);
-            await outboxRepository.AddAsync(outboxEvent, ct);
-            await searchRequestRepository.UpdateAsync(searchRequest, ct);
-        }, ct);
+    public async Task SetSearchEmbeddingAsync(Guid searchId, float[] vector, CancellationToken ct)
+    {
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+        
+        var searchRequest = await searchRequestRepository.GetByIdAsync(searchId, ct);
+        var pgVector = new Vector(vector);
+        searchRequest.SetEmbedding(pgVector);
+
+        var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
+        var outboxEvent = OutboxEvent.Create("image.search.request", jobPayload);
+        await outboxRepository.AddAsync(outboxEvent, ct);
+        await searchRequestRepository.UpdateAsync(searchRequest, ct);
+        
+        await transaction.CommitAsync(ct);
+    }
 }

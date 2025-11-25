@@ -2,6 +2,7 @@
 using FS.Application.Exceptions;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Interfaces;
@@ -19,40 +20,41 @@ public class AuthService(
     IPasswordHasher passwordHasher,
     IUserRepository userRepository,
     IImageService imageService,
-    ITransactionService transactionService,
+    ITransactionFactory transactionFactory,
     IEmailUniqueService emailUniqueService,
     IUserQueryService userQueryService)
     : IAuthService
 {
     public async Task<CreatedUserData> RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct)
     {
-        return await transactionService.ExecuteInTransactionAsync(async () =>
-        {
-            var emailVo = Email.Create(userRegisterData.Email);
-            var fullNameVo = FullName
-                .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
-            var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
-            
-            var image = userRegisterData.AvatarImage != null ? await imageService
-                .CreateImageAsync(userRegisterData.AvatarImage.Content, ct, nameof(RegisterData.AvatarImage)) : null;
-            
-            var userInitContacts =
-                userRegisterData.UserContacts?.Select(uc => new InitialContact(uc.ContactType, uc.Url))
-                    .ToArray() ?? [];
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+        
+        var emailVo = Email.Create(userRegisterData.Email);
+        var fullNameVo = FullName
+            .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
+        var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
+        
+        var image = userRegisterData.AvatarImage != null ? await imageService
+            .CreateImageAsync(userRegisterData.AvatarImage.Content, ct, nameof(RegisterData.AvatarImage)) : null;
+        
+        var userInitContacts =
+            userRegisterData.UserContacts?.Select(uc => new InitialContact(uc.ContactType, uc.Url))
+                .ToArray() ?? [];
 
-            var user = await User.RegisterAsync(
-                emailVo,
-                hashedPassword,
-                fullNameVo,
-                userRegisterData.Description,
-                image,
-                emailUniqueService,
-                userInitContacts, ct);
+        var user = await User.RegisterAsync(
+            emailVo,
+            hashedPassword,
+            fullNameVo,
+            userRegisterData.Description,
+            image,
+            emailUniqueService,
+            userInitContacts, ct);
 
-            await userRepository.CreateAsync(user, ct);
+        await userRepository.CreateAsync(user, ct);
+        
+        await transaction.CommitAsync(ct);
 
-            return CreatedUserData.From(user);
-        }, ct);
+        return CreatedUserData.From(user);
     }
 
     public async Task<JwtData> LoginAsync(LoginData loginData, CancellationToken ct)

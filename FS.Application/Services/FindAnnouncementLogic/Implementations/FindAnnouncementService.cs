@@ -3,6 +3,7 @@ using FS.Application.DTOs.FindAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Core.Entities;
@@ -17,40 +18,41 @@ namespace FS.Application.Services.FindAnnouncementLogic.Implementations;
 public class FindAnnouncementService(
     IFindAnnouncementRepository findAnnouncementRepository,
     IFindAnnouncementQueryService findAnnouncementQueryService,
-    ITransactionService transactionService,
+    ITransactionFactory transactionFactory,
     IImageService imageService) : IFindAnnouncementService
 {
     public async Task Create(CreateFindAnnouncementData data, CancellationToken ct)
     {
-        await transactionService.ExecuteInTransactionAsync(async () =>
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+        
+        var images = new List<Image>();
+        foreach (var image in data.Images)
         {
-            var images = new List<Image>();
-            foreach (var image in data.Images)
-            {
-                var createdImage = await imageService.CreateImageForAnnouncementAsync(
-                    image.Content, AnnouncementType.Find, ct, nameof(data.Images));
-                images.Add(createdImage);
-            }
+            var createdImage = await imageService.CreateImageForAnnouncementAsync(
+                image.Content, AnnouncementType.Find, ct, nameof(data.Images));
+            images.Add(createdImage);
+        }
 
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-            var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
+        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+        var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
 
-            var findAnnouncement = FindAnnouncement.Create(
-                street:data.Street,
-                house:data.House,
-                images,
-                data.CreatorId,
-                data.District,
-                data.PetType,
-                data.Gender,
-                data.Color,
-                data.Breed,
-                point,
-                data.EventDate,
-                data.Description);
-            
-            await findAnnouncementRepository.CreateAsync(findAnnouncement, ct);
-        }, ct);
+        var findAnnouncement = FindAnnouncement.Create(
+            street:data.Street,
+            house:data.House,
+            images,
+            data.CreatorId,
+            data.District,
+            data.PetType,
+            data.Gender,
+            data.Color,
+            data.Breed,
+            point,
+            data.EventDate,
+            data.Description);
+        
+        await findAnnouncementRepository.CreateAsync(findAnnouncement, ct);
+        
+        await transaction.CommitAsync(ct);
     }
 
     public async Task<FindAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,

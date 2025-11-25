@@ -1,5 +1,6 @@
 ﻿using FS.Application.DTOs.UserDTOs;
 using FS.Application.Interfaces;
+using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.UserLogic.Interfaces;
 using FS.Core.Policies.UserPolicies;
@@ -13,7 +14,7 @@ public class UserService(
     IUserRepository userRepository,
     IEditUserPolicy editUserPolicy,
     IImageService imageService,
-    ITransactionService transactionService) : IUserService
+    ITransactionFactory transactionFactory) : IUserService
 {
     public async Task UpdateUserInfoAsync(Guid actorId, UpdateUserInfo userInfo, CancellationToken ct)
     {
@@ -42,22 +43,23 @@ public class UserService(
 
     public async Task UpdateUserAvatarAsync(Guid actorId, UpdateUserAvatar updateUserAvatar, CancellationToken ct)
     {
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+        
         var user = await userRepository.GetByIdWithAvatarAsync(updateUserAvatar.UserId, ct);
+        
+        var image = updateUserAvatar.Avatar != null ?
+            await imageService.CreateImageAsync(updateUserAvatar.Avatar.Content, ct,
+                nameof(updateUserAvatar.Avatar)) : null;
 
-        await transactionService.ExecuteInTransactionAsync(async () =>
+        if (user.AvatarImage != null)
         {
-            var image = updateUserAvatar.Avatar != null ?
-                await imageService.CreateImageAsync(updateUserAvatar.Avatar.Content, ct,
-                    nameof(updateUserAvatar.Avatar)) : null;
+            await imageService.DeleteImageAsync(user.AvatarImage.Id, user.AvatarImage.Path, ct);
+        }
+        
+        user.UpdateAvatar(actorId, image, editUserPolicy);
+        
+        await userRepository.UpdateAsync(user, ct);
 
-            if (user.AvatarImage != null)
-            {
-                await imageService.DeleteImageAsync(user.AvatarImage.Id, user.AvatarImage.Path, ct);
-            }
-            
-            user.UpdateAvatar(actorId, image, editUserPolicy);
-            
-            await userRepository.UpdateAsync(user, ct);
-        }, ct);
+        await transaction.CommitAsync(ct);
     }
 }

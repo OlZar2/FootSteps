@@ -85,7 +85,6 @@ public sealed class EmbedResponseConsumer(
             Guid.TryParse(res.ImageId, out var imageGuid);
             var vector = new Pgvector.Vector(res.Embedding);
             
-            //TODO: транзакция
             await imageService.UpdateEmbeddingAsync(imageGuid, vector, res.AnnouncementType, CancellationToken.None);
 
             if (_ch is not null)

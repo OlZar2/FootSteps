@@ -3,6 +3,7 @@ using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Core.Entities;
@@ -17,9 +18,8 @@ namespace FS.Application.Services.MissingPetLogic.Implementations;
 public class MissingAnnouncementService(
     IMissingAnnouncementRepository missingAnnouncementRepository,
     IImageService imageService,
-    ITransactionService transactionService,
-    IMissingAnnouncementQueryService missingAnnouncementQueryService,
-    IStreetPetAnnouncementRepository streetPetAnnouncementRepository) 
+    ITransactionFactory transactionFactory,
+    IMissingAnnouncementQueryService missingAnnouncementQueryService) 
     : IMissingAnnouncementService
 {
     public async Task<MissingAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
@@ -55,42 +55,43 @@ public class MissingAnnouncementService(
 
     public async Task Create(CreateMissingAnnouncementData data, CancellationToken ct)
     {
-        await transactionService.ExecuteInTransactionAsync(async () =>
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+        
+        //TODO: может можно вынести в DI
+        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+        var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
+        
+        //TODO: сделать параллельно
+        var images = new List<Image>();
+        foreach (var image in  data.Images)
         {
-            //TODO: может можно вынести в DI
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-            var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
-            
-            //TODO: сделать параллельно
-            var images = new List<Image>();
-            foreach (var image in  data.Images)
-            {
-                var createdImage = await imageService.CreateImageForAnnouncementAsync(
-                    image.Content,
-                    AnnouncementType.Missing,
-                    ct,
-                    nameof(data.Images));
-                images.Add(createdImage);
-            }
-            
-            var missingAnnouncement = MissingAnnouncement.Create(
-                street: data.Street,
-                house: data.House,
-                images,
-                data.CreatorId,
-                data.District,
-                data.PetType,
-                data.Gender,
-                data.Color,
-                data.Breed,
-                point,
-                data.PetName,
-                data.EventDate,
-                data.Description
-            );
+            var createdImage = await imageService.CreateImageForAnnouncementAsync(
+                image.Content,
+                AnnouncementType.Missing,
+                ct,
+                nameof(data.Images));
+            images.Add(createdImage);
+        }
+        
+        var missingAnnouncement = MissingAnnouncement.Create(
+            street: data.Street,
+            house: data.House,
+            images,
+            data.CreatorId,
+            data.District,
+            data.PetType,
+            data.Gender,
+            data.Color,
+            data.Breed,
+            point,
+            data.PetName,
+            data.EventDate,
+            data.Description
+        );
 
-            await missingAnnouncementRepository.CreateAsync(missingAnnouncement, ct);
-        }, ct);
+        await missingAnnouncementRepository.CreateAsync(missingAnnouncement, ct);
+        
+        await transaction.CommitAsync(ct);
     }
 
     public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct) =>

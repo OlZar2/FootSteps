@@ -16,10 +16,17 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
             .Where(u => u.Id == id)
             .Select(u => new MeInfo
             {
+                Id = u.Id,
                 FirstName = u.FullName.FirstName,
                 SecondName = u.FullName.SecondName,
                 Patronymic = u.FullName.Patronymic,
                 AvatarPath = u.AvatarImage != null ? u.AvatarImage.Path : null,
+                Contacts = u.Contacts.Select(c => new MeContactData
+                {
+                    ContactType = c.Type,
+                    Url = c.Url,
+                }).ToArray(),
+                Description = u.Description,
             })
             .FirstOrDefaultAsync(ct)
             ?? throw new NotFoundException("User", id);

@@ -33,4 +33,6 @@ public record MissingAnnouncementPage
     public required string? Description { get; init; }
     
     public required string PetName { get; init; }
+
+    public SimilarMapAnnouncement[] SimilarAnnouncements { get; init; } = [];
 }

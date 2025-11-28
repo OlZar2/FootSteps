@@ -35,6 +35,16 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 EventDate = a.EventDate,
                 Description = a.Description,
                 PetName = a.PetName,
+                SimilarAnnouncements = a.SimilarStreetAnnouncements.Select(sa =>  new SimilarMapAnnouncement
+                {
+                    Id = sa.Id,
+                    Coordinates = new CoordinatesDto()
+                    {
+                        Latitude = sa.Location.Latitude,
+                        Longitude = sa.Location.Longitude
+                    },
+                    CreatedAt = sa.CreatedAt,
+                }).ToArray(),
             }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("MissingAnnouncement", nameof(id));
     }
 

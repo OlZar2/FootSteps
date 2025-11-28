@@ -1,5 +1,5 @@
 ﻿using FS.Application.Services.AuthLogic.Exceptions;
-using HW.Application.Services.AuthLogic.Interfaces;
+using FS.Application.Services.AuthLogic.Interfaces;
 
 namespace FS.Application.Services.AuthLogic.Implementations;
 

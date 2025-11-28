@@ -20,7 +20,8 @@ public class UserController(
     IUserService userService,
     IClaimService claimService,
     IValidator<UpdateUserInfoRM> updateUserInfoValidator,
-    IValidator<UpdateUserAvatarRM> updateUserAvatarValidator) : ControllerBase
+    IValidator<UpdateUserAvatarRM> updateUserAvatarValidator,
+    IValidator<UpdateUserLocationRM> updateUserLocationValidator) : ControllerBase
 {
     /// <summary>
     /// Обновить информацию о пользователе
@@ -85,5 +86,26 @@ public class UserController(
         };
         
         await userService.UpdateUserAvatarAsync(currentUserId, dto, ct);
+    }
+    
+    /// <summary>
+    /// Обновить последнее местоположение пользователя
+    /// </summary>
+    [Authorize]
+    [HttpPut("location")]
+    public async Task UpdateLastLocation(UpdateUserLocationRM request, CancellationToken ct)
+    {
+        await updateUserLocationValidator.ValidateAndThrowAsync(request, ct);
+        
+        var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
+
+        var coordinatesDto = new CoordinatesDto
+        {
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
+        };
+        
+        await userService.UpdateUserLocation(currentUserId, coordinatesDto, ct);
     }
 }

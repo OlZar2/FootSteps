@@ -1,0 +1,6 @@
+﻿namespace FS.Core.Enums.Notifications;
+
+public enum NotificationType
+{
+    MissingAnnouncementCreated
+}

@@ -8,7 +8,8 @@ using FS.Application.Services.ImageLogic.Implementations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Implementations;
 using FS.Application.Services.MissingPetLogic.Interfaces;
-using FS.Application.Services.OutboxLogic.Interfaces;
+using FS.Application.Services.NotificationLogic.Implementations;
+using FS.Application.Services.NotificationLogic.Interfaces;
 using FS.Application.Services.SearchLogic.Implementations;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
@@ -18,7 +19,6 @@ using FS.Application.Services.UserLogic.Interfaces;
 using FS.Core.Policies.AnnouncementPolicies;
 using FS.Core.Policies.UserPolicies;
 using FS.Core.Services;
-using HW.Application.Services.AuthLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FS.Application;
@@ -35,7 +35,8 @@ public static class DependencyInjection
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()
             .AddScoped<IStreetPetAnnouncementService, StreetPetAnnouncementService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<ISearchService, SearchService>();
+            .AddScoped<ISearchService, SearchService>()
+            .AddScoped<INotificationService, NotificationService>();
 
         services
             .AddScoped<IEmailUniqueService, EmailUniqueService>();

@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FS.Application\FS.Application.csproj" />
+      <ProjectReference Include="..\FS.Core\FS.Core.csproj" />
+    </ItemGroup>
+
 </Project>

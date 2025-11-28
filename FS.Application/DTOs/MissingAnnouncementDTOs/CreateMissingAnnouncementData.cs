@@ -1,6 +1,5 @@
 ﻿using FS.Application.DTOs.Shared;
 using FS.Core.Enums;
-using Coordinates = FS.Application.DTOs.Shared.Coordinates;
 
 namespace FS.Application.DTOs.MissingAnnouncementDTOs;
 
@@ -10,7 +9,7 @@ public record CreateMissingAnnouncementData
     public required string? House { get; init; }
     public required string? District { get; init; }
     
-    public required Coordinates Location { get; init; }
+    public required CoordinatesDto Location { get; init; }
     
     public required FileData[] Images  { get; init; }
     

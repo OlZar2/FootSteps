@@ -4,11 +4,11 @@ namespace FS.API.Services.GeoLogic.Interfaces;
 
 public interface IGeocoder
 {
-    Task<string?> GetHouseOrNull(Coordinates geoPoint, CancellationToken ct);
+    Task<string?> GetHouseOrNull(CoordinatesDto geoPoint, CancellationToken ct);
     
-    Task<string?> GetStreetOrNull(Coordinates geoPoint, CancellationToken ct);
+    Task<string?> GetStreetOrNull(CoordinatesDto geoPoint, CancellationToken ct);
 
-    Task<string?> GetDistrictOrNull(Coordinates geoPoint, CancellationToken ct);
+    Task<string?> GetDistrictOrNull(CoordinatesDto geoPoint, CancellationToken ct);
 
-    Task<string?> GetLocalityOrNull(Coordinates geoPoint, CancellationToken ct);
+    Task<string?> GetLocalityOrNull(CoordinatesDto geoPoint, CancellationToken ct);
 }

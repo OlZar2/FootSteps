@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using FS.Core.ValueObjects.Abstract;
+using FS.Core.Abstractions;
 
 namespace FS.Core.ValueObjects;
 

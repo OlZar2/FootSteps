@@ -1,15 +1,15 @@
 ﻿using FS.Persistence.Context;
-using FS.Persistence.Outbox.Handlers.Interfaces;
+using FS.Persistence.Outbox.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FS.Persistence.Outbox;
+namespace FS.Persistence.Outbox.Notifications;
 
-public sealed class OutboxDispatcher(
+public class NotificationsOutboxWorker(
     IServiceProvider sp,
-    ILogger<OutboxDispatcher> log)
+    ILogger<NotificationsOutboxWorker> log)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken ct)
@@ -21,34 +21,36 @@ public sealed class OutboxDispatcher(
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 
-                var events = await db.OutboxEvents
+                var notifications = await db.Notifications
                     .FromSqlRaw("""
-                                    SELECT * FROM "OutboxEvents"
-                                    WHERE "PublishedUtc" IS NULL
+                                    SELECT * FROM "Notifications"
+                                    WHERE "IsCompleted" IS FALSE
                                     ORDER BY "Id"
                                     FOR UPDATE SKIP LOCKED
                                     LIMIT 100
                                 """)
                     .ToListAsync(ct);
 
-                if (events.Count == 0)
+                //TODO: надо сделать чтобы слишком часто не отправлялось если что-то failed
+                if (notifications.Count == 0)
                 {
                     await Task.Delay(5000, ct);
                     continue;
                 }
 
-                var outboxHandlerChain = scope.ServiceProvider.GetRequiredService<IOutboxHandler>();
+                var notificationPipelineHandler = scope.ServiceProvider
+                    .GetRequiredService<INotificationPipelineHandler>();
                 
-                foreach (var e in events)
+                foreach (var notification in notifications)
                 {
                     try
                     {
-                        await outboxHandlerChain.HandleAsync(e, ct);
-                        e.MarkAsPublished();
+                        await notificationPipelineHandler.HandleNotificationAsync(notification, ct);
+                        notification.MarkAsCompleted();
                     }
                     catch (Exception ex)
                     {
-                        log.LogError(ex, "Outbox publish failed for event {Id}", e.Id);
+                        log.LogError(ex, "Event publish failed for event {Id}", notification.Id);
                     }
                 }
                 await db.SaveChangesAsync(ct);

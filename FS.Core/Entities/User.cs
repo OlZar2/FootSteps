@@ -4,6 +4,7 @@ using FS.Core.Policies.UserPolicies;
 using FS.Core.Services;
 using FS.Core.ValueObjects;
 using FS.Core.ValueObjects.Contacts;
+using NetTopologySuite.Geometries;
 
 namespace FS.Core.Entities;
 
@@ -12,7 +13,9 @@ public class User
     public Guid Id { get; private set; }
     
     private readonly List<UserContact> _contacts = [];
+    private readonly List<UserDevice> _userDevices = [];
     public IReadOnlyCollection<UserContact> Contacts => _contacts.AsReadOnly();
+    public IReadOnlyCollection<UserDevice> UserDevices => _userDevices.AsReadOnly();
     
     public FullName FullName { get; private set; }
     
@@ -24,6 +27,8 @@ public class User
     public Email Email { get; private set; }
     
     public string PasswordHash { get; private set; }
+    
+    public Point? LastCoordinates { get; private set; }
     
     private User(
         Email email,
@@ -103,6 +108,19 @@ public class User
             return;
         
         AvatarImage = avatarImage;
+    }
+
+    public void AddDevice(UserDevice device)
+    {
+        if (!_userDevices.Contains(device))
+        {
+            _userDevices.Add(device);
+        }
+    }
+    
+    public void UpdateLastCoordinates(Point coordinates)
+    {
+        LastCoordinates = coordinates;
     }
 
     private static void EnsureUniqueKinds(InitialContact[]? contacts)

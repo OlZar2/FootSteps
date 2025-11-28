@@ -30,20 +30,20 @@ public class YandexGeocoder : IGeocoder
         _logger = logger;
     }
 
-    public Task<string?> GetHouseOrNull(Coordinates point, CancellationToken ct) =>
+    public Task<string?> GetHouseOrNull(CoordinatesDto point, CancellationToken ct) =>
         GetAddressComponentOrNull(point, componentKind: "house", ct);
 
-    public Task<string?> GetStreetOrNull(Coordinates point, CancellationToken ct) =>
+    public Task<string?> GetStreetOrNull(CoordinatesDto point, CancellationToken ct) =>
         GetAddressComponentOrNull(point, componentKind: "street", ct);
 
-    public Task<string?> GetDistrictOrNull(Coordinates point, CancellationToken ct) =>
+    public Task<string?> GetDistrictOrNull(CoordinatesDto point, CancellationToken ct) =>
         GetAddressComponentOrNull(point, componentKind: "district", ct);
 
-    public Task<string?> GetLocalityOrNull(Coordinates point, CancellationToken ct) =>
+    public Task<string?> GetLocalityOrNull(CoordinatesDto point, CancellationToken ct) =>
         GetAddressComponentOrNull(point, componentKind: "locality", ct);
     
     private async Task<string?> GetAddressComponentOrNull(
-        Coordinates point,
+        CoordinatesDto point,
         string componentKind,
         CancellationToken ct)
     {

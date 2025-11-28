@@ -1,8 +1,8 @@
 ﻿using FS.Core.Entities;
-using FS.Persistence.Outbox.Handlers.Interfaces;
+using FS.Persistence.Outbox.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace FS.Persistence.Outbox.Handlers.Implementations;
+namespace FS.Persistence.Outbox.Embeddings.Handlers;
 
 public class UnknownOutboxHandler(ILogger<UnknownOutboxHandler> log) : IOutboxHandler
 {

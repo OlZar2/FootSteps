@@ -1,6 +1,6 @@
 ﻿using FS.Core.Entities;
 
-namespace FS.Persistence.Repositories;
+namespace FS.Core.Stores;
 
 public interface IOutboxRepository
 {

@@ -8,9 +8,8 @@ using FS.Core.Entities;
 using FS.Core.Enums;
 using FS.Core.Specifications;
 using FS.Core.Stores;
+using FS.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite;
-using NetTopologySuite.Geometries;
 
 namespace FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
 
@@ -28,9 +27,7 @@ public class StreetPetAnnouncementService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        //TODO: может можно вынести в DI
-        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-        var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
+        var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Latitude);
 
         //TODO: сделать параллельно
         var images = new List<Image>();
@@ -51,7 +48,7 @@ public class StreetPetAnnouncementService(
             data.CreatorId,
             data.District,
             data.PetType,
-            point,
+            coordinates,
             data.EventDate,
             data.PlaceDescription);
 

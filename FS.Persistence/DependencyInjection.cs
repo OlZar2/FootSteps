@@ -1,9 +1,11 @@
 ﻿using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
 using FS.Core.Stores;
-using FS.Persistence.Outbox;
-using FS.Persistence.Outbox.Handlers.Implementations;
-using FS.Persistence.Outbox.Handlers.Interfaces;
+using FS.Persistence.Outbox.Embeddings;
+using FS.Persistence.Outbox.Embeddings.Handlers;
+using FS.Persistence.Outbox.Notifications;
+using FS.Persistence.Outbox.Notifications.Handlers;
+using FS.Persistence.Outbox.Shared.Interfaces;
 using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;
 using FS.Persistence.Transactions;
@@ -22,14 +24,17 @@ public static class DependencyInjection
             .AddScoped<IFindAnnouncementRepository, FindAnnouncementRepository>()
             .AddScoped<IStreetPetAnnouncementRepository, StreetPetAnnouncementRepository>()
             .AddScoped<IOutboxRepository, OutboxRepository>()
-            .AddScoped<ISearchRequestRepository, EFSearchRequestRepository>();
+            .AddScoped<ISearchRequestRepository, EFSearchRequestRepository>()
+            .AddScoped<INotificationRepository, EFNotificationRepository>()
+            .AddScoped<INotificationDeliveryRepository, EFNotificationDeliveryRepository>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
             .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
             .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
             .AddScoped<IUserQueryService, EFUserQueryService>()
-            .AddScoped<ISearchQueryService, EFSearchQueryService>();
+            .AddScoped<ISearchQueryService, EFSearchQueryService>()
+            .AddScoped<INotificationDeliveryQueryService, EFNotificationDeliveryQueryService>();
         
         services.AddScoped<ITransactionFactory, EfCoreTransactionFactory>();
 
@@ -39,7 +44,7 @@ public static class DependencyInjection
     public static IServiceCollection AddOutboxHandling(this IServiceCollection services)
     {
         services
-            .AddHostedService<OutboxDispatcher>();
+            .AddHostedService<EmbeddingsOutboxWorker>();
         
         services.AddScoped<UnknownOutboxHandler>();
         
@@ -55,6 +60,16 @@ public static class DependencyInjection
                 .CreateInstance<ImageSearchRequestOutboxHandler>(sp, thirdDecorator);
             return fourthDecorator;
         });
+        
+        return services;
+    }
+    
+    public static IServiceCollection AddNotificationsHandling(this IServiceCollection services)
+    {
+        services
+            .AddHostedService<NotificationsOutboxWorker>();
+        
+        services.AddScoped<INotificationPipelineHandler, PushNotificationPipelineHandler>();
         
         return services;
     }

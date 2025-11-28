@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using FS.Core.ValueObjects.Abstract;
+using FS.Core.Abstractions;
 
 namespace FS.Core.ValueObjects;
 

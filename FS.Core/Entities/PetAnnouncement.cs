@@ -1,5 +1,5 @@
 ﻿using FS.Core.Enums;
-using NetTopologySuite.Geometries;
+using FS.Core.ValueObjects;
 
 namespace FS.Core.Entities;
 
@@ -26,7 +26,7 @@ public abstract class PetAnnouncement : AnimalAnnouncement
         string? color,
         string? breed,
         bool isCompleted,
-        Point location,
+        CoordinatesVO location,
         DateTime createdAt,
         DateTime eventDate,
         string? description) : 

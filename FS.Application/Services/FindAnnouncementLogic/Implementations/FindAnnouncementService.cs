@@ -1,7 +1,6 @@
 ﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.DTOs.FindAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
-using FS.Application.Interfaces;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
@@ -10,8 +9,7 @@ using FS.Core.Entities;
 using FS.Core.Enums;
 using FS.Core.Specifications;
 using FS.Core.Stores;
-using NetTopologySuite;
-using NetTopologySuite.Geometries;
+using FS.Core.ValueObjects;
 
 namespace FS.Application.Services.FindAnnouncementLogic.Implementations;
 
@@ -33,8 +31,7 @@ public class FindAnnouncementService(
             images.Add(createdImage);
         }
 
-        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-        var point = geometryFactory.CreatePoint(new Coordinate(data.Location.Longitude, data.Location.Latitude));
+        var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Latitude);
 
         var findAnnouncement = FindAnnouncement.Create(
             street:data.Street,
@@ -46,7 +43,7 @@ public class FindAnnouncementService(
             data.Gender,
             data.Color,
             data.Breed,
-            point,
+            coordinates,
             data.EventDate,
             data.Description);
         

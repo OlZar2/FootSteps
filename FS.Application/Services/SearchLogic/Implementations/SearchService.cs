@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using FS.Application.DTOs.SearchDTOs;
-using FS.Application.Interfaces;
 using FS.Application.Interfaces.Events;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
@@ -10,7 +9,6 @@ using FS.Contracts.Error;
 using FS.Core.Entities;
 using FS.Core.Exceptions;
 using FS.Core.Stores;
-using FS.Persistence.Repositories;
 using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Pgvector;

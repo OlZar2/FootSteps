@@ -15,7 +15,7 @@ public class CreateStreetPetAnnouncementRM
     public required int? PetType { get; init; }
     
     [Description("Координаты. Обязательно, issue REQUIRED.")]
-    public required Coordinates Location { get; init; }
+    public required CoordinatesDto Location { get; init; }
     
     [Description("Время пропажи. Обязательно, issue REQUIRED.")]
     public required DateTime? EventDate { get; init; }

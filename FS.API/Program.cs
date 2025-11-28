@@ -11,7 +11,9 @@ using FS.API.Services.GeoLogic.Implementations;
 using FS.API.Services.GeoLogic.Interfaces;
 using FS.API.Services.ImageLogic;
 using FS.Application;
+using FS.Firebase;
 using FS.JWT;
+using FS.Notifications;
 using FS.Persistence;
 using FS.Persistence.Context;
 using FS.RabbitMq;
@@ -46,6 +48,8 @@ services.AddDbContext<ApplicationDbContext>(options =>
             x.MigrationsAssembly("FS.Migrations");
         }));
 
+
+//TODO: разобраться и сгруппировать
 services
     .AddJwtServices()
     .AddServices()
@@ -53,6 +57,12 @@ services
     .AddOutboxHandling()
     .AddConfiguration(builder.Configuration)
     .AddJwtAuth(builder.Configuration);
+
+services.AddNotificationsHandling();
+
+services
+    .AddDomainEventPublisher()
+    .AddFirebase();
 
 services.AddRabbitMq();
 

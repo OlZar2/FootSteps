@@ -1,8 +1,11 @@
 ﻿using FS.Application.DTOs.AuthDTOs;
+using FS.Application.DTOs.Shared;
 using FS.Application.Exceptions;
 using FS.Application.Interfaces.QueryServices;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace FS.Persistence.QueryServices;
 
@@ -32,5 +35,29 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
             ?? throw new NotFoundException("User", id);
         
         return result;
+    }
+
+    public async Task<Guid[]> GetRecipientsIdsInRadiusAsync(
+        CoordinatesDto startPoint,
+        int meterRadius,
+        CancellationToken ct)
+    {
+        //TODO: возможно лучше в сервисе
+        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+        var centerPoint = geometryFactory.CreatePoint(new Coordinate(
+            startPoint.Longitude,
+            startPoint.Latitude));
+
+        var query =
+            from u in context.Users
+            where u.LastCoordinates != null &&
+                  EF.Functions.IsWithinDistance(
+                      u.LastCoordinates!,
+                      centerPoint,
+                      meterRadius,
+                      false)
+            select u.Id;
+    
+        return await query.ToArrayAsync(ct);
     }
 }

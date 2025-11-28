@@ -1,4 +1,4 @@
-﻿namespace FS.Application.Interfaces;
+﻿namespace FS.Application.Interfaces.Jwt;
 
 public interface IJwtProvider
 {

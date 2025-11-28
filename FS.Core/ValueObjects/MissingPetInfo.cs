@@ -1,7 +1,7 @@
 ﻿using FS.Contracts.Error;
+using FS.Core.Abstractions;
 using FS.Core.Enums;
 using FS.Core.Exceptions;
-using FS.Core.ValueObjects.Abstract;
 
 namespace FS.Core.ValueObjects;
 

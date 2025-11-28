@@ -11,7 +11,6 @@ using FS.Contracts.Error;
 using FS.Core.Entities;
 using FS.Core.Enums;
 using FS.Core.Stores;
-using FS.Persistence.Repositories;
 using ImageMagick;
 using Microsoft.Extensions.Options;
 using Pgvector;
@@ -82,8 +81,6 @@ public class YandexCloudImageService : IImageService
         CancellationToken ct,
         string? imageName = null)
     {
-        await using var transaction = await _transactionFactory.BeginAsync(ct);
-        
         var image = await CreateImageAsync(content, ct, imageName);
         
         var outboxPayload = JsonSerializer.Serialize(new EmbedRequest{
@@ -93,8 +90,6 @@ public class YandexCloudImageService : IImageService
         });
         var outboxEvent = OutboxEvent.Create("image.embed.request", outboxPayload);
         await _outboxRepository.AddAsync(outboxEvent, ct);
-        
-        await transaction.CommitAsync(ct);
 
         return image;
     }
@@ -139,7 +134,9 @@ public class YandexCloudImageService : IImageService
 
         if (announcementType == AnnouncementType.Street)
         {
-            var outboxEvent = OutboxEvent.Create("image.find.similar.missing", outboxPayload);
+            var outboxEvent = OutboxEvent.Create(
+                "image.find.similar.missing",
+                outboxPayload);
             await _outboxRepository.AddAsync(outboxEvent, ct);
         }
         await _imageRepository.UpdateAsync(image, ct);

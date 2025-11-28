@@ -34,7 +34,11 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
                 MainImagePath = fa.Images[0].Path,
                 PetType = fa.PetType,
                 EventDate = fa.EventDate,
-                Location = Coordinates.From(fa.Location),
+                Location = new CoordinatesDto
+                {
+                    Latitude = fa.Location.Latitude,
+                    Longitude = fa.Location.Longitude
+                },
                 PlaceDescription = fa.PlaceDescription,
             })
             .AsNoTracking()
@@ -52,7 +56,11 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
                 ImagePaths = a.Images.Select(image => image.Path).ToArray(),
                 Creator = AnnouncementCreator.From(u),
                 PetType = a.PetType,
-                Location = Coordinates.From(a.Location),
+                Location = new CoordinatesDto
+                {
+                    Latitude = a.Location.Latitude,
+                    Longitude = a.Location.Longitude
+                },
                 EventDate = a.EventDate,
                 PlaceDescription = a.PlaceDescription,
             }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("StreetPetAnnouncement", nameof(id));

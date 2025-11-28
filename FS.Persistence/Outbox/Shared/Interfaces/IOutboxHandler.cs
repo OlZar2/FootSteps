@@ -1,6 +1,6 @@
 ﻿using FS.Core.Entities;
 
-namespace FS.Persistence.Outbox.Handlers.Interfaces;
+namespace FS.Persistence.Outbox.Shared.Interfaces;
 
 public interface IOutboxHandler
 {

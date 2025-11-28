@@ -1,4 +1,4 @@
-﻿namespace FS.Core.ValueObjects.Abstract;
+﻿namespace FS.Core.Abstractions;
 
 public abstract class ValueObject
 {

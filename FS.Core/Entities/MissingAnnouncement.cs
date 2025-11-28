@@ -1,8 +1,9 @@
 ﻿using FS.Contracts.Error;
 using FS.Core.Enums;
+using FS.Core.Events;
 using FS.Core.Exceptions;
 using FS.Core.Policies.AnnouncementPolicies;
-using NetTopologySuite.Geometries;
+using FS.Core.ValueObjects;
 
 namespace FS.Core.Entities;
 
@@ -27,7 +28,7 @@ public class MissingAnnouncement : PetAnnouncement
         string? color,
         string? breed,
         bool isCompleted,
-        Point location,
+        CoordinatesVO location,
         string petName,
         DateTime createdAt,
         DateTime eventDate,
@@ -61,14 +62,14 @@ public class MissingAnnouncement : PetAnnouncement
         Gender gender,
         string? color,
         string? breed,
-        Point location,
+        CoordinatesVO location,
         string petName,
         DateTime eventDate,
         string? description)
     {
         var createdAt = DateTime.UtcNow;
         
-        return new MissingAnnouncement(
+        var created = new MissingAnnouncement(
             street: street,
             house: house,
             images,
@@ -84,6 +85,10 @@ public class MissingAnnouncement : PetAnnouncement
             createdAt,
             eventDate,
             description);
+        
+        created.AddDomainEvent(new MissingAnnouncementCreatedDomainEvent(created.Id, created.Location, created.PetType));
+        
+        return created;
     }
 
     public void Cancel(MissingAnnouncementDeleteReason reason, IAnimalAnnouncementDeletionPolicy deletionPolicy)

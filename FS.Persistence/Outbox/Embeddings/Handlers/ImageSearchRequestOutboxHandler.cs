@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using FS.Application.Interfaces.Events;
 using FS.Core.Entities;
-using FS.Persistence.Outbox.Handlers.Interfaces;
+using FS.Persistence.Outbox.Shared.Interfaces;
 
-namespace FS.Persistence.Outbox.Handlers.Implementations;
+namespace FS.Persistence.Outbox.Embeddings.Handlers;
 
 public class ImageSearchRequestOutboxHandler(IOutboxHandler inner, IMessageBus messageBus) : IOutboxHandler
 {

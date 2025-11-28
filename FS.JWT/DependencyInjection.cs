@@ -1,4 +1,4 @@
-﻿using FS.Application.Interfaces;
+﻿using FS.Application.Interfaces.Jwt;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FS.JWT;

@@ -1,0 +1,26 @@
+﻿using FirebaseAdmin;
+using FS.Application.Interfaces.Notifications;
+using FS.Firebase.Senders;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace FS.Firebase;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddFirebase(this IServiceCollection services)
+    {
+        //TODO: положить файл нормально
+        var firebaseApp = FirebaseApp.Create(new AppOptions
+        {
+            Credential = GoogleCredential.FromFile("footsteps-1e536-firebase-adminsdk-fbsvc-3c34098cef.json")
+        });
+        
+        services.AddSingleton(firebaseApp);
+
+        //TODO: может синглтон?
+        services.AddScoped<IPushNotificationSender, FirebasePushNotificationSender>();
+        
+        return services;
+    }
+}

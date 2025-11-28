@@ -1,4 +1,4 @@
-﻿namespace HW.Application.Services.AuthLogic.Interfaces;
+﻿namespace FS.Application.Services.AuthLogic.Interfaces;
 
 public interface IPasswordHasher
 {

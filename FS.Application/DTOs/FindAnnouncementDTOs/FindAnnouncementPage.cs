@@ -26,7 +26,7 @@ public class FindAnnouncementPage
     
     public required AnnouncementType Type { get; init; }
     
-    public required Coordinates Location { get; init; }
+    public required CoordinatesDto Location { get; init; }
     
     public required DateTime EventDate { get;init; }
     

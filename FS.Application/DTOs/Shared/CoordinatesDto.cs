@@ -3,16 +3,16 @@ using NetTopologySuite.Geometries;
 
 namespace FS.Application.DTOs.Shared;
 
-public record Coordinates
+public record CoordinatesDto
 {
     [Description("Долгота. Обязательно, issue REQUIRED.")]
     public required double Latitude { get; set; }
     [Description("Широта. Обязательно, issue REQUIRED.")]
     public required double Longitude { get; set; }
 
-    public static Coordinates From(Point point)
+    public static CoordinatesDto From(Point point)
     {
-        return new Coordinates()
+        return new CoordinatesDto()
         {
             Longitude = point.X,
             Latitude = point.Y

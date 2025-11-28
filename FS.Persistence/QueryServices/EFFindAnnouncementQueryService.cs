@@ -58,7 +58,11 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 Breed = a.Breed,
                 Color = a.Color,
                 Type = a.Type,
-                Location = Coordinates.From(a.Location),
+                Location = new CoordinatesDto()
+                {
+                    Latitude = a.Location.Latitude,
+                    Longitude = a.Location.Longitude
+                },
                 EventDate = a.EventDate,
                 Description = a.Description,
             }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(FindAnnouncement), nameof(id));

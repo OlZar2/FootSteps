@@ -1,12 +1,11 @@
-﻿using FS.Core.Enums;
-using NetTopologySuite.Geometries;
+﻿using FS.Core.Abstractions;
+using FS.Core.Enums;
+using FS.Core.ValueObjects;
 
 namespace FS.Core.Entities;
 
-public abstract class AnimalAnnouncement
+public abstract class AnimalAnnouncement : AggregateRoot
 {
-    public Guid Id { get; private set; }
-    
     public DateTime CreatedAt { get; private set; }
     
     public string? Street { get; private set; }
@@ -23,7 +22,7 @@ public abstract class AnimalAnnouncement
     
     public AnnouncementType Type { get; private set; }
     
-    public Point Location { get; private set; }
+    public CoordinatesVO Location { get; private set; }
     
     public DateTime EventDate { get; private set; }
     
@@ -36,9 +35,10 @@ public abstract class AnimalAnnouncement
         string? street,
         string? house,
         PetType petType,
-        Point location,
+        CoordinatesVO location,
         DateTime createdAt,
-        DateTime eventDate)
+        DateTime eventDate,
+        Guid? id = null) : base(id ?? Guid.NewGuid())
     {
         Street = street;
         House = house;

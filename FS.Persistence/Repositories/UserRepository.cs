@@ -37,7 +37,10 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
     public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
-        return await context.Users.Where(u => u.Email.Value == email).FirstOrDefaultAsync(cancellationToken)
+        return await context.Users
+                   .Include(u => u.UserDevices)
+                   .Where(u => u.Email.Value == email)
+                   .FirstOrDefaultAsync(cancellationToken)
             ?? throw new NotFoundException(nameof(User), email);
     }
 

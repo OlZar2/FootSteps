@@ -19,7 +19,7 @@ public record CreateFindAnnouncementData
     
     public required DateTime EventDate { get; init; }
     
-    public required Coordinates Location { get; init; }
+    public required CoordinatesDto Location { get; init; }
     
     public required Guid CreatorId { get; init; }
     

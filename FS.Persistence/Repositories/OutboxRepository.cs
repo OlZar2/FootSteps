@@ -1,4 +1,5 @@
 ﻿using FS.Core.Entities;
+using FS.Core.Stores;
 using FS.Persistence.Context;
 
 namespace FS.Persistence.Repositories;

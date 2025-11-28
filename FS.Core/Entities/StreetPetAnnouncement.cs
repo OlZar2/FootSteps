@@ -1,5 +1,5 @@
 ﻿using FS.Core.Enums;
-using NetTopologySuite.Geometries;
+using FS.Core.ValueObjects;
 
 namespace FS.Core.Entities;
 
@@ -18,7 +18,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Guid creatorId,
         string? district,
         PetType petType,
-        Point location,
+        CoordinatesVO location,
         DateTime createdAt,
         DateTime eventDate,
         string? placeDescription)
@@ -43,7 +43,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Guid creatorId,
         string? district,
         PetType petType,
-        Point location,
+        CoordinatesVO location,
         DateTime eventDate,
         string? placeDescription)
     {

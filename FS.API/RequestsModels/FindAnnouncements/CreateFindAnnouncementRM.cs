@@ -6,7 +6,7 @@ namespace FS.API.RequestsModels.FindAnnouncements;
 public class CreateFindAnnouncementRM
 {
     [Description("Координаты. Обязательно, issue REQUIRED.")]
-    public required Coordinates Location { get; init; }
+    public required CoordinatesDto Location { get; init; }
     
     [Description("Картинки. Обязательно, issue REQUIRED. Если расширение неверное " +
                  "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +

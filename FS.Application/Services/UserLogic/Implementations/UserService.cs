@@ -1,5 +1,5 @@
-﻿using FS.Application.DTOs.UserDTOs;
-using FS.Application.Interfaces;
+﻿using FS.Application.DTOs.Shared;
+using FS.Application.DTOs.UserDTOs;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.UserLogic.Interfaces;
@@ -7,6 +7,8 @@ using FS.Core.Policies.UserPolicies;
 using FS.Core.Stores;
 using FS.Core.ValueObjects;
 using FS.Core.ValueObjects.Contacts;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace FS.Application.Services.UserLogic.Implementations;
 
@@ -61,5 +63,21 @@ public class UserService(
         await userRepository.UpdateAsync(user, ct);
 
         await transaction.CommitAsync(ct);
+    }
+
+    public async Task UpdateUserLocation(Guid userId, CoordinatesDto coordinates, CancellationToken ct)
+    {
+        //TODO: аватар не нужен
+        var user = await userRepository.GetByIdWithAvatarAsync(userId, ct);
+        
+        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+        var point = geometryFactory.CreatePoint(new Coordinate(
+            coordinates.Longitude,
+            coordinates.Latitude));
+        
+        var coordinatesVO = CoordinatesVO.Create(coordinates.Latitude, coordinates.Longitude);
+        user.UpdateLastCoordinates(point);
+        
+        await userRepository.UpdateAsync(user, ct);
     }
 }

@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
-using FS.API.RequestsModels.MissingAnnouncements;
 using FS.Contracts.Error;
 using FS.Core.Enums;
 
-namespace FS.API.RequestsModels.Announcements.Validators;
+namespace FS.API.RequestsModels.MissingAnnouncements.Validators;
 
 public class CreateMissingAnnouncementRMValidator : AbstractValidator<CreateMissingAnnouncementRM>
 {

@@ -27,7 +27,11 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 Breed = a.Breed,
                 Color = a.Color,
                 Type = a.Type,
-                Location = Coordinates.From(a.Location),
+                Location = new CoordinatesDto()
+                {
+                    Latitude = a.Location.Latitude,
+                    Longitude = a.Location.Longitude
+                },
                 EventDate = a.EventDate,
                 Description = a.Description,
                 PetName = a.PetName,

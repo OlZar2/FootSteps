@@ -97,6 +97,82 @@ namespace FS.Migrations.Migrations
                     b.ToTable("Images", (string)null);
                 });
 
+            modelBuilder.Entity("FS.Core.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TargetEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
+            modelBuilder.Entity("FS.Core.Entities.NotificationDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("NotificationDeliveries", (string)null);
+                });
+
             modelBuilder.Entity("FS.Core.Entities.OutboxEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -161,6 +237,9 @@ namespace FS.Migrations.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<Point>("LastCoordinates")
+                        .HasColumnType("geometry(Point,4326)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
@@ -171,6 +250,32 @@ namespace FS.Migrations.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("FS.Core.Entities.UserDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeviceToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDevices", (string)null);
                 });
 
             modelBuilder.Entity("SearchResults", b =>
@@ -279,6 +384,21 @@ namespace FS.Migrations.Migrations
                         .HasForeignKey("AnimalAnnouncementId");
                 });
 
+            modelBuilder.Entity("FS.Core.Entities.NotificationDelivery", b =>
+                {
+                    b.HasOne("FS.Core.Entities.Notification", null)
+                        .WithMany()
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FS.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FS.Core.Entities.User", b =>
                 {
                     b.HasOne("FS.Core.Entities.Image", "AvatarImage")
@@ -367,6 +487,15 @@ namespace FS.Migrations.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FS.Core.Entities.UserDevice", b =>
+                {
+                    b.HasOne("FS.Core.Entities.User", null)
+                        .WithMany("UserDevices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SearchResults", b =>
                 {
                     b.HasOne("FS.Core.Entities.AnimalAnnouncement", null)
@@ -400,6 +529,11 @@ namespace FS.Migrations.Migrations
             modelBuilder.Entity("FS.Core.Entities.AnimalAnnouncement", b =>
                 {
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("FS.Core.Entities.User", b =>
+                {
+                    b.Navigation("UserDevices");
                 });
 #pragma warning restore 612, 618
         }

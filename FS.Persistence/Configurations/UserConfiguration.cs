@@ -12,6 +12,10 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
         
         builder.HasKey(u => u.Id);
 
+        builder.HasMany(u => u.UserDevices)
+            .WithOne()
+            .HasForeignKey(ud => ud.UserId);
+        
         builder.OwnsOne(u => u.Email, b =>
         {
             b.Property(pn => pn.Value).HasColumnName("Email");
@@ -24,11 +28,14 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
             b.Property(fn => fn.Patronymic).HasColumnName("Patronymic");
         });
         
+        builder.Property(loc => loc.LastCoordinates)
+            .HasColumnType("geometry(Point,4326)");
+        
         builder
             .HasOne(u => u.AvatarImage)
             .WithOne()
             .HasForeignKey<User>(u => u.AvatarImageId)
-            .OnDelete(DeleteBehavior.SetNull);;
+            .OnDelete(DeleteBehavior.SetNull);
         
         builder.OwnsMany(u => u.Contacts, nb =>
         {

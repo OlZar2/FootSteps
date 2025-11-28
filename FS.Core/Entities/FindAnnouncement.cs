@@ -2,7 +2,7 @@
 using FS.Core.Enums;
 using FS.Core.Exceptions;
 using FS.Core.Policies.AnnouncementPolicies;
-using NetTopologySuite.Geometries;
+using FS.Core.ValueObjects;
 
 namespace FS.Core.Entities;
 
@@ -21,7 +21,7 @@ public class FindAnnouncement : PetAnnouncement
         string? color,
         string? breed,
         bool isCompleted,
-        Point location,
+        CoordinatesVO location,
         DateTime createdAt,
         DateTime eventDate,
         string? description)
@@ -51,7 +51,7 @@ public class FindAnnouncement : PetAnnouncement
         Gender gender,
         string? color,
         string? breed,
-        Point location,
+        CoordinatesVO location,
         DateTime eventDate,
         string? description)
     {

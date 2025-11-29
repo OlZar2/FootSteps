@@ -86,7 +86,7 @@ public class MissingAnnouncement : PetAnnouncement
             eventDate,
             description);
         
-        created.AddDomainEvent(new MissingAnnouncementCreatedDomainEvent(created.Id, created.Location, created.PetType));
+        created.AddDomainEvent(new MissingAnnouncementCreatedDomainEvent(created.Id, created.Location, created.CreatorId));
         
         return created;
     }

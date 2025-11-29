@@ -10,7 +10,4 @@ public record LoginRM
     
     [Description("Пароль. Обязательный, issue REQUIRED. Если пароль неверный issue: INVALID_CREDENTIALS.")]
     public string Password { get; init; }
-    
-    //TODO: подумать над защитой от простого вызова api
-    public string? DeviceToken { get; init; }
 }

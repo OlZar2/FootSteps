@@ -1,3 +1,3 @@
 ﻿namespace FS.Application.DTOs.AuthDTOs;
 
-public record LoginData(string Email, string Password, string? DeviceToken) { }
+public record LoginData(string Email, string Password) { }

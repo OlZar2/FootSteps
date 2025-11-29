@@ -105,7 +105,7 @@ public class AuthController(
     {
         await loginValidator.ValidateAndThrowAsync(request, ct);
         
-        var loginDTO = new LoginData(request.Email, request.Password, request.DeviceToken);
+        var loginDTO = new LoginData(request.Email, request.Password);
         
         var response = await authService.LoginAsync(loginDTO, ct);
         return response;

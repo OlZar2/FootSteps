@@ -64,12 +64,6 @@ public class AuthService(
             passwordHasher.VerifyPassword(loginData.Password, account.PasswordHash);
 
             var token = jwtProvider.GenerateToken(account.Id);
-            if (loginData.DeviceToken != null)
-            {
-                var userDevice = UserDevice.Create(account, loginData.DeviceToken);
-                account.AddDevice(userDevice);
-            }
-            await userRepository.UpdateAsync(account, ct);
             return new JwtData(token);
         }
         catch (NotFoundException)

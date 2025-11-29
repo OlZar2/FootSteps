@@ -3,6 +3,7 @@ using FS.Application.DTOs.UserDTOs;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.UserLogic.Interfaces;
+using FS.Core.Entities;
 using FS.Core.Policies.UserPolicies;
 using FS.Core.Stores;
 using FS.Core.ValueObjects;
@@ -75,9 +76,16 @@ public class UserService(
             coordinates.Longitude,
             coordinates.Latitude));
         
-        var coordinatesVO = CoordinatesVO.Create(coordinates.Latitude, coordinates.Longitude);
         user.UpdateLastCoordinates(point);
         
+        await userRepository.UpdateAsync(user, ct);
+    }
+    
+    public async Task AddDevice(Guid userId, string deviceToken, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdWithContactsAsync(userId, ct);
+        var userDevice = UserDevice.Create(user, deviceToken);
+        user.AddDevice(userDevice);
         await userRepository.UpdateAsync(user, ct);
     }
 }

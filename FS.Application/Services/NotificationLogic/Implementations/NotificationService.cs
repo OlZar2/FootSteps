@@ -35,7 +35,7 @@ public class NotificationService(
             Longitude = @event.CoordinatesVo.Longitude,
         };
         var recipients = await userQueryService
-            .GetRecipientsIdsInRadiusAsync(startSearchPoint, 2000, ct);
+            .GetRecipientsIdsExceptMineInRadiusAsync(startSearchPoint, 2000, @event.CreatorId, ct);
         
         var deliveries = new NotificationDelivery[recipients.Length];
         foreach (var (recipientId, i) in recipients.Select((value, i) => ( value, i )))

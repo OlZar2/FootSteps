@@ -108,4 +108,17 @@ public class UserController(
         
         await userService.UpdateUserLocation(currentUserId, coordinatesDto, ct);
     }
+
+    /// <summary>
+    /// Добавить устройство пользователю
+    /// </summary>
+    [Authorize]
+    [HttpPost("device")]
+    public async Task AddDevice(string deviceToken, CancellationToken ct)
+    {
+        var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
+        
+        await userService.AddDevice(currentUserId, deviceToken, ct);
+    }
 }

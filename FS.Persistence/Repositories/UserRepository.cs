@@ -14,11 +14,11 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<User> GetByIdWithContactsAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<User> GetByIdWithContactsAsync(Guid id, CancellationToken ct)
     {
         return await context.Users
                .Include(u => u.Contacts)
-               .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
+               .FirstOrDefaultAsync(u => u.Id == id, ct)
                ?? throw new NotFoundException(nameof(User), id);
     }
 
@@ -38,7 +38,6 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await context.Users
-                   .Include(u => u.UserDevices)
                    .Where(u => u.Email.Value == email)
                    .FirstOrDefaultAsync(cancellationToken)
             ?? throw new NotFoundException(nameof(User), email);

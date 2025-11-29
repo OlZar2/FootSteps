@@ -10,4 +10,6 @@ public interface IUserService
     Task UpdateUserAvatarAsync(Guid actorId, UpdateUserAvatar updateUserAvatar, CancellationToken ct);
 
     Task UpdateUserLocation(Guid userId, CoordinatesDto coordinates, CancellationToken ct);
+    
+    Task AddDevice(Guid userId, string deviceToken, CancellationToken ct);
 }

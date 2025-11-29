@@ -37,9 +37,10 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
         return result;
     }
 
-    public async Task<Guid[]> GetRecipientsIdsInRadiusAsync(
+    public async Task<Guid[]> GetRecipientsIdsExceptMineInRadiusAsync(
         CoordinatesDto startPoint,
         int meterRadius,
+        Guid mineId,
         CancellationToken ct)
     {
         //TODO: возможно лучше в сервисе
@@ -55,7 +56,8 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
                       u.LastCoordinates!,
                       centerPoint,
                       meterRadius,
-                      false)
+                      false) &&
+                  u.Id != mineId
             select u.Id;
     
         return await query.ToArrayAsync(ct);

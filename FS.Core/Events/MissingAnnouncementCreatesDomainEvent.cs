@@ -7,5 +7,5 @@ namespace FS.Core.Events;
 public sealed record MissingAnnouncementCreatedDomainEvent(
     Guid AnnouncementId,
     CoordinatesVO CoordinatesVo,
-    PetType PetType
+    Guid CreatorId
 ) : IDomainEvent;

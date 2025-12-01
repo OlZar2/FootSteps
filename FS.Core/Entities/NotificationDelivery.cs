@@ -7,8 +7,8 @@ public class NotificationDelivery : AggregateRoot
 {
     public Guid NotificationId { get; private set; }
     
-    public Guid? UserId { get; private set; }
-    public User User { get; private set; }
+    public Guid? UserDeviceId { get; private set; }
+    public UserDevice UserDevice { get; private set; }
     
     public NotificationChannel Channel { get; private set; }
     
@@ -26,17 +26,13 @@ public class NotificationDelivery : AggregateRoot
     
     private NotificationDelivery(
         Guid notificationId,
-        Guid? userId,
+        UserDevice userDevice,
         NotificationChannel channel,
         Guid? id = null) : base(id ?? Guid.NewGuid())
     {
-        if (notificationId == Guid.Empty)
-            throw new ArgumentException("NotificationId is required.", nameof(notificationId));
-        if (userId == Guid.Empty)
-            throw new ArgumentException("UserId is required.", nameof(userId));
-
         NotificationId = notificationId;
-        UserId = userId;
+        UserDevice = userDevice;
+        UserDeviceId = userDevice.Id;
         Channel = channel;
 
         Status = DeliveryStatus.Pending;
@@ -44,12 +40,17 @@ public class NotificationDelivery : AggregateRoot
 
         CreatedAt = DateTime.UtcNow;
     }
-    
+
     public static NotificationDelivery Create(
         Guid notificationId,
-        Guid? userId,
+        UserDevice userDevice,
         NotificationChannel channel)
-        => new (notificationId, userId, channel);
+    {
+        if (notificationId == Guid.Empty)
+            throw new ArgumentException("NotificationId is required.", nameof(notificationId));
+        
+        return new NotificationDelivery(notificationId, userDevice, channel);
+    }
 
     public void MarkAsSent()
     {
@@ -60,6 +61,10 @@ public class NotificationDelivery : AggregateRoot
     
     public void MarkAsFailed()
     {
+        if (AttemptCount > 10)
+        {
+            Status = DeliveryStatus.Stoped;
+        }
         Status = DeliveryStatus.Failed;
         LastAttemptAt = DateTime.UtcNow;
         AttemptCount++;

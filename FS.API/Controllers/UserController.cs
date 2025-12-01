@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using FluentValidation;
+using FluentValidation.Results;
 using FS.API.RequestsModels.User;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.Shared;
@@ -21,7 +22,8 @@ public class UserController(
     IClaimService claimService,
     IValidator<UpdateUserInfoRM> updateUserInfoValidator,
     IValidator<UpdateUserAvatarRM> updateUserAvatarValidator,
-    IValidator<UpdateUserLocationRM> updateUserLocationValidator) : ControllerBase
+    IValidator<UpdateUserLocationRM> updateUserLocationValidator,
+    IValidator<AddDeviceRM> addDeviceValidator) : ControllerBase
 {
     /// <summary>
     /// Обновить информацию о пользователе
@@ -114,11 +116,19 @@ public class UserController(
     /// </summary>
     [Authorize]
     [HttpPost("device")]
-    public async Task AddDevice(string deviceToken, CancellationToken ct)
+    public async Task AddDevice(AddDeviceRM addDevice, CancellationToken ct)
     {
+        if (addDevice is null)
+        {
+            throw new ValidationException([
+                new ValidationFailure("Body", "Тело запроса обязательно.")
+            ]);
+        }
+        await addDeviceValidator.ValidateAndThrowAsync(addDevice, ct);
+        
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
         
-        await userService.AddDevice(currentUserId, deviceToken, ct);
+        await userService.AddDevice(currentUserId, addDevice.DeviceToken, ct);
     }
 }

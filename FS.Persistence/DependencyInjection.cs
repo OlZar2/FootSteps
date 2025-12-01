@@ -26,15 +26,15 @@ public static class DependencyInjection
             .AddScoped<IOutboxRepository, OutboxRepository>()
             .AddScoped<ISearchRequestRepository, EFSearchRequestRepository>()
             .AddScoped<INotificationRepository, EFNotificationRepository>()
-            .AddScoped<INotificationDeliveryRepository, EFNotificationDeliveryRepository>();
+            .AddScoped<INotificationDeliveryRepository, EFNotificationDeliveryRepository>()
+            .AddScoped<IUserDeviceRepository, EFUserDeviceRepository>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
             .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
             .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
             .AddScoped<IUserQueryService, EFUserQueryService>()
-            .AddScoped<ISearchQueryService, EFSearchQueryService>()
-            .AddScoped<INotificationDeliveryQueryService, EFNotificationDeliveryQueryService>();
+            .AddScoped<ISearchQueryService, EFSearchQueryService>();
         
         services.AddScoped<ITransactionFactory, EfCoreTransactionFactory>();
 

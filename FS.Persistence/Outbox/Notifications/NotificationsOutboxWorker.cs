@@ -30,37 +30,39 @@ public class NotificationsOutboxWorker(
                                     LIMIT 100
                                 """)
                     .ToListAsync(ct);
-
-                //TODO: надо сделать чтобы слишком часто не отправлялось если что-то failed
-                if (notifications.Count == 0)
-                {
-                    await Task.Delay(5000, ct);
-                    continue;
-                }
-
-                var notificationPipelineHandler = scope.ServiceProvider
-                    .GetRequiredService<INotificationPipelineHandler>();
                 
-                foreach (var notification in notifications)
+                if (notifications.Count > 0)
                 {
-                    try
+                    var notificationPipelineHandler = scope.ServiceProvider
+                        .GetRequiredService<INotificationPipelineHandler>();
+                
+                    foreach (var notification in notifications)
                     {
-                        await notificationPipelineHandler.HandleNotificationAsync(notification, ct);
-                        notification.MarkAsCompleted();
+                        try
+                        {
+                            await notificationPipelineHandler.HandleNotificationAsync(notification, ct);
+                            notification.MarkAsCompleted();
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogError(ex, "Event publish failed for event {Id}", notification.Id);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        log.LogError(ex, "Event publish failed for event {Id}", notification.Id);
-                    }
+
+                    await db.SaveChangesAsync(ct);
                 }
-                await db.SaveChangesAsync(ct);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 log.LogError(ex, "Outbox loop error");
-                await Task.Delay(1000, ct);
             }
+            
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), ct);
+            }
+            catch (OperationCanceledException) { }
         }
     }
 }

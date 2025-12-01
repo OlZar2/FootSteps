@@ -37,7 +37,7 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
         return result;
     }
 
-    public async Task<Guid[]> GetRecipientsIdsExceptMineInRadiusAsync(
+    public async Task<Guid[]> GetUserDevicesForMissingAnnouncementCreateNotificationAsync(
         CoordinatesDto startPoint,
         int meterRadius,
         Guid mineId,

@@ -15,4 +15,6 @@ public interface IUserRepository
     Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken);
     
     Task UpdateAsync(User user, CancellationToken cancellationToken);
+
+    Task<User> GetByIdWithDevicesAsync(Guid id, CancellationToken ct);
 }

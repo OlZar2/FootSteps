@@ -5,11 +5,13 @@ using FS.Core.Entities;
 using FS.Core.Enums.Notifications;
 using FS.Core.Events;
 using FS.Core.Stores;
+using FS.Core.ValueObjects;
 
 namespace FS.Application.Services.NotificationLogic.Implementations;
 
 public class NotificationService(
     IUserQueryService userQueryService,
+    IUserDeviceRepository userDeviceRepository,
     INotificationRepository notificationRepository,
     INotificationDeliveryRepository notificationDeliveryRepository) : INotificationService
 {
@@ -29,20 +31,16 @@ public class NotificationService(
         
         await notificationRepository.CreateAsync(notification, ct);
 
-        var startSearchPoint = new CoordinatesDto
-        {
-            Latitude = @event.CoordinatesVo.Latitude,
-            Longitude = @event.CoordinatesVo.Longitude,
-        };
-        var recipients = await userQueryService
-            .GetRecipientsIdsExceptMineInRadiusAsync(startSearchPoint, 2000, @event.CreatorId, ct);
+        var startSearchPoint = CoordinatesVO.Create(@event.CoordinatesVo.Latitude, @event.CoordinatesVo.Longitude);
+        var userDevices = await userDeviceRepository
+            .GetUserDevicesForMissingAnnouncementCreateNotificationAsync(startSearchPoint, 2000, @event.CreatorId, ct);
         
-        var deliveries = new NotificationDelivery[recipients.Length];
-        foreach (var (recipientId, i) in recipients.Select((value, i) => ( value, i )))
+        var deliveries = new NotificationDelivery[userDevices.Length];
+        foreach (var (userDevice, i) in userDevices.Select((value, i) => ( value, i )))
         {
             var notificationDelivery = NotificationDelivery.Create(
                 notification.Id,
-                recipientId,
+                userDevice,
                 NotificationChannel.Push);
             deliveries[i] = notificationDelivery;
         }

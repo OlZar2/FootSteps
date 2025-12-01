@@ -112,7 +112,7 @@ public class User
 
     public void AddDevice(UserDevice device)
     {
-        if (!_userDevices.Contains(device))
+        if (!_userDevices.Select(ud => ud.DeviceToken).Contains(device.DeviceToken))
         {
             _userDevices.Add(device);
         }

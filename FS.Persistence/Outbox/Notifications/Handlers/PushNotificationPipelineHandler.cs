@@ -14,33 +14,30 @@ public class PushNotificationPipelineHandler(
     public async Task HandleNotificationAsync(Notification notification, CancellationToken ct)
     {
         var deliveries = await notificationDeliveryRepository
-            .GetPushDeliveriesWiyhUserDevicesByNotificationIdAsync(notification.Id, ct);
+            .GetPushDeliveriesForHandlingWiyhUserDevicesByNotificationIdAsync(notification.Id, ct);
         var hasErrors = false;
 
         foreach (var delivery in deliveries)
         {
-            foreach (var device in delivery.User.UserDevices)
+            var pushNotification = new PushNotificationDto
             {
-                var pushNotification = new PushNotificationDto
-                {
-                    Title = notification.Subject,
-                    Body = notification.Text,
-                    DeviceToken = device.DeviceToken,
-                    EntityId = notification.TargetEntityId,
-                    Type = notification.Type,
-                };
+                Title = notification.Subject,
+                Body = notification.Text,
+                DeviceToken = delivery.UserDevice.DeviceToken,
+                EntityId = notification.TargetEntityId,
+                Type = notification.Type,
+            };
 
-                try
-                {
-                    await pushNotificationSender.SendAsync(pushNotification);
-                    delivery.MarkAsSent();
-                    await notificationDeliveryRepository.SaveChangesAsync(ct);
-                }
-                catch (NotificationDeliveryException ex)
-                {
-                    delivery.MarkAsFailed();
-                    hasErrors = true;
-                }
+            try
+            {
+                await pushNotificationSender.SendAsync(pushNotification);
+                delivery.MarkAsSent();
+                await notificationDeliveryRepository.SaveChangesAsync(ct);
+            }
+            catch (NotificationDeliveryException ex)
+            {
+                delivery.MarkAsFailed();
+                hasErrors = true;
             }
         }
         

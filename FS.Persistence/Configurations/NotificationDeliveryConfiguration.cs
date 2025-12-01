@@ -16,8 +16,8 @@ public class NotificationDeliveryConfiguration : IEntityTypeConfiguration<Notifi
             .WithMany()
             .HasForeignKey(i => i.NotificationId);
         
-        builder.HasOne(nd => nd.User)
+        builder.HasOne(nd => nd.UserDevice)
             .WithMany()
-            .HasForeignKey(i => i.UserId);
+            .HasForeignKey(i => i.UserDeviceId);
     }
 }

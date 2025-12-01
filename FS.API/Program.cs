@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using FS.API;
 using FS.API.Middlewares;
 using FS.API.RequestsModels.Auth.Validators;
@@ -95,6 +96,7 @@ services
     {
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
     })
+    .AddFluentValidation()          // автоматический запуск валидации
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();

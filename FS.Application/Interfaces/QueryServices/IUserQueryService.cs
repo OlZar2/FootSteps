@@ -7,7 +7,7 @@ public interface IUserQueryService
 {
     Task<MeInfo> GetUserMainInfoByIdAsync(Guid id, CancellationToken ct);
 
-    Task<Guid[]> GetRecipientsIdsExceptMineInRadiusAsync(
+    Task<Guid[]> GetUserDevicesForMissingAnnouncementCreateNotificationAsync(
         CoordinatesDto startPoint,
         int meterRadius,
         Guid mineId,

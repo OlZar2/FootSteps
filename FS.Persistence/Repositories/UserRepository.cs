@@ -21,6 +21,14 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
                .FirstOrDefaultAsync(u => u.Id == id, ct)
                ?? throw new NotFoundException(nameof(User), id);
     }
+    
+    public async Task<User> GetByIdWithDevicesAsync(Guid id, CancellationToken ct)
+    {
+        return await context.Users
+                   .Include(u => u.UserDevices)
+                   .FirstOrDefaultAsync(u => u.Id == id, ct)
+               ?? throw new NotFoundException(nameof(User), id);
+    }
 
     public async Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken)
     {

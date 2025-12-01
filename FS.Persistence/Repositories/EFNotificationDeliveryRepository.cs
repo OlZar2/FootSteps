@@ -14,14 +14,14 @@ public class EFNotificationDeliveryRepository(ApplicationDbContext context) : IN
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task<NotificationDelivery[]> GetPushDeliveriesWiyhUserDevicesByNotificationIdAsync(
+    public async Task<NotificationDelivery[]> GetPushDeliveriesForHandlingWiyhUserDevicesByNotificationIdAsync(
         Guid notificationId,
         CancellationToken ct)
     {
         return await context.NotificationDeliveries
-            .Include(nd => nd.User)
-            .ThenInclude(u => u.UserDevices)
-            .Where(nd => nd.NotificationId == notificationId && (nd.Status == DeliveryStatus.Pending || nd.Status == DeliveryStatus.Failed))
+            .Include(nd => nd.UserDevice)
+            .Where(nd => nd.NotificationId == notificationId && 
+                (nd.Status == DeliveryStatus.Pending || nd.Status == DeliveryStatus.Failed))
             .ToArrayAsync(ct);
     }
 

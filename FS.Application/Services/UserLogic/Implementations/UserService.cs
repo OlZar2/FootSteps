@@ -83,7 +83,7 @@ public class UserService(
     
     public async Task AddDevice(Guid userId, string deviceToken, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdWithContactsAsync(userId, ct);
+        var user = await userRepository.GetByIdWithDevicesAsync(userId, ct);
         var userDevice = UserDevice.Create(user, deviceToken);
         user.AddDevice(userDevice);
         await userRepository.UpdateAsync(user, ct);

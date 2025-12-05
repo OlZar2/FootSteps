@@ -2,6 +2,7 @@
 using FS.Application.DTOs.Notification;
 using FS.Application.Exceptions;
 using FS.Application.Interfaces.Notifications;
+using FS.Firebase.Constants;
 using Microsoft.Extensions.Logging;
 
 namespace FS.Firebase.Senders;
@@ -21,9 +22,8 @@ public class FirebasePushNotificationSender(
             },
             Data = new Dictionary<string, string>
             {
-                //TODO: в enum
-                { "notification_type", pushNotification.Type.ToString() },
-                { "entityId", pushNotification.EntityId.ToString() ?? string.Empty }
+                { NotificationDataKeys.Type, pushNotification.Type.ToString() },
+                { NotificationDataKeys.EntityId, pushNotification.EntityId.ToString() ?? string.Empty }
             }
         };
 

@@ -1,40 +1,30 @@
 ﻿using FluentValidation;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Contracts.Error;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
+using Microsoft.Extensions.Options;
 
 namespace FS.API.RequestsModels.StreetPetAnnouncement.Validators;
 
 public class CreateStreetPetAnnouncementRMValidator : AbstractValidator<CreateStreetPetAnnouncementRM>
 {
-    //TODO: Вынести в конфиг
-    private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "image/avif",
-        "image/heic",
-        "image/heif",
-        "image/heic-sequence",
-        "image/heif-sequence"
-    };
-    private const long MaxBytes = 5 * 1024 * 1024;
-    
-    public CreateStreetPetAnnouncementRMValidator()
+    public CreateStreetPetAnnouncementRMValidator(IOptions<ImagesOptions> imagesOptions)
     {
         RuleFor(x => x.Images)
             .NotEmpty()
-            .WithErrorCode(IssueCodes.Required);
+                .WithErrorCode(IssueCodes.Required)
+            .Must(images => images.Length is >= 1 and <= 5)
+                .WithMessage("number of images must be between 1 and 5")
+                .WithErrorCode(IssueCodes.TooMany);
         RuleForEach(x => x.Images).ChildRules(file =>
         {
             file.RuleFor(f => f.ContentType)
-                .Must(ct => AllowedContentTypes.Contains(ct))
+                .Must(ct => imagesOptions.Value.AllowedContentTypes.Contains(ct))
                 .WithMessage("Неверный формат файла")
                 .WithErrorCode(IssueCodes.InvalidFormat);
 
             file.RuleFor(f => f.Length)
-                .LessThanOrEqualTo(MaxBytes)
+                .LessThanOrEqualTo(imagesOptions.Value.MaxByteSize)
                 .WithMessage("Максимальный размер файла — 5 МБ.")
                 .WithErrorCode(IssueCodes.TooLarge);
         });

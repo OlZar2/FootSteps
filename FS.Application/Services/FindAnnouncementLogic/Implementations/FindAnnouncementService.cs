@@ -4,12 +4,14 @@ using FS.Application.DTOs.Shared;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
-using FS.Core.Entities;
-using FS.Core.Enums;
-using FS.Core.Specifications;
-using FS.Core.Stores;
-using FS.Core.ValueObjects;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.AnimalAnnouncementBC.Stores;
+using FS.Core.Shared.ValueObjects;
+using Microsoft.Extensions.Options;
 
 namespace FS.Application.Services.FindAnnouncementLogic.Implementations;
 
@@ -17,21 +19,25 @@ public class FindAnnouncementService(
     IFindAnnouncementRepository findAnnouncementRepository,
     IFindAnnouncementQueryService findAnnouncementQueryService,
     ITransactionFactory transactionFactory,
-    IImageService imageService) : IFindAnnouncementService
+    IImageStorageService imageStorageService,
+    IOptions<S3StorageConfiguration> s3StorageOptions) : IFindAnnouncementService
 {
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageOptions.Value;
+    
     public async Task Create(CreateFindAnnouncementData data, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var images = new List<Image>();
+        var images = new List<AnimalAnnouncementImage>();
         foreach (var image in data.Images)
         {
-            var createdImage = await imageService.CreateImageForAnnouncementAsync(
-                image.Content, AnnouncementType.Find, ct, nameof(data.Images));
+            var s3Key = Guid.NewGuid().ToString();
+            var createdImage = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
             images.Add(createdImage);
+            await imageStorageService.UploadAsync(image.Content, s3Key, ct);
         }
 
-        var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Latitude);
+        var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Longitude);
 
         var findAnnouncement = FindAnnouncement.Create(
             street:data.Street,

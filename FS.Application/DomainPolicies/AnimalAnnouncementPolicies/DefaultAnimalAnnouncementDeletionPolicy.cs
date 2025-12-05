@@ -1,5 +1,5 @@
-﻿using FS.Core.Entities;
-using FS.Core.Policies.AnnouncementPolicies;
+﻿using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Policies;
 
 namespace FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 

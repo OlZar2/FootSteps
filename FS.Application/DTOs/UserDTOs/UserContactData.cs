@@ -1,5 +1,5 @@
-﻿using FS.Core.Entities;
-using FS.Core.Enums;
+﻿using FS.Core.UserDomain.Entities;
+using FS.Core.UserDomain.Enums;
 
 namespace FS.Application.DTOs.UserDTOs;
 

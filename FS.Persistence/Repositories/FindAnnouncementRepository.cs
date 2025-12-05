@@ -1,6 +1,6 @@
 ﻿using FS.Application.Exceptions;
-using FS.Core.Entities;
-using FS.Core.Stores;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

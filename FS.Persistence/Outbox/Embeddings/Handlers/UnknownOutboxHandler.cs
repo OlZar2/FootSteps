@@ -1,4 +1,4 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.OutboxDomain.Entities;
 using FS.Persistence.Outbox.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
 

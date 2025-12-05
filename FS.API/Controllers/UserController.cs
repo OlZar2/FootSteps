@@ -6,7 +6,7 @@ using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Services.UserLogic.Interfaces;
-using FS.Core.Enums;
+using FS.Core.UserDomain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

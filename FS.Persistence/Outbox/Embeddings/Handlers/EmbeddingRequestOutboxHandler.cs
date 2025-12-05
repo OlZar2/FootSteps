@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using FS.Application.Interfaces.Events;
-using FS.Core.Entities;
+using FS.Core.OutboxDomain.Entities;
 using FS.Persistence.Outbox.Shared.Interfaces;
 
 namespace FS.Persistence.Outbox.Embeddings.Handlers;

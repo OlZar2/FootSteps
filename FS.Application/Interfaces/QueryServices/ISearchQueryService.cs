@@ -1,5 +1,5 @@
 ﻿using FS.Application.DTOs.SearchDTOs;
-using FS.Core.Entities;
+using FS.Core.AnimalAnnouncementBC;
 
 namespace FS.Application.Interfaces.QueryServices;
 

@@ -29,6 +29,7 @@ public class NotificationsOutboxWorker(
                                     FOR UPDATE SKIP LOCKED
                                     LIMIT 100
                                 """)
+                    .Include(n => n.NotificationDeliveries)
                     .ToListAsync(ct);
                 
                 if (notifications.Count > 0)

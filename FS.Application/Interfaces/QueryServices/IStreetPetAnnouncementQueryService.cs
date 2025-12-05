@@ -1,5 +1,5 @@
 ﻿using FS.Application.DTOs.StreetPetAnnouncementDTOs;
-using FS.Core.Specifications;
+using FS.Core.AnimalAnnouncementBC.Specifications;
 
 namespace FS.Application.Interfaces.QueryServices;
 

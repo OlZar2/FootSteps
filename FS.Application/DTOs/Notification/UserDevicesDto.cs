@@ -1,6 +1,7 @@
 ﻿namespace FS.Application.DTOs.Notification;
 
-public class UserDevicesDto
+public record UserDeviceDto
 {
-    public string[] DeviceIds { get; set; }
+    public required Guid DeliveryId { get; init; }
+    public required string DeviceToken { get; init; }
 }

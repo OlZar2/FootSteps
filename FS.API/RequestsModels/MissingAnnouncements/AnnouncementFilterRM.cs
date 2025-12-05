@@ -1,4 +1,4 @@
-﻿using FS.Core.Enums;
+﻿using FS.Core.AnimalAnnouncementBC.Enums;
 
 namespace FS.API.RequestsModels.MissingAnnouncements;
 

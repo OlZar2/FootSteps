@@ -1,5 +1,4 @@
 ﻿using FS.Application.DTOs.UserDTOs;
-using FS.Core.Entities;
 
 namespace FS.Application.DTOs.AuthDTOs;
 
@@ -18,15 +17,4 @@ public record CreatedUserData
     public string? AvatarPath { get; init; }
 
     public UserContactData[] Contacts { get; init; } = [];
-
-    public static CreatedUserData From(User user) => new()
-    {
-        Id = user.Id,
-        FirstName  = user.FullName.FirstName,
-        SecondName   = user.FullName.SecondName,
-        Patronymic = user.FullName.Patronymic,
-        Email      = user.Email.Value,
-        AvatarPath = user.AvatarImage?.Path,
-        Contacts = user.Contacts.Select(UserContactData.From).ToArray(),
-    };
 }

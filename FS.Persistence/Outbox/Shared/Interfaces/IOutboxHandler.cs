@@ -1,4 +1,4 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.OutboxDomain.Entities;
 
 namespace FS.Persistence.Outbox.Shared.Interfaces;
 

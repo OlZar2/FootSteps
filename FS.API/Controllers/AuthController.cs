@@ -8,7 +8,7 @@ using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Contracts.Error;
-using FS.Core.Enums;
+using FS.Core.UserDomain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -50,13 +50,10 @@ public class AuthController(
     /// Регистрация пользователя
     /// </summary>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(CreatedUserData), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    [SwaggerOperation(
-        Description = "Возвращает объект пользователя, если успешно"
-    )]
-    public async Task<CreatedUserData> Register([FromForm] RegisterRM request, CancellationToken ct)
+    public async Task Register([FromForm] RegisterRM request, CancellationToken ct)
     {
         await registerValidator.ValidateAndThrowAsync(request, ct);
 
@@ -87,8 +84,7 @@ public class AuthController(
             }).ToArray() ?? []
         );
 
-        var response = await authService.RegisterUserAsync(registerDTO, ct);
-        return response;
+        await authService.RegisterUserAsync(registerDTO, ct);
     }
 
     /// <summary>

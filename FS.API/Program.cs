@@ -14,7 +14,6 @@ using FS.API.Services.ImageLogic;
 using FS.Application;
 using FS.Firebase;
 using FS.JWT;
-using FS.Notifications;
 using FS.Persistence;
 using FS.Persistence.Context;
 using FS.RabbitMq;
@@ -62,7 +61,6 @@ services
 services.AddNotificationsHandling();
 
 services
-    .AddDomainEventPublisher()
     .AddFirebase();
 
 services.AddRabbitMq();

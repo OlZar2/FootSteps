@@ -13,4 +13,6 @@ public class MyAnnouncementFeed
     public required string? Street { get; init; }
     
     public DateTime CreatedAt { get; init; }
+    
+    public required string MainImagePath { get; init; }
 }

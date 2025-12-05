@@ -1,4 +1,4 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.AnimalAnnouncementBC;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,11 +10,5 @@ public class StreetPetAnnouncementConfiguration : IEntityTypeConfiguration<Stree
     {
         builder.Property(sp => sp.Location)
             .HasColumnType("geometry(Point,4326)");
-        
-        builder.HasMany(sp => sp.SimilarMissingAnnouncements)
-            .WithMany(ma => ma.SimilarStreetAnnouncements)
-            .UsingEntity(
-                "SimilarAnnouncements"
-            );
     }
 }

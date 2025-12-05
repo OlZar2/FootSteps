@@ -24,7 +24,6 @@
     <ItemGroup>
       <ProjectReference Include="..\FS.Core\FS.Core.csproj" />
       <ProjectReference Include="..\FS.JWT\FS.JWT.csproj" />
-      <ProjectReference Include="..\FS.Notifications\FS.Notifications.csproj" />
     </ItemGroup>
 
     <ItemGroup>

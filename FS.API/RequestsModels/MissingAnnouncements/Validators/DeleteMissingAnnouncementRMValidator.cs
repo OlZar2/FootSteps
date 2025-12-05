@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using FS.Contracts.Error;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
 
 namespace FS.API.RequestsModels.MissingAnnouncements.Validators;
 

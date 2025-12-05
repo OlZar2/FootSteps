@@ -5,12 +5,15 @@ using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.AuthLogic.Interfaces;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
-using FS.Core.Entities;
-using FS.Core.Services;
-using FS.Core.Stores;
-using FS.Core.ValueObjects;
-using FS.Core.ValueObjects.Contacts;
+using FS.Contracts.Error;
+using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.Exceptions;
+using FS.Core.UserDomain;
+using FS.Core.UserDomain.Stores;
+using FS.Core.UserDomain.ValueObjects;
+using Microsoft.Extensions.Options;
 
 namespace FS.Application.Services.AuthLogic.Implementations;
 
@@ -18,42 +21,50 @@ public class AuthService(
     IJwtProvider jwtProvider,
     IPasswordHasher passwordHasher,
     IUserRepository userRepository,
-    IImageService imageService,
+    IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
-    IEmailUniqueService emailUniqueService,
-    IUserQueryService userQueryService)
+    IUserQueryService userQueryService,
+    IOptions<S3StorageConfiguration> s3StorageOptions)
     : IAuthService
 {
-    public async Task<CreatedUserData> RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct)
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageOptions.Value;
+    
+    public async Task RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
+        
+        var isEmailUnique = await userRepository.IsEmailUnique(userRegisterData.Email, ct);
+        if(!isEmailUnique) throw new DomainException(IssueCodes.NotUnique,
+            "email must be unique.", nameof(userRegisterData.Email));
         
         var emailVo = Email.Create(userRegisterData.Email);
         var fullNameVo = FullName
             .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
         var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
-        
-        var image = userRegisterData.AvatarImage != null ? await imageService
-            .CreateImageAsync(userRegisterData.AvatarImage.Content, ct, nameof(RegisterData.AvatarImage)) : null;
+
+        AnimalAnnouncementImage? image = null;
+        if (userRegisterData.AvatarImage != null)
+        {
+            var s3Key = Guid.NewGuid().ToString();
+            image = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+            await imageStorageService.UploadAsync(userRegisterData.AvatarImage.Content, s3Key, ct);
+        }
         
         var userInitContacts =
-            userRegisterData.UserContacts?.Select(uc => new InitialContact(uc.ContactType, uc.Url))
-                .ToArray() ?? [];
+            userRegisterData.UserContacts.Select(uc => new InitialContact(uc.ContactType, uc.Url))
+                .ToArray();
 
-        var user = await User.RegisterAsync(
+        var user = User.Register(
             emailVo,
             hashedPassword,
             fullNameVo,
             userRegisterData.Description,
-            image,
-            emailUniqueService,
-            userInitContacts, ct);
+            image?.Id,
+            userInitContacts);
 
         await userRepository.CreateAsync(user, ct);
         
         await transaction.CommitAsync(ct);
-
-        return CreatedUserData.From(user);
     }
 
     public async Task<JwtData> LoginAsync(LoginData loginData, CancellationToken ct)

@@ -3,23 +3,28 @@ using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Interfaces;
-using FS.Core.Entities;
-using FS.Core.Enums;
-using FS.Core.Specifications;
-using FS.Core.Stores;
-using FS.Core.ValueObjects;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.AnimalAnnouncementBC.Stores;
+using FS.Core.Shared.ValueObjects;
+using Microsoft.Extensions.Options;
 
 namespace FS.Application.Services.MissingPetLogic.Implementations;
 
 public class MissingAnnouncementService(
     IMissingAnnouncementRepository missingAnnouncementRepository,
-    IImageService imageService,
+    IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
-    IMissingAnnouncementQueryService missingAnnouncementQueryService) 
+    IMissingAnnouncementQueryService missingAnnouncementQueryService,
+    IOptions<S3StorageConfiguration> s3StorageOptions) 
     : IMissingAnnouncementService
 {
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageOptions.Value;
+    
     public async Task<MissingAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime,
         AnnouncementFilter announcementFilter, CancellationToken ct)
     {
@@ -31,40 +36,23 @@ public class MissingAnnouncementService(
             null,
             a => a.Images);
         
-        //TODO: переенести из репозитория в queryService
-        var feed = await missingAnnouncementRepository.
+        var feed = await missingAnnouncementQueryService.
             GetFilteredByPageAsync(lastDateTime, missingAnnouncementSpecification, ct);
-
-        var response =  feed.Select(a => new MissingAnnouncementFeed
-        {
-            Id = a.Id,
-            PetName = a.PetName,
-            CreatedAt = a.CreatedAt,
-            District = a.District,
-            PetType = a.PetType,
-            Gender = a.Gender,
-            MainImagePath = a.Images[0].Path,
-            Description = a.Description,
-            Breed = a.Breed,
-        }).ToArray();
         
-        return response;
+        return feed;
     }
 
     public async Task Create(CreateMissingAnnouncementData data, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        //TODO: мб сделать параллельно
-        var images = new List<Image>();
-        foreach (var image in  data.Images)
+        var images = new List<AnimalAnnouncementImage>();
+        foreach (var image in data.Images)
         {
-            var createdImage = await imageService.CreateImageForAnnouncementAsync(
-                image.Content,
-                AnnouncementType.Missing,
-                ct,
-                nameof(data.Images));
+            var s3Key = Guid.NewGuid().ToString();
+            var createdImage = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
             images.Add(createdImage);
+            await imageStorageService.UploadAsync(image.Content, s3Key, ct);
         }
         
         var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Longitude);

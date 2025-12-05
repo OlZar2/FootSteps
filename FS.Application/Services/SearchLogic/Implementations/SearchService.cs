@@ -3,14 +3,20 @@ using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Interfaces.Events;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Contracts.Error;
-using FS.Core.Entities;
+using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.Exceptions;
-using FS.Core.Stores;
+using FS.Core.OutboxDomain.Entities;
+using FS.Core.OutboxDomain.Stores;
+using FS.Core.SearchDomain;
+using FS.Core.SearchDomain.Entities;
+using FS.Core.SearchDomain.Stores;
 using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Pgvector;
 
 namespace FS.Application.Services.SearchLogic.Implementations;
@@ -19,10 +25,14 @@ public class SearchService(
     ISearchQueryService searchQueryService,
     ISearchRequestRepository searchRequestRepository,
     IHubContext<SearchAnnouncementsHub> searchAnnouncementsHub,
-    IImageService imageService,
+    IImageStorageService imageStorageService,
     IOutboxRepository outboxRepository,
+    IImageQueryService imageQueryService,
+    IOptions<S3StorageConfiguration> s3StorageConfigurationOptions,
     ITransactionFactory transactionFactory) : ISearchService
 {
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageConfigurationOptions.Value;
+    
     public async Task DoSearch(Guid searchId, CancellationToken ct)
     {
         var searchRequest = await searchRequestRepository.GetByIdAsync(searchId, ct);
@@ -56,14 +66,16 @@ public class SearchService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var path = await imageService.PutInS3(searchRequestDto.Image, ct);
-        var searchRequest = SearchRequest.Create(path, searchRequestDto.UserId);
+        var s3Key = Guid.NewGuid().ToString();
+        var createdImage = SearchRequestImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+        await imageStorageService.UploadAsync(searchRequestDto.Image, s3Key, ct);
+        var searchRequest = SearchRequest.Create(createdImage, searchRequestDto.UserId);
 
         await searchRequestRepository.AddAsync(searchRequest, ct);
 
         var outboxPayload = JsonSerializer.Serialize(new SearchRequestEvent(
             SearchId: searchRequest.Id.ToString(),
-            ImageUrl: $"http://79.141.79.120:5000/api/image/{path}"
+            ImageUrl: createdImage.FullImagePath
         ));
 
         var outboxEvent = OutboxEvent.Create("image.search.request", outboxPayload);
@@ -81,7 +93,8 @@ public class SearchService(
         searchRequest.SetEmbedding(pgVector);
 
         var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
-        var outboxEvent = OutboxEvent.Create("image.search.request", jobPayload);
+        //TODO: возможно баг и не надо image.search.match
+        var outboxEvent = OutboxEvent.Create("image.search.match", jobPayload);
         await outboxRepository.AddAsync(outboxEvent, ct);
         await searchRequestRepository.UpdateAsync(searchRequest, ct);
         

@@ -1,6 +1,11 @@
 ﻿using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
-using FS.Core.Stores;
+using FS.Core.AnimalAnnouncementBC.Stores;
+using FS.Core.NotificationDomain.Stores;
+using FS.Core.OutboxDomain.Stores;
+using FS.Core.ReadDomain.Stores;
+using FS.Core.SearchDomain.Stores;
+using FS.Core.UserDomain.Stores;
 using FS.Persistence.Outbox.Embeddings;
 using FS.Persistence.Outbox.Embeddings.Handlers;
 using FS.Persistence.Outbox.Notifications;
@@ -19,22 +24,25 @@ public static class DependencyInjection
     {
         services
             .AddScoped<IUserRepository, UserRepository>()
-            .AddScoped<IImageRepository, ImageRepository>()
             .AddScoped<IMissingAnnouncementRepository, MissingAnnouncementRepository>()
             .AddScoped<IFindAnnouncementRepository, FindAnnouncementRepository>()
             .AddScoped<IStreetPetAnnouncementRepository, StreetPetAnnouncementRepository>()
-            .AddScoped<IOutboxRepository, OutboxRepository>()
+            .AddScoped<IOutboxRepository, EFOutboxRepository>()
             .AddScoped<ISearchRequestRepository, EFSearchRequestRepository>()
             .AddScoped<INotificationRepository, EFNotificationRepository>()
-            .AddScoped<INotificationDeliveryRepository, EFNotificationDeliveryRepository>()
-            .AddScoped<IUserDeviceRepository, EFUserDeviceRepository>();
+            .AddScoped<IUserDeviceQueryService, EFUserDevicesQueryService>()
+            .AddScoped<INotificationDeliveryQueryService, EFNotificationDeliveryQueryService>()
+            .AddScoped<IAnimalAnnouncementQueryService, EFAnimalAnnouncementQueryService>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()
             .AddScoped<IFindAnnouncementQueryService, EFFindAnnouncementQueryService>()
             .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
             .AddScoped<IUserQueryService, EFUserQueryService>()
-            .AddScoped<ISearchQueryService, EFSearchQueryService>();
+            .AddScoped<ISearchQueryService, EFSearchQueryService>()
+            .AddScoped<IImageQueryService, EFAnimalAnnouncementImageQueryService>()
+            .AddScoped<ISimilarAnnouncementRepository, EFSimilarAnnouncementRepository>()
+            .AddScoped<IAnimalAnnouncementRepository, EFAnimalAnnouncementRepository>();
         
         services.AddScoped<ITransactionFactory, EfCoreTransactionFactory>();
 

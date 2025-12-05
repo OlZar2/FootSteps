@@ -13,53 +13,33 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
 {
     public async Task<MeInfo> GetUserMainInfoByIdAsync(Guid id, CancellationToken ct)
     {
-        var result = await context.Users
-            .Include(u => u.AvatarImage)
-            .AsNoTracking()
-            .Where(u => u.Id == id)
-            .Select(u => new MeInfo
-            {
-                Id = u.Id,
-                FirstName = u.FullName.FirstName,
-                SecondName = u.FullName.SecondName,
-                Patronymic = u.FullName.Patronymic,
-                AvatarPath = u.AvatarImage != null ? u.AvatarImage.Path : null,
-                Contacts = u.Contacts.Select(c => new MeContactData
-                {
-                    ContactType = c.Type,
-                    Url = c.Url,
-                }).ToArray(),
-                Description = u.Description,
-            })
-            .FirstOrDefaultAsync(ct)
+        var result =
+            await (
+                    from u in context.Users
+                    where u.Id == id
+                    join img in context.AnimalAnnouncementImages
+                        on u.AvatarImageId equals img.Id into gj
+                    from avatar in gj.DefaultIfEmpty()
+                    select new MeInfo
+                    {
+                        Id = u.Id,
+                        FirstName = u.FullName.FirstName,
+                        SecondName = u.FullName.SecondName,
+                        Patronymic = u.FullName.Patronymic,
+                        AvatarPath = avatar.FullImagePath,
+                        Contacts = u.Contacts
+                            .Select(c => new MeContactData
+                            {
+                                ContactType = c.Type,
+                                Url = c.Url,
+                            })
+                            .ToArray(),
+                        Description = u.Description,
+                    }
+                )
+                .FirstOrDefaultAsync(ct)
             ?? throw new NotFoundException("User", id);
-        
+
         return result;
-    }
-
-    public async Task<Guid[]> GetUserDevicesForMissingAnnouncementCreateNotificationAsync(
-        CoordinatesDto startPoint,
-        int meterRadius,
-        Guid mineId,
-        CancellationToken ct)
-    {
-        //TODO: возможно лучше в сервисе
-        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-        var centerPoint = geometryFactory.CreatePoint(new Coordinate(
-            startPoint.Longitude,
-            startPoint.Latitude));
-
-        var query =
-            from u in context.Users
-            where u.LastCoordinates != null &&
-                  EF.Functions.IsWithinDistance(
-                      u.LastCoordinates!,
-                      centerPoint,
-                      meterRadius,
-                      false) &&
-                  u.Id != mineId
-            select u.Id;
-    
-        return await query.ToArrayAsync(ct);
     }
 }

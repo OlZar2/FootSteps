@@ -1,4 +1,5 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.UserDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -32,7 +33,7 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
             .HasColumnType("geometry(Point,4326)");
         
         builder
-            .HasOne(u => u.AvatarImage)
+            .HasOne<AnimalAnnouncementImage>()
             .WithOne()
             .HasForeignKey<User>(u => u.AvatarImageId)
             .OnDelete(DeleteBehavior.SetNull);

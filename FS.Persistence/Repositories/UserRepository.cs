@@ -1,6 +1,6 @@
 ﻿using FS.Application.Exceptions;
-using FS.Core.Entities;
-using FS.Core.Stores;
+using FS.Core.UserDomain;
+using FS.Core.UserDomain.Stores;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,10 +30,9 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
                ?? throw new NotFoundException(nameof(User), id);
     }
 
-    public async Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Users
-                   .Include(u => u.AvatarImage)
                    .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
                ?? throw new NotFoundException(nameof(User), id);
     }

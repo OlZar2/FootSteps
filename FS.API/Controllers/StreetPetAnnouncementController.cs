@@ -8,7 +8,7 @@ using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Contracts.Error;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
 
 namespace FS.Application.Interfaces.Events;
 

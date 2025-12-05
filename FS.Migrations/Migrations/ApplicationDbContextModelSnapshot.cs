@@ -26,7 +26,7 @@ namespace FS.Migrations.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FS.Core.Entities.AnimalAnnouncement", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +74,7 @@ namespace FS.Migrations.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.Image", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.Entities.AnimalAnnouncementImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,10 +83,18 @@ namespace FS.Migrations.Migrations
                     b.Property<Guid?>("AnimalAnnouncementId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BucketURL")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Vector>("Embedding")
                         .HasColumnType("vector(512)");
 
-                    b.Property<string>("Path")
+                    b.Property<string>("FullImagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("S3Key")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -94,16 +102,65 @@ namespace FS.Migrations.Migrations
 
                     b.HasIndex("AnimalAnnouncementId");
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("AnimalAnnouncementImages", (string)null);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.Notification", b =>
+            modelBuilder.Entity("FS.Core.NotificationDomain.Entities.NotificationDelivery", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UserDeviceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("UserDeviceId");
+
+                    b.ToTable("NotificationDeliveries", (string)null);
+                });
+
+            modelBuilder.Entity("FS.Core.NotificationDomain.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.PrimitiveCollection<int[]>("Channels")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsCompleted")
@@ -128,52 +185,7 @@ namespace FS.Migrations.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.NotificationDelivery", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AttemptCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Channel")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("LastAttemptAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("NotificationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("ReadAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("UserDeviceId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NotificationId");
-
-                    b.HasIndex("UserDeviceId");
-
-                    b.ToTable("NotificationDeliveries", (string)null);
-                });
-
-            modelBuilder.Entity("FS.Core.Entities.OutboxEvent", b =>
+            modelBuilder.Entity("FS.Core.OutboxDomain.Entities.OutboxEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -198,7 +210,51 @@ namespace FS.Migrations.Migrations
                     b.ToTable("OutboxEvents");
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.SearchRequest", b =>
+            modelBuilder.Entity("FS.Core.ReadDomain.SimilarAnnouncements", b =>
+                {
+                    b.Property<Guid>("StreetPetAnnouncementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MissingAnnouncementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("StreetPetAnnouncementId", "MissingAnnouncementId");
+
+                    b.HasIndex("MissingAnnouncementId");
+
+                    b.ToTable("SimilarAnnouncements");
+                });
+
+            modelBuilder.Entity("FS.Core.SearchDomain.Entities.SearchRequestImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BucketURL")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Vector>("Embedding")
+                        .HasColumnType("vector(512)");
+
+                    b.Property<string>("FullImagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("S3Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SearchRequestImages", (string)null);
+                });
+
+            modelBuilder.Entity("FS.Core.SearchDomain.SearchRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -213,19 +269,47 @@ namespace FS.Migrations.Migrations
                     b.Property<Vector>("Embedding")
                         .HasColumnType("vector(512)");
 
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("SearchRequestStatus")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ImageId")
+                        .IsUnique();
+
                     b.ToTable("SearchRequests", (string)null);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.User", b =>
+            modelBuilder.Entity("FS.Core.UserDomain.Entities.UserDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeviceToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDevices", (string)null);
+                });
+
+            modelBuilder.Entity("FS.Core.UserDomain.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -252,32 +336,6 @@ namespace FS.Migrations.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.UserDevice", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeviceToken")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserDevices", (string)null);
-                });
-
             modelBuilder.Entity("SearchResults", b =>
                 {
                     b.Property<Guid>("AnimalAnnouncementId")
@@ -293,24 +351,9 @@ namespace FS.Migrations.Migrations
                     b.ToTable("SearchResults");
                 });
 
-            modelBuilder.Entity("SimilarAnnouncements", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.PetAnnouncement", b =>
                 {
-                    b.Property<Guid>("SimilarMissingAnnouncementsId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SimilarStreetAnnouncementsId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("SimilarMissingAnnouncementsId", "SimilarStreetAnnouncementsId");
-
-                    b.HasIndex("SimilarStreetAnnouncementsId");
-
-                    b.ToTable("SimilarAnnouncements");
-                });
-
-            modelBuilder.Entity("FS.Core.Entities.PetAnnouncement", b =>
-                {
-                    b.HasBaseType("FS.Core.Entities.AnimalAnnouncement");
+                    b.HasBaseType("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement");
 
                     b.Property<string>("Breed")
                         .HasColumnType("text");
@@ -328,9 +371,9 @@ namespace FS.Migrations.Migrations
                         .HasColumnType("boolean");
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.StreetPetAnnouncement", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.StreetPetAnnouncement", b =>
                 {
-                    b.HasBaseType("FS.Core.Entities.AnimalAnnouncement");
+                    b.HasBaseType("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement");
 
                     b.Property<string>("PlaceDescription")
                         .HasColumnType("text");
@@ -338,9 +381,9 @@ namespace FS.Migrations.Migrations
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.FindAnnouncement", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.FindAnnouncement", b =>
                 {
-                    b.HasBaseType("FS.Core.Entities.PetAnnouncement");
+                    b.HasBaseType("FS.Core.AnimalAnnouncementBC.PetAnnouncement");
 
                     b.Property<int>("DeleteReason")
                         .HasColumnType("integer");
@@ -348,9 +391,9 @@ namespace FS.Migrations.Migrations
                     b.HasDiscriminator().HasValue(0);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.MissingAnnouncement", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.MissingAnnouncement", b =>
                 {
-                    b.HasBaseType("FS.Core.Entities.PetAnnouncement");
+                    b.HasBaseType("FS.Core.AnimalAnnouncementBC.PetAnnouncement");
 
                     b.Property<int>("DeleteReason")
                         .HasColumnType("integer");
@@ -368,45 +411,78 @@ namespace FS.Migrations.Migrations
                     b.HasDiscriminator().HasValue(1);
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.AnimalAnnouncement", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", b =>
                 {
-                    b.HasOne("FS.Core.Entities.User", null)
+                    b.HasOne("FS.Core.UserDomain.User", null)
                         .WithMany()
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.Image", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.Entities.AnimalAnnouncementImage", b =>
                 {
-                    b.HasOne("FS.Core.Entities.AnimalAnnouncement", null)
+                    b.HasOne("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", null)
                         .WithMany("Images")
                         .HasForeignKey("AnimalAnnouncementId");
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.NotificationDelivery", b =>
+            modelBuilder.Entity("FS.Core.NotificationDomain.Entities.NotificationDelivery", b =>
                 {
-                    b.HasOne("FS.Core.Entities.Notification", null)
-                        .WithMany()
+                    b.HasOne("FS.Core.NotificationDomain.Notification", null)
+                        .WithMany("NotificationDeliveries")
                         .HasForeignKey("NotificationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FS.Core.Entities.UserDevice", "UserDevice")
+                    b.HasOne("FS.Core.UserDomain.Entities.UserDevice", null)
                         .WithMany()
                         .HasForeignKey("UserDeviceId");
-
-                    b.Navigation("UserDevice");
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.User", b =>
+            modelBuilder.Entity("FS.Core.ReadDomain.SimilarAnnouncements", b =>
                 {
-                    b.HasOne("FS.Core.Entities.Image", "AvatarImage")
+                    b.HasOne("FS.Core.AnimalAnnouncementBC.MissingAnnouncement", null)
+                        .WithMany()
+                        .HasForeignKey("MissingAnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FS.Core.AnimalAnnouncementBC.StreetPetAnnouncement", null)
+                        .WithMany()
+                        .HasForeignKey("StreetPetAnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FS.Core.SearchDomain.SearchRequest", b =>
+                {
+                    b.HasOne("FS.Core.SearchDomain.Entities.SearchRequestImage", "Image")
                         .WithOne()
-                        .HasForeignKey("FS.Core.Entities.User", "AvatarImageId")
+                        .HasForeignKey("FS.Core.SearchDomain.SearchRequest", "ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("FS.Core.UserDomain.Entities.UserDevice", b =>
+                {
+                    b.HasOne("FS.Core.UserDomain.User", null)
+                        .WithMany("UserDevices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FS.Core.UserDomain.User", b =>
+                {
+                    b.HasOne("FS.Core.AnimalAnnouncementBC.Entities.AnimalAnnouncementImage", null)
+                        .WithOne()
+                        .HasForeignKey("FS.Core.UserDomain.User", "AvatarImageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.OwnsMany("FS.Core.Entities.UserContact", "Contacts", b1 =>
+                    b.OwnsMany("FS.Core.UserDomain.Entities.UserContact", "Contacts", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
@@ -432,7 +508,7 @@ namespace FS.Migrations.Migrations
                                 .HasForeignKey("UserId");
                         });
 
-                    b.OwnsOne("FS.Core.ValueObjects.Email", "Email", b1 =>
+                    b.OwnsOne("FS.Core.UserDomain.ValueObjects.Email", "Email", b1 =>
                         {
                             b1.Property<Guid>("UserId")
                                 .HasColumnType("uuid");
@@ -450,7 +526,7 @@ namespace FS.Migrations.Migrations
                                 .HasForeignKey("UserId");
                         });
 
-                    b.OwnsOne("FS.Core.ValueObjects.FullName", "FullName", b1 =>
+                    b.OwnsOne("FS.Core.UserDomain.ValueObjects.FullName", "FullName", b1 =>
                         {
                             b1.Property<Guid>("UserId")
                                 .HasColumnType("uuid");
@@ -476,8 +552,6 @@ namespace FS.Migrations.Migrations
                                 .HasForeignKey("UserId");
                         });
 
-                    b.Navigation("AvatarImage");
-
                     b.Navigation("Contacts");
 
                     b.Navigation("Email")
@@ -487,51 +561,32 @@ namespace FS.Migrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.UserDevice", b =>
-                {
-                    b.HasOne("FS.Core.Entities.User", null)
-                        .WithMany("UserDevices")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SearchResults", b =>
                 {
-                    b.HasOne("FS.Core.Entities.AnimalAnnouncement", null)
+                    b.HasOne("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", null)
                         .WithMany()
                         .HasForeignKey("AnimalAnnouncementId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("FS.Core.Entities.SearchRequest", null)
+                    b.HasOne("FS.Core.SearchDomain.SearchRequest", null)
                         .WithMany()
                         .HasForeignKey("SearchRequestId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SimilarAnnouncements", b =>
-                {
-                    b.HasOne("FS.Core.Entities.MissingAnnouncement", null)
-                        .WithMany()
-                        .HasForeignKey("SimilarMissingAnnouncementsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FS.Core.Entities.StreetPetAnnouncement", null)
-                        .WithMany()
-                        .HasForeignKey("SimilarStreetAnnouncementsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FS.Core.Entities.AnimalAnnouncement", b =>
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", b =>
                 {
                     b.Navigation("Images");
                 });
 
-            modelBuilder.Entity("FS.Core.Entities.User", b =>
+            modelBuilder.Entity("FS.Core.NotificationDomain.Notification", b =>
+                {
+                    b.Navigation("NotificationDeliveries");
+                });
+
+            modelBuilder.Entity("FS.Core.UserDomain.User", b =>
                 {
                     b.Navigation("UserDevices");
                 });

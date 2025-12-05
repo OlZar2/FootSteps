@@ -25,6 +25,8 @@ public static class Configuration
         services.Configure<ImageEmbeddingRabbitOptions>(
             configuration.GetSection(nameof(ImageEmbeddingRabbitOptions)));
         
+        services.Configure<ImagesOptions>(
+            configuration.GetSection(nameof(ImagesOptions)));
         return services;
     }
 }

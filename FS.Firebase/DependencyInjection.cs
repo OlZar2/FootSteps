@@ -10,16 +10,13 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFirebase(this IServiceCollection services)
     {
-        //TODO: положить файл нормально
         var firebaseApp = FirebaseApp.Create(new AppOptions
         {
             Credential = GoogleCredential.FromFile("footsteps-1e536-firebase-adminsdk-fbsvc-3c34098cef.json")
         });
         
         services.AddSingleton(firebaseApp);
-
-        //TODO: может синглтон?
-        services.AddScoped<IPushNotificationSender, FirebasePushNotificationSender>();
+        services.AddSingleton<IPushNotificationSender, FirebasePushNotificationSender>();
         
         return services;
     }

@@ -1,27 +1,13 @@
 ﻿using FluentValidation;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Contracts.Error;
+using Microsoft.Extensions.Options;
 
 namespace FS.API.RequestsModels.Search.Validators;
 
 public class SearchRMValidator : AbstractValidator<SearchRequestModel>
 {
-    //TODO: Вынести в конфиг
-    private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "image/avif",
-        "image/heic",
-        "image/heif",
-        "image/heic-sequence",
-        "image/heif-sequence"
-    };
-    private const long MaxBytes = 5 * 1024 * 1024;
-    
-    //TODO: Ограничение на кол-во файлов
-    public SearchRMValidator()
+    public SearchRMValidator(IOptions<ImagesOptions> imagesOptions)
     {
         RuleFor(x => x.Image)
             .NotNull()
@@ -29,11 +15,11 @@ public class SearchRMValidator : AbstractValidator<SearchRequestModel>
             .NotEmpty()
             .WithErrorCode(IssueCodes.Required);
         RuleFor(x => x.Image.ContentType)
-            .Must(ct => AllowedContentTypes.Contains(ct))
+            .Must(ct => imagesOptions.Value.AllowedContentTypes.Contains(ct))
             .WithMessage("Неверный формат файла")
             .WithErrorCode(IssueCodes.InvalidFormat);
         RuleFor(x => x.Image.Length)
-            .LessThanOrEqualTo(MaxBytes)
+            .LessThanOrEqualTo(imagesOptions.Value.MaxByteSize)
             .WithMessage("Максимальный размер файла — 5 МБ.")
             .WithErrorCode(IssueCodes.TooLarge);
     }

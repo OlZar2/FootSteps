@@ -1,6 +1,6 @@
 ﻿using FS.Application.Exceptions;
-using FS.Core.Entities;
-using FS.Core.Stores;
+using FS.Core.SearchDomain;
+using FS.Core.SearchDomain.Stores;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,6 @@
 ﻿using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
 
 namespace FS.Application.DTOs.MissingAnnouncementDTOs;
 

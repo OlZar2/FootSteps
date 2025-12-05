@@ -15,4 +15,8 @@
       <ProjectReference Include="..\FS.Contracts\FS.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Entities\" />
+    </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.NotificationDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

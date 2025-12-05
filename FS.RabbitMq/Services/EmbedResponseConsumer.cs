@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using FS.Application.Interfaces.Events;
-using FS.Application.Services.ImageLogic.Interfaces;
+using FS.Application.Services.AnnouncementLogic.Interfaces;
 using FS.RabbitMq.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -80,12 +80,12 @@ public sealed class EmbedResponseConsumer(
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             using var scope = serviceProvider.CreateScope();
-            var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
+            var animalAnnouncementService = scope.ServiceProvider.GetRequiredService<IAnimalAnnouncementService>();
 
             Guid.TryParse(res.ImageId, out var imageGuid);
             var vector = new Pgvector.Vector(res.Embedding);
             
-            await imageService.UpdateEmbeddingAsync(imageGuid, vector, res.AnnouncementType, CancellationToken.None);
+            await animalAnnouncementService.UpdateEmbeddingAsync(imageGuid, vector, CancellationToken.None);
 
             if (_ch is not null)
                 await _ch.BasicAckAsync(ea.DeliveryTag, multiple: false);

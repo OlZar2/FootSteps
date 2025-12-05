@@ -1,4 +1,5 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.AnimalAnnouncementBC;
+using FS.Core.SearchDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,6 +15,9 @@ public class SearchRequestConfiguration: IEntityTypeConfiguration<SearchRequest>
         
         builder.Property(x => x.Embedding)
             .HasColumnType("vector(512)");
+
+        builder.HasOne(sr => sr.Image)
+            .WithOne();
         
         builder
             .HasMany(r => r.Results)

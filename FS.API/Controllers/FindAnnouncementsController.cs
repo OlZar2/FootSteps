@@ -9,7 +9,7 @@ using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
 using FS.Contracts.Error;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

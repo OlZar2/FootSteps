@@ -1,4 +1,4 @@
-﻿using FS.Core.Events;
+﻿using FS.Core.AnimalAnnouncementBC.Events;
 
 namespace FS.Application.Services.NotificationLogic.Interfaces;
 

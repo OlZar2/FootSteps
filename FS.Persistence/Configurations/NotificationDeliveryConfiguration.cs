@@ -1,4 +1,6 @@
-﻿using FS.Core.Entities;
+﻿using FS.Core.NotificationDomain;
+using FS.Core.NotificationDomain.Entities;
+using FS.Core.UserDomain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,10 +15,10 @@ public class NotificationDeliveryConfiguration : IEntityTypeConfiguration<Notifi
         builder.HasKey(i => i.Id);
 
         builder.HasOne<Notification>()
-            .WithMany()
+            .WithMany(n => n.NotificationDeliveries)
             .HasForeignKey(i => i.NotificationId);
         
-        builder.HasOne(nd => nd.UserDevice)
+        builder.HasOne<UserDevice>()
             .WithMany()
             .HasForeignKey(i => i.UserDeviceId);
     }

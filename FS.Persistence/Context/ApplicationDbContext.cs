@@ -1,19 +1,28 @@
-﻿using FS.Core.Abstractions;
-using FS.Core.Entities;
-using FS.Notifications;
+﻿using FS.Application.Events;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.NotificationDomain;
+using FS.Core.NotificationDomain.Entities;
+using FS.Core.OutboxDomain.Entities;
+using FS.Core.ReadDomain;
+using FS.Core.SearchDomain;
+using FS.Core.SearchDomain.Entities;
+using FS.Core.Shared.Abstractions;
+using FS.Core.UserDomain;
+using FS.Core.UserDomain.Entities;
 using FS.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace FS.Persistence.Context;
 
-public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatcher dispatcher) : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new AnimalAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new FindAnnouncementConfiguration());
-        modelBuilder.ApplyConfiguration(new ImageConfiguration());
+        modelBuilder.ApplyConfiguration(new AnimalAnnouncementImageConfiguration());
+        modelBuilder.ApplyConfiguration(new SearchRequestImageConfiguration());
         modelBuilder.ApplyConfiguration(new MissingAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new StreetPetAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
@@ -21,6 +30,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.ApplyConfiguration(new NotificationConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationDeliveryConfiguration());
         modelBuilder.ApplyConfiguration(new UserDeviceConfiguration());
+        modelBuilder.ApplyConfiguration(new SimilarAnnouncementsConfiguration());
         
         base.OnModelCreating(modelBuilder);
         
@@ -37,17 +47,16 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
 
         foreach (var e in ChangeTracker.Entries<AggregateRoot>())
             e.Entity.ClearDomainEvents();
-
-        //TODO: надо UOW
-        var publisher = this.GetService<IDomainEventPublisher>();
-        await publisher.PublishAsync(domainEvents, ct);
+        
+        await dispatcher.DispatchAsync(domainEvents, ct);
         return result;
     }
     
     public DbSet<AnimalAnnouncement> AnimalAnnouncements { get; set; } = null!;
     public DbSet<PetAnnouncement> PetAnnouncements { get; set; } = null!;
     public DbSet<FindAnnouncement> FindAnnouncements { get; set; } = null!;
-    public DbSet<Image> Images { get; set; } = null!;
+    public DbSet<AnimalAnnouncementImage> AnimalAnnouncementImages { get; set; } = null!;
+    public DbSet<SearchRequestImage> SearchRequestImages { get; set; } = null!;
     public DbSet<MissingAnnouncement> MissingAnnouncements { get; set; } = null!;
     public DbSet<StreetPetAnnouncement> StreetPetAnnouncements { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
@@ -56,4 +65,5 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Notification> Notifications { get; set; } = null!;
     public DbSet<NotificationDelivery> NotificationDeliveries { get; set; } = null!;
     public DbSet<UserDevice> UserDevices { get; set; } = null!;
+    public DbSet<SimilarAnnouncements> SimilarAnnouncements { get; set; } = null!;
 }

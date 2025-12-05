@@ -1,5 +1,7 @@
 ﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.DomainPolicies.UserPolicies;
+using FS.Application.Services.AnnouncementLogic.Implementations;
+using FS.Application.Services.AnnouncementLogic.Interfaces;
 using FS.Application.Services.AuthLogic.Implementations;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.FindAnnouncementLogic.Implementations;
@@ -16,10 +18,12 @@ using FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Application.Services.UserLogic.Implementations;
 using FS.Application.Services.UserLogic.Interfaces;
-using FS.Core.Policies.AnnouncementPolicies;
-using FS.Core.Policies.UserPolicies;
-using FS.Core.Services;
+using FS.Core.AnimalAnnouncementBC.Policies;
+using FS.Core.UserDomain.UserPolicies;
 using Microsoft.Extensions.DependencyInjection;
+using FS.Application.Events;
+using FS.Application.Services.AnnouncementLogic.Handlers;
+using FS.Core.AnimalAnnouncementBC.Events;
 
 namespace FS.Application;
 
@@ -29,21 +33,26 @@ public static class DependencyInjection
     {
         services
             .AddScoped<IAuthService, AuthService>()
-            .AddScoped<IImageService, YandexCloudImageService>()
+            .AddScoped<IImageStorageService, YandexCloudImageStorageService>()
             .AddScoped<IPasswordHasher, PasswordHasher>()
             .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>()
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()
             .AddScoped<IStreetPetAnnouncementService, StreetPetAnnouncementService>()
             .AddScoped<IUserService, UserService>()
             .AddScoped<ISearchService, SearchService>()
-            .AddScoped<INotificationService, NotificationService>();
-
-        services
-            .AddScoped<IEmailUniqueService, EmailUniqueService>();
+            .AddScoped<INotificationService, NotificationService>()
+            .AddScoped<IAnimalAnnouncementService, AnimalAnnouncementService>();
 
         services
             .AddScoped<IAnimalAnnouncementDeletionPolicy, DefaultAnimalAnnouncementDeletionPolicy>()
             .AddScoped<IEditUserPolicy, DefaultEditUserPolicy>();
+        
+        services
+            .AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
+        
+        services.AddScoped<IDomainEventHandler<MissingAnnouncementCreatedDomainEvent>, MissingAnnouncementCreatedDomainEventHandler>();
+        services.AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>, StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>();
+        services.AddScoped<IDomainEventHandler<AnnouncementCreatedDomainEvent>, AnnouncementCreatedDomainEventHandler>();
 
         return services;
     }

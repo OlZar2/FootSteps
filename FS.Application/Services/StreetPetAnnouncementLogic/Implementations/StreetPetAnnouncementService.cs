@@ -2,43 +2,47 @@
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
-using FS.Core.Entities;
-using FS.Core.Enums;
-using FS.Core.Specifications;
-using FS.Core.Stores;
-using FS.Core.ValueObjects;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.AnimalAnnouncementBC.Stores;
+using FS.Core.ReadDomain;
+using FS.Core.ReadDomain.Stores;
+using FS.Core.Shared.ValueObjects;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
 
 public class StreetPetAnnouncementService(
     IStreetPetAnnouncementRepository streetPetAnnouncementRepository,
     ITransactionFactory transactionFactory,
-    IImageService imageService,
+    IImageStorageService imageStorageService,
     IStreetPetAnnouncementQueryService streetPetAnnouncementQueryService,
     IMissingAnnouncementRepository missingAnnouncementRepository,
-    IImageRepository imageRepository,
-    ILogger<StreetPetAnnouncementService> logger)
+    ILogger<StreetPetAnnouncementService> logger,
+    ISimilarAnnouncementRepository similarAnnouncementRepository,
+    IOptions<S3StorageConfiguration> s3Options)
     : IStreetPetAnnouncementService
 {
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3Options.Value;
+    
     public async Task CreateAsync(CreateStreetPetAnnouncementData data, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
         var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Latitude);
-
-        //TODO: сделать параллельно
-        var images = new List<Image>();
+        
+        var images = new List<AnimalAnnouncementImage>();
         foreach (var image in data.Images)
         {
-            var createdImage = await imageService.CreateImageForAnnouncementAsync(
-                image.Content,
-                AnnouncementType.Street,
-                ct,
-                nameof(data.Images));
+            var s3Key = Guid.NewGuid().ToString();
+            var createdImage = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
             images.Add(createdImage);
+            await imageStorageService.UploadAsync(image.Content, s3Key, ct);
         }
 
         var streetPetAnnouncement = StreetPetAnnouncement.Create(
@@ -92,9 +96,9 @@ public class StreetPetAnnouncementService(
             logger.LogWarning("Announcement is null when finding similar announcements");
             return;
         }
-
-        var image = imageRepository.GetByIdAsync(streetAnnouncementImageId, ct).Result;
-        if (image.Embedding == null)
+        
+        var image = streetPetAnnouncement.Images.FirstOrDefault(i => i.Id == streetAnnouncementImageId);
+        if (image?.Embedding == null)
         {
             logger.LogWarning("Embedding is null when finding similar announcements");
             return;
@@ -102,6 +106,13 @@ public class StreetPetAnnouncementService(
         
         var similarMissingAnnouncements = await missingAnnouncementRepository
             .GetSimilarMissingAnnouncementAsync(image.Embedding, ct);
-        streetPetAnnouncement.AddSimilarMissingAnnouncements(similarMissingAnnouncements);
+        
+        //TODO: Возможно это тожн лучше через domainEvent
+        var similarReadModels = similarMissingAnnouncements.Select(sma => new SimilarAnnouncements
+        {
+            StreetPetAnnouncementId = streetAnnouncementImageId,
+            MissingAnnouncementId = sma.Id,
+        });
+        await similarAnnouncementRepository.AddRangeAsync(similarReadModels, ct);
     }
 }

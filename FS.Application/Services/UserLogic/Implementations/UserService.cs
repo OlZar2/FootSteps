@@ -1,13 +1,16 @@
 ﻿using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Transaction;
+using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.UserLogic.Interfaces;
-using FS.Core.Entities;
-using FS.Core.Policies.UserPolicies;
-using FS.Core.Stores;
-using FS.Core.ValueObjects;
-using FS.Core.ValueObjects.Contacts;
+using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.UserDomain.Entities;
+using FS.Core.UserDomain.Stores;
+using FS.Core.UserDomain.UserPolicies;
+using FS.Core.UserDomain.ValueObjects;
+using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -16,9 +19,14 @@ namespace FS.Application.Services.UserLogic.Implementations;
 public class UserService(
     IUserRepository userRepository,
     IEditUserPolicy editUserPolicy,
-    IImageService imageService,
-    ITransactionFactory transactionFactory) : IUserService
+    IImageStorageService imageStorageService,
+    IImageQueryService imageQueryService,
+    ITransactionFactory transactionFactory,
+    IOptions<S3StorageConfiguration> s3Options
+    ) : IUserService
 {
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3Options.Value;
+    
     public async Task UpdateUserInfoAsync(Guid actorId, UpdateUserInfo userInfo, CancellationToken ct)
     {
         var user = await userRepository.GetByIdWithContactsAsync(userInfo.UserId, ct);
@@ -48,19 +56,23 @@ public class UserService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var user = await userRepository.GetByIdWithAvatarAsync(updateUserAvatar.UserId, ct);
+        var user = await userRepository.GetByIdAsync(updateUserAvatar.UserId, ct);
         
-        var image = updateUserAvatar.Avatar != null ?
-            await imageService.CreateImageAsync(updateUserAvatar.Avatar.Content, ct,
-                nameof(updateUserAvatar.Avatar)) : null;
-
-        if (user.AvatarImage != null)
+        AnimalAnnouncementImage? image = null;
+        if (updateUserAvatar.Avatar != null)
         {
-            await imageService.DeleteImageAsync(user.AvatarImage.Id, user.AvatarImage.Path, ct);
+            var s3Key = Guid.NewGuid().ToString();
+            image = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+            await imageStorageService.UploadAsync(updateUserAvatar.Avatar.Content, s3Key, ct);
+        }
+
+        if (user.AvatarImageId != null)
+        {
+            var imageStorageKey = await imageQueryService.GetStorageKeyByImageId(user.AvatarImageId.Value, ct);
+            await imageStorageService.DeleteAsync(imageStorageKey, ct);
         }
         
-        user.UpdateAvatar(actorId, image, editUserPolicy);
-        
+        user.UpdateAvatar(actorId, image?.Id, editUserPolicy);
         await userRepository.UpdateAsync(user, ct);
 
         await transaction.CommitAsync(ct);
@@ -68,8 +80,7 @@ public class UserService(
 
     public async Task UpdateUserLocation(Guid userId, CoordinatesDto coordinates, CancellationToken ct)
     {
-        //TODO: аватар не нужен
-        var user = await userRepository.GetByIdWithAvatarAsync(userId, ct);
+        var user = await userRepository.GetByIdAsync(userId, ct);
         
         var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
         var point = geometryFactory.CreatePoint(new Coordinate(

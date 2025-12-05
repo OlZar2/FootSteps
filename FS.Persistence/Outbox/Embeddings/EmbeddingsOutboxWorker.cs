@@ -1,4 +1,5 @@
-﻿using FS.Persistence.Context;
+﻿using FS.Core.OutboxDomain.Stores;
+using FS.Persistence.Context;
 using FS.Persistence.Outbox.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,18 +20,8 @@ public sealed class EmbeddingsOutboxWorker(
             try
             {
                 using var scope = sp.CreateScope();
-                //TODO: вынести в репозиторий
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                
-                var events = await db.OutboxEvents
-                    .FromSqlRaw("""
-                                    SELECT * FROM "OutboxEvents"
-                                    WHERE "PublishedUtc" IS NULL
-                                    ORDER BY "Id"
-                                    FOR UPDATE SKIP LOCKED
-                                    LIMIT 100
-                                """)
-                    .ToListAsync(ct);
+                var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+                var events = await outboxRepository.GetEventsWithLock(100, ct);
 
                 if (events.Count == 0)
                 {
@@ -52,7 +43,7 @@ public sealed class EmbeddingsOutboxWorker(
                         log.LogError(ex, "Outbox publish failed for event {Id}", e.Id);
                     }
                 }
-                await db.SaveChangesAsync(ct);
+                await outboxRepository.SaveChangesAsync(ct);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)

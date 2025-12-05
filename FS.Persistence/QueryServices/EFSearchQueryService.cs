@@ -1,7 +1,8 @@
 ﻿using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Exceptions;
 using FS.Application.Interfaces.QueryServices;
-using FS.Core.Entities;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.SearchDomain;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -16,15 +17,15 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
         var search = await context.SearchRequests
                          .FirstOrDefaultAsync(s => s.Id == searchId, cancellationToken: ct)
             ?? throw new NotFoundException(nameof(SimilarAnnouncement), searchId);
-
-        var similarImages = await context.Images
+        
+        var similarImages = await context.AnimalAnnouncementImages
             .FromSqlRaw(@"
-                SELECT ""Id"", ""Path""
+                SELECT ""Id"", ""FullImagePath""
                 FROM ""Images""
                 ORDER BY ""Embedding"" <=> @embedding
                 LIMIT 5",
                 new NpgsqlParameter("embedding", search.Embedding))
-            .Select(i => new { i.Id, i.Path })
+            .Select(i => new { i.Id, i.FullImagePath })
             .ToArrayAsync(cancellationToken: ct);
 
         var similarIds = similarImages.Select(i => i.Id).ToArray();
@@ -50,7 +51,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                 Results = sr.Results.Select(aa => new SimilarAnnouncement
                 {
                     Id = aa.Id,
-                    MainImagePath = aa.Images[0].Path,
+                    MainImagePath = aa.Images.First().FullImagePath,
                     District = aa.District,
                     House = aa.House,
                     Street = aa.Street,
@@ -59,7 +60,10 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                         ? ((PetAnnouncement)aa).Breed
                         : null,
                 }).ToArray(),
-                SearchImagePath = sr.ImagePath,
+                SearchImagePath = context.SearchRequestImages
+                    .Where(i => i.Id == sr.ImageId)
+                    .Select(i => i.FullImagePath)
+                    .First(),
                 CreatedAt = sr.CreatedAt,
             })
             .ToArrayAsync(cancellationToken: ct);
@@ -80,7 +84,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                 Results = sr.Results.Select(aa => new SimilarAnnouncement
                 {
                     Id = aa.Id,
-                    MainImagePath = aa.Images[0].Path,
+                    MainImagePath = aa.Images.First().FullImagePath,
                     District = aa.District,
                     House = aa.House,
                     Street = aa.Street,
@@ -89,7 +93,10 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                         ? ((PetAnnouncement)aa).Breed
                         : null
                 }).ToArray(),
-                SearchImagePath = sr.ImagePath,
+                SearchImagePath = context.SearchRequestImages
+                    .Where(i => i.Id == sr.ImageId)
+                    .Select(i => i.FullImagePath)
+                    .First(),
                 CreatedAt = sr.CreatedAt,
             })
             .FirstOrDefaultAsync(cancellationToken: ct)

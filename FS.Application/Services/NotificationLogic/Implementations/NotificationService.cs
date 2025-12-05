@@ -1,19 +1,19 @@
-﻿using FS.Application.DTOs.Shared;
-using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.Interfaces.QueryServices;
 using FS.Application.Services.NotificationLogic.Interfaces;
-using FS.Core.Entities;
+using FS.Core.AnimalAnnouncementBC.Events;
 using FS.Core.Enums.Notifications;
-using FS.Core.Events;
-using FS.Core.Stores;
-using FS.Core.ValueObjects;
+using FS.Core.NotificationDomain;
+using FS.Core.NotificationDomain.Entities;
+using FS.Core.NotificationDomain.Stores;
+using FS.Core.Shared.ValueObjects;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace FS.Application.Services.NotificationLogic.Implementations;
 
 public class NotificationService(
-    IUserQueryService userQueryService,
-    IUserDeviceRepository userDeviceRepository,
-    INotificationRepository notificationRepository,
-    INotificationDeliveryRepository notificationDeliveryRepository) : INotificationService
+    IUserDeviceQueryService userDeviceQueryService,
+    INotificationRepository notificationRepository) : INotificationService
 {
     public async Task NotifyAboutNewMissingAnnouncementAsync(
         MissingAnnouncementCreatedDomainEvent @event,
@@ -28,23 +28,28 @@ public class NotificationService(
                 NotificationChannel.Push
             },
             targetEntityId: @event.AnnouncementId);
-        
-        await notificationRepository.CreateAsync(notification, ct);
 
         var startSearchPoint = CoordinatesVO.Create(@event.CoordinatesVo.Latitude, @event.CoordinatesVo.Longitude);
-        var userDevices = await userDeviceRepository
-            .GetUserDevicesForMissingAnnouncementCreateNotificationAsync(startSearchPoint, 2000, @event.CreatorId, ct);
+        //TODO: подумать над DI
+        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+        var centerPoint = geometryFactory.CreatePoint(new Coordinate(
+            startSearchPoint.Longitude,
+            startSearchPoint.Latitude));
         
-        var deliveries = new NotificationDelivery[userDevices.Length];
-        foreach (var (userDevice, i) in userDevices.Select((value, i) => ( value, i )))
+        var userDeviceIds = await userDeviceQueryService
+            .GetUserDevicesForMissingAnnouncementCreateNotificationAsync(centerPoint, 2000, @event.CreatorId, ct);
+        
+        var deliveries = new NotificationDelivery[userDeviceIds.Length];
+        foreach (var (deviceId, i) in userDeviceIds.Select((value, i) => ( value, i )))
         {
             var notificationDelivery = NotificationDelivery.Create(
                 notification.Id,
-                userDevice,
+                deviceId,
                 NotificationChannel.Push);
             deliveries[i] = notificationDelivery;
+            notification.SetDeliveries(deliveries);
         }
         
-        await notificationDeliveryRepository.CreateRangeAsync(deliveries, ct);
+        await notificationRepository.CreateAsync(notification, ct);
     }
 }

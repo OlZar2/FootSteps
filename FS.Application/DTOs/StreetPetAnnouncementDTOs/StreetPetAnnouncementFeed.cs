@@ -1,5 +1,5 @@
 ﻿using FS.Application.DTOs.Shared;
-using FS.Core.Enums;
+using FS.Core.AnimalAnnouncementBC.Enums;
 
 namespace FS.Application.DTOs.StreetPetAnnouncementDTOs;
 

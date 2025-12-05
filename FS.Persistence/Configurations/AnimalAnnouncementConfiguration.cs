@@ -1,6 +1,7 @@
-﻿using FS.Core.Entities;
-using FS.Core.Enums;
-using FS.Core.ValueObjects;
+﻿using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Enums;
+using FS.Core.Shared.ValueObjects;
+using FS.Core.UserDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

@@ -1,7 +1,7 @@
 ﻿using FS.Application.DTOs.FindAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
-using FS.Core.Entities;
-using FS.Core.Specifications;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Specifications;
 
 namespace FS.Application.Interfaces.QueryServices;
 

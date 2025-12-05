@@ -1,7 +1,7 @@
 ﻿using FS.Application.Exceptions;
-using FS.Core.Entities;
-using FS.Core.Specifications;
-using FS.Core.Stores;
+using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -11,23 +11,6 @@ namespace FS.Persistence.Repositories;
 
 public class MissingAnnouncementRepository(ApplicationDbContext context) : IMissingAnnouncementRepository
 {
-    //TODO: перенести в queryService
-    public async Task<MissingAnnouncement[]> GetFilteredByPageAsync(DateTime lastDateTime, 
-        PetAnnouncementFeedSpecification<MissingAnnouncement> spec, CancellationToken ct)
-    {
-        IQueryable<MissingAnnouncement> query = context.MissingAnnouncements;
-        
-        foreach (var include in spec.Includes) query = query.Include(include);
-        
-        return await query
-            .OrderByDescending(ma => ma.CreatedAt)
-            .Where(spec.Criteria)
-            .Where(ma => ma.CreatedAt > lastDateTime)
-            .Take(20)
-            .AsNoTracking()
-            .ToArrayAsync(ct);
-    }
-
     public async Task CreateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct)
     {
         context.MissingAnnouncements.Add(missingAnnouncement);

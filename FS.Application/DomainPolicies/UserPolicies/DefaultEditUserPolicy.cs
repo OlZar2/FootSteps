@@ -1,7 +1,7 @@
 ﻿using FS.Contracts.Error;
-using FS.Core.Entities;
 using FS.Core.Exceptions;
-using FS.Core.Policies.UserPolicies;
+using FS.Core.UserDomain;
+using FS.Core.UserDomain.UserPolicies;
 
 namespace FS.Application.DomainPolicies.UserPolicies;
 

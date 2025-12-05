@@ -1,5 +1,5 @@
-﻿using FS.Core.Entities;
-using FS.Core.Stores;
+﻿using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +16,7 @@ public class StreetPetAnnouncementRepository(ApplicationDbContext context) : ISt
     public async Task<StreetPetAnnouncement?> GetByImageIdAsync(Guid imageId, CancellationToken ct)
     {
         var streetPetAnnouncement = await context.StreetPetAnnouncements
+            .Include(sp => sp.Images)
             .Where(ma => ma.Images.Any(i => i.Id == imageId))
             .FirstOrDefaultAsync(ct);
         

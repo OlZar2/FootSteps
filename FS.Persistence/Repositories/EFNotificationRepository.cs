@@ -8,7 +8,7 @@ public class EFNotificationRepository(ApplicationDbContext context) : INotificat
 {
     public async Task CreateAsync(Notification notification, CancellationToken ct)
     {
-        context.Notifications.AddRange(notification);
+        context.Notifications.Add(notification);
         await context.SaveChangesAsync(ct);
     }
 

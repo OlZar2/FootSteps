@@ -13,4 +13,6 @@ public interface IMissingAnnouncementQueryService
     Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 
     Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct);
+
+    Task<MissingAnnouncementForNotifyData> GetDataForNotifyAsync(Guid id, CancellationToken ct);
 }

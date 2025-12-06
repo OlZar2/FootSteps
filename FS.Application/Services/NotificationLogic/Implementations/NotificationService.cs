@@ -13,7 +13,8 @@ namespace FS.Application.Services.NotificationLogic.Implementations;
 
 public class NotificationService(
     IUserDeviceQueryService userDeviceQueryService,
-    INotificationRepository notificationRepository) : INotificationService
+    INotificationRepository notificationRepository,
+    IMissingAnnouncementQueryService missingAnnouncementQueryService) : INotificationService
 {
     public async Task NotifyAboutNewMissingAnnouncementAsync(
         MissingAnnouncementCreatedDomainEvent @event,
@@ -29,7 +30,12 @@ public class NotificationService(
             },
             targetEntityId: @event.AnnouncementId);
 
-        var startSearchPoint = CoordinatesVO.Create(@event.CoordinatesVo.Latitude, @event.CoordinatesVo.Longitude);
+        var missingAnnouncementForNotifyData =
+            await missingAnnouncementQueryService.GetDataForNotifyAsync(@event.AnnouncementId, ct);
+
+        var startSearchPoint = CoordinatesVO.Create(
+            missingAnnouncementForNotifyData.Coordinates.Latitude,
+            @missingAnnouncementForNotifyData.Coordinates.Longitude);
         //TODO: подумать над DI
         var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
         var centerPoint = geometryFactory.CreatePoint(new Coordinate(
@@ -37,7 +43,11 @@ public class NotificationService(
             startSearchPoint.Latitude));
         
         var userDeviceIds = await userDeviceQueryService
-            .GetUserDevicesForMissingAnnouncementCreateNotificationAsync(centerPoint, 2000, @event.CreatorId, ct);
+            .GetUserDevicesForMissingAnnouncementCreateNotificationAsync(
+                centerPoint,
+                2000,
+                missingAnnouncementForNotifyData.CreatorId,
+                ct);
         
         var deliveries = new NotificationDelivery[userDeviceIds.Length];
         foreach (var (deviceId, i) in userDeviceIds.Select((value, i) => ( value, i )))
@@ -47,8 +57,8 @@ public class NotificationService(
                 deviceId,
                 NotificationChannel.Push);
             deliveries[i] = notificationDelivery;
-            notification.SetDeliveries(deliveries);
         }
+        notification.SetDeliveries(deliveries);
         
         await notificationRepository.CreateAsync(notification, ct);
     }

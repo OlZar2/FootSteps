@@ -3,5 +3,6 @@
 namespace FS.Core.AnimalAnnouncementBC.Events;
 
 public sealed record AnnouncementCreatedDomainEvent(
-    Guid AnnouncementId
+    Guid AnnouncementId,
+    Dictionary<Guid, string> ImagePaths
 ) : IDomainEvent;

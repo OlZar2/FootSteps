@@ -4,7 +4,7 @@ using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Core.OutboxDomain.Entities;
 using FS.Persistence.Outbox.Shared.Interfaces;
 
-namespace FS.Persistence.Outbox.Embeddings.Handlers;
+namespace FS.Persistence.Outbox.SharedOutbox.Handlers;
 
 public class ImageSearchMatchOutboxHandler(IOutboxHandler inner, ISearchService searchService) : IOutboxHandler
 {

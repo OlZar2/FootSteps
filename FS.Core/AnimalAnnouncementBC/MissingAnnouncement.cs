@@ -83,8 +83,10 @@ public class MissingAnnouncement : PetAnnouncement
             eventDate,
             description);
         
-        created.AddDomainEvent(new MissingAnnouncementCreatedDomainEvent(created.Id, created.Location, created.CreatorId));
-        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id));
+        created.AddDomainEvent(new MissingAnnouncementCreatedDomainEvent(created.Id));
+        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id,
+            created.Images
+                .ToDictionary(i => i.Id, i => i.FullImagePath)));
         
         return created;
     }

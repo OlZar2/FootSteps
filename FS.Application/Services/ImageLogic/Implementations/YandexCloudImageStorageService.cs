@@ -85,7 +85,7 @@ public class YandexCloudImageStorageService : IImageStorageService
             if (fi == null)
                 throw new InvalidOperationException("Невозможно определить формат изображения.");
 
-            var ext  = "." + fmt.ToString().ToLowerInvariant();
+            var ext  = fmt.ToString().ToLowerInvariant();
             var mime = fi.MimeType ?? "application/octet-stream";
 
             return (ext, mime);

@@ -1,10 +1,10 @@
-﻿using FS.Core.Shared.Abstractions;
+﻿using System.Text.Json.Serialization;
+using FS.Core.Shared.Abstractions;
 using FS.Core.Shared.ValueObjects;
 
 namespace FS.Core.AnimalAnnouncementBC.Events;
 
 public sealed record MissingAnnouncementCreatedDomainEvent(
-    Guid AnnouncementId,
-    CoordinatesVO CoordinatesVo,
-    Guid CreatorId
+    [property: JsonPropertyName("announcementId")] 
+    Guid AnnouncementId
 ) : IDomainEvent;

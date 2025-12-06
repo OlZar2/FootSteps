@@ -75,7 +75,9 @@ public class FindAnnouncement : PetAnnouncement
             eventDate: eventDate,
             description: description);
         
-        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id));
+        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id,
+            created.Images
+                .ToDictionary(i => i.Id, i => i.FullImagePath)));
         
         return created;
     }

@@ -2,7 +2,7 @@
 using FS.Persistence.Outbox.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace FS.Persistence.Outbox.Embeddings.Handlers;
+namespace FS.Persistence.Outbox.SharedOutbox.Handlers;
 
 public class UnknownOutboxHandler(ILogger<UnknownOutboxHandler> log) : IOutboxHandler
 {

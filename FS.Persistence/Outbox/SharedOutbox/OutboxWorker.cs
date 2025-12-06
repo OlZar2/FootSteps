@@ -1,16 +1,14 @@
 ﻿using FS.Core.OutboxDomain.Stores;
-using FS.Persistence.Context;
 using FS.Persistence.Outbox.Shared.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FS.Persistence.Outbox.Embeddings;
+namespace FS.Persistence.Outbox.SharedOutbox;
 
-public sealed class EmbeddingsOutboxWorker(
+public sealed class OutboxWorker(
     IServiceProvider sp,
-    ILogger<EmbeddingsOutboxWorker> log)
+    ILogger<OutboxWorker> log)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken ct)

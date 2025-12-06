@@ -10,5 +10,5 @@ public interface IMissingAnnouncementRepository
     
     Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
 
-     Task<MissingAnnouncement[]> GetSimilarMissingAnnouncementAsync(Vector vector, CancellationToken ct);
+    Task<MissingAnnouncement[]> GetSimilarMissingAnnouncementAsync(Vector vector, CancellationToken ct);
 }

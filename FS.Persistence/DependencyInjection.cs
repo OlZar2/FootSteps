@@ -6,11 +6,11 @@ using FS.Core.OutboxDomain.Stores;
 using FS.Core.ReadDomain.Stores;
 using FS.Core.SearchDomain.Stores;
 using FS.Core.UserDomain.Stores;
-using FS.Persistence.Outbox.Embeddings;
-using FS.Persistence.Outbox.Embeddings.Handlers;
 using FS.Persistence.Outbox.Notifications;
 using FS.Persistence.Outbox.Notifications.Handlers;
 using FS.Persistence.Outbox.Shared.Interfaces;
+using FS.Persistence.Outbox.SharedOutbox;
+using FS.Persistence.Outbox.SharedOutbox.Handlers;
 using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;
 using FS.Persistence.Transactions;
@@ -52,7 +52,7 @@ public static class DependencyInjection
     public static IServiceCollection AddOutboxHandling(this IServiceCollection services)
     {
         services
-            .AddHostedService<EmbeddingsOutboxWorker>();
+            .AddHostedService<OutboxWorker>();
         
         services.AddScoped<UnknownOutboxHandler>();
         
@@ -66,7 +66,9 @@ public static class DependencyInjection
                 .CreateInstance<ImageSearchMatchOutboxHandler>(sp, secondDecorator);
             var fourthDecorator = ActivatorUtilities
                 .CreateInstance<ImageSearchRequestOutboxHandler>(sp, thirdDecorator);
-            return fourthDecorator;
+            var fifthDecorator = ActivatorUtilities
+                .CreateInstance<FindRecipientsForMissingAnnouncementNotificationOutboxHandler>(sp, fourthDecorator);
+            return fifthDecorator;
         });
         
         return services;

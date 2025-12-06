@@ -98,4 +98,16 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             .Take(20)
             .ToArrayAsync(ct);
     }
+
+    public async Task<MissingAnnouncementForNotifyData> GetDataForNotifyAsync(Guid id, CancellationToken ct)
+    {
+        return await context.MissingAnnouncements
+            .Where(ma => ma.Id == id)
+            .Select(ma => new MissingAnnouncementForNotifyData
+            {
+                Coordinates = CoordinatesDto.From(ma.Location),
+                CreatorId = ma.CreatorId,
+            })
+            .FirstOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(MissingAnnouncement), nameof(id));;
+    }
 }

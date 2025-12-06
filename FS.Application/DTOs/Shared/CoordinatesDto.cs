@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using FS.Core.Shared.ValueObjects;
 using NetTopologySuite.Geometries;
 
 namespace FS.Application.DTOs.Shared;
@@ -10,12 +11,12 @@ public record CoordinatesDto
     [Description("Широта. Обязательно, issue REQUIRED.")]
     public required double Longitude { get; set; }
 
-    public static CoordinatesDto From(Point point)
+    public static CoordinatesDto From(CoordinatesVO coordinates)
     {
-        return new CoordinatesDto()
+        return new CoordinatesDto
         {
-            Longitude = point.X,
-            Latitude = point.Y
+            Longitude = coordinates.Longitude,
+            Latitude = coordinates.Latitude,
         };
     }
 }

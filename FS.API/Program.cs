@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -32,6 +33,11 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables()
     .AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
+
+builder.Host.UseSerilog((ctx, lc) =>
+{
+    lc.ReadFrom.Configuration(ctx.Configuration);
+});
 
 services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -126,6 +132,8 @@ var locOptions = new RequestLocalizationOptions
 };
 
 locOptions.RequestCultureProviders.Clear();
+
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseCors("DevCors");
 

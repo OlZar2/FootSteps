@@ -25,7 +25,8 @@ public class AuthController(
     IAuthService authService,
     IValidator<RegisterRM> registerValidator,
     IValidator<LoginRM> loginValidator,
-    IClaimService claimService) : ControllerBase
+    IClaimService claimService,
+    ILogger<AuthController> logger) : ControllerBase
 {
     /// <summary>
     /// Информация о текущем пользователе
@@ -99,6 +100,8 @@ public class AuthController(
     )]
     public async Task<JwtData> Login(LoginRM request, CancellationToken ct)
     {
+        logger.LogInformation("test");
+        
         await loginValidator.ValidateAndThrowAsync(request, ct);
         
         var loginDTO = new LoginData(request.Email, request.Password);

@@ -1,8 +1,6 @@
 ﻿using FS.Application.Interfaces.QueryServices;
-using FS.Core.Shared.ValueObjects;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
 namespace FS.Persistence.QueryServices;

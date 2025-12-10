@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using FS.Core.AnimalAnnouncementBC;
-using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.Enums;
 using FS.Core.SearchDomain.Entities;
 using FS.Core.SearchDomain.Events;

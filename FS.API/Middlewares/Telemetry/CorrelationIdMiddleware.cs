@@ -1,6 +1,6 @@
 ﻿using Serilog.Context;
 
-namespace FS.API.Middlewares;
+namespace FS.API.Middlewares.Telemetry;
 
 public class CorrelationIdMiddleware(RequestDelegate next)
 {

@@ -1,16 +1,13 @@
-using System.Globalization;
-using System.Reflection;
-using System.Text.Json;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using FS.API;
+using FS.API.Configurations.ApiServices;
+using FS.API.Configurations.Controllers;
+using FS.API.Configurations.Cors;
+using FS.API.Configurations.Swagger;
+using FS.API.Configurations.Telemetry;
 using FS.API.Middlewares;
-using FS.API.RequestsModels.Auth.Validators;
-using FS.API.Services.ClaimLogic.Implementations;
-using FS.API.Services.ClaimLogic.Interfaces;
-using FS.API.Services.GeoLogic.Implementations;
-using FS.API.Services.GeoLogic.Interfaces;
-using FS.API.Services.ImageLogic;
+using FS.API.Middlewares.Culture;
+using FS.API.Middlewares.Errors;
+using FS.API.Middlewares.Telemetry;
 using FS.Application;
 using FS.Firebase;
 using FS.JWT;
@@ -18,129 +15,49 @@ using FS.Persistence;
 using FS.Persistence.Context;
 using FS.RabbitMq;
 using FS.SignalR.Hubs;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
-builder.Configuration.AddUserSecrets<Program>(optional: true);
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddEnvironmentVariables()
-    .AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
-
-builder.Host.UseSerilog((ctx, lc) =>
-{
-    lc.ReadFrom.Configuration(ctx.Configuration);
-});
+services.AddTelemetryConfiguration(builder.Host);
 
 services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
 
-services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
-        x =>
-        {
-            var test = builder.Configuration.GetConnectionString("DefaultConnection");
-            x.UseVector();
-            x.UseNetTopologySuite();
-            x.MigrationsAssembly("FS.Migrations");
-        }));
-
-
-//TODO: разобраться и сгруппировать
 services
     .AddJwtServices()
     .AddServices()
-    .AddRepositories()
+    .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
     .AddOutboxHandling()
     .AddConfiguration(builder.Configuration)
-    .AddJwtAuth(builder.Configuration);
-
-services.AddNotificationsHandling();
-
-services
-    .AddFirebase();
-
-services.AddRabbitMq();
-
-services
-    .AddTransient<IClaimService, ClaimService>()
-    .AddTransient<ImageService>()
-    .AddHttpClient<IGeocoder, YandexGeocoder>();
+    .AddJwtAuth(builder.Configuration)
+    .AddFirebase()
+    .AddRabbitMq()
+    .AddNotificationsHandling()
+    .AddApiServices();
 
 services.AddSignalR();
 
-services.AddEndpointsApiExplorer();
-services.AddSwaggerGen(config =>
-{
-    config.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Footsteps API",
-        Version = "v1"
-    });
-    
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    config.IncludeXmlComments(xmlPath);
-    config.UseInlineDefinitionsForEnums();
+services.ConfigureFSSwagger();
 
-    config.EnableAnnotations();
-});
+services.ConfigureControllers();
 
-services
-    .AddControllers(options =>
-    {
-        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-    })
-    .AddFluentValidation()          // автоматический запуск валидации
-    .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
-
-services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();
-
-services.AddCors(options =>
-{
-    options.AddPolicy("DevCors", policy =>
-    {
-        policy
-            .WithOrigins("http://localhost:5500")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
+services.ConfigureCors();
 
 var app = builder.Build();
 
-var enUS = new CultureInfo("en-US");
-
-CultureInfo.DefaultThreadCurrentCulture = enUS;
-CultureInfo.DefaultThreadCurrentUICulture = enUS;
-
-var locOptions = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture(enUS),
-    SupportedCultures = new[] { enUS },
-    SupportedUICultures = new[] { enUS }
-};
-
-locOptions.RequestCultureProviders.Clear();
+app.UseLocalizationMiddleware();
 
 app.UseMiddleware<CorrelationIdMiddleware>();
-
+app.UseMiddleware<TracingLoggingMiddleware>();
 app.UseCors("DevCors");
 
 app.MapHub<SearchAnnouncementsHub>("/hubs/search-announcements")
     .RequireAuthorization();;
-
-app.UseRequestLocalization(locOptions);
 
 using (var scope = app.Services.CreateScope())
 {

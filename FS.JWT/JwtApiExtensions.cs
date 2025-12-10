@@ -9,7 +9,7 @@ namespace FS.JWT;
 
 public static class JwtApiExtensions
 {
-    public static void AddJwtAuth(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddJwtAuth(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
         var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
@@ -45,5 +45,7 @@ public static class JwtApiExtensions
             });
         
         services.AddAuthorization();
+        
+        return services;
     }
 }

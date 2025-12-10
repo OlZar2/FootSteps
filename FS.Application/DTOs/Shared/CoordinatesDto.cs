@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using FS.Core.Shared.ValueObjects;
-using NetTopologySuite.Geometries;
 
 namespace FS.Application.DTOs.Shared;
 

@@ -6,6 +6,7 @@ using FS.Core.OutboxDomain.Stores;
 using FS.Core.ReadDomain.Stores;
 using FS.Core.SearchDomain.Stores;
 using FS.Core.UserDomain.Stores;
+using FS.Persistence.Context;
 using FS.Persistence.Outbox.Notifications;
 using FS.Persistence.Outbox.Notifications.Handlers;
 using FS.Persistence.Outbox.Shared.Interfaces;
@@ -14,13 +15,14 @@ using FS.Persistence.Outbox.SharedOutbox.Handlers;
 using FS.Persistence.QueryServices;
 using FS.Persistence.Repositories;
 using FS.Persistence.Transactions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FS.Persistence;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    public static IServiceCollection AddDatabase(this IServiceCollection services, string connectionString)
     {
         services
             .AddScoped<IUserRepository, UserRepository>()
@@ -45,6 +47,15 @@ public static class DependencyInjection
             .AddScoped<IAnimalAnnouncementRepository, EFAnimalAnnouncementRepository>();
         
         services.AddScoped<ITransactionFactory, EfCoreTransactionFactory>();
+        
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(connectionString, 
+                x =>
+                {
+                    x.UseVector();
+                    x.UseNetTopologySuite();
+                    x.MigrationsAssembly("FS.Migrations");
+                }));
 
         return services;
     }

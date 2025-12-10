@@ -7,7 +7,7 @@ using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Exceptions;
 using FS.Core.Exceptions;
 
-namespace FS.API.Middlewares;
+namespace FS.API.Middlewares.Errors;
 
 public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
 {

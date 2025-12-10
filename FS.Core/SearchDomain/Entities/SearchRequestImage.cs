@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.Shared.Abstractions;
 using Pgvector;
 

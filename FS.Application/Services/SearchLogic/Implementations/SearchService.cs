@@ -7,7 +7,6 @@ using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Contracts.Error;
-using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.Exceptions;
 using FS.Core.OutboxDomain.Entities;
 using FS.Core.OutboxDomain.Stores;

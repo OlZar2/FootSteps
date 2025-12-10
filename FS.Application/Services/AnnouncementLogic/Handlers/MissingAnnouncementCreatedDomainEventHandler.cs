@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using FS.Application.Events;
-using FS.Application.Services.NotificationLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC.Events;
 using FS.Core.OutboxDomain.Entities;
 using FS.Core.OutboxDomain.Stores;

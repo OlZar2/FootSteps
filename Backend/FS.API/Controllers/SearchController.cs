@@ -32,14 +32,11 @@ public class SearchController(
         
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
-        
-        await using var ms = new MemoryStream();
-        await searchRequestModel.Image.CopyToAsync(ms, ct);
 
         var searchRequestDto = new SearchRequestDto
         {
             UserId = userId,
-            Image = ms.ToArray(),
+            ImageId = searchRequestModel.ImageId,
         };
         
         await searchService.RequestSearchAsync(searchRequestDto, ct);

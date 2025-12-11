@@ -26,7 +26,7 @@ public record RegisterRM
     [Description("Аватар. Если расширение неверное " +
                  "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +
                  "Если больше 5МБ issue TOO_LARGE. Если файл пустой EMPTY_FILE")]
-    public IFormFile? AvatarImage { get; init; }
+    public Guid? AvatarImageId { get; init; }
 
     [Description("Контакты пользователя.")]
     public  UserContactRM[]? UserContacts { get; init; }

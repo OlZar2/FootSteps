@@ -58,15 +58,6 @@ public class AuthController(
     {
         await registerValidator.ValidateAndThrowAsync(request, ct);
 
-        byte[]? avatarContent = null;
-
-        if (request.AvatarImage != null)
-        {
-            await using var ms = new MemoryStream();
-            await request.AvatarImage.CopyToAsync(ms, ct);
-            avatarContent = ms.ToArray();
-        }
-
         var registerDTO = new RegisterData
         (
             request.Email,
@@ -75,9 +66,7 @@ public class AuthController(
             request.SecondName,
             request.Patronymic,
             request.Description,
-            avatarContent != null 
-                ? new FileData { Content = avatarContent }
-                : null,
+            AvatarImageId: request.AvatarImageId,
             request.UserContacts?.Select(uc => new UserContactData
             {
                 ContactType = (ContactType)uc.ContactType,

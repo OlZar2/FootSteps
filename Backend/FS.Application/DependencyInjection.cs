@@ -33,7 +33,7 @@ public static class DependencyInjection
     {
         services
             .AddScoped<IAuthService, AuthService>()
-            .AddScoped<IImageStorageService, YandexCloudImageStorageService>()
+            .AddScoped<IImageService, ImageService>()
             .AddScoped<IPasswordHasher, PasswordHasher>()
             .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>()
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()

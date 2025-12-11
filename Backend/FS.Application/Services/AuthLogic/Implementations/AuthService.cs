@@ -2,14 +2,15 @@
 using FS.Application.Exceptions;
 using FS.Application.Interfaces.Jwt;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.ImageLogic.Configurations;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Contracts.Error;
-using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Core.Exceptions;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.UserDomain;
 using FS.Core.UserDomain.Stores;
 using FS.Core.UserDomain.ValueObjects;
@@ -24,6 +25,7 @@ public class AuthService(
     IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
     IUserQueryService userQueryService,
+    IImageRepository imageRepository,
     IOptions<S3StorageConfiguration> s3StorageOptions)
     : IAuthService
 {
@@ -42,12 +44,11 @@ public class AuthService(
             .Create(userRegisterData.FirstName, userRegisterData.SecondName, userRegisterData.Patronymic);
         var hashedPassword = passwordHasher.GenerateHash(userRegisterData.Password);
 
-        AnimalAnnouncementImage? image = null;
-        if (userRegisterData.AvatarImage != null)
+        FSImage? image = null;
+        if (userRegisterData.AvatarImageId != null)
         {
             var s3Key = Guid.NewGuid().ToString();
-            image = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
-            await imageStorageService.UploadAsync(userRegisterData.AvatarImage.Content, s3Key, ct);
+            image = await imageRepository.GetByIdAsync(userRegisterData.AvatarImageId.Value, ct);
         }
         
         var userInitContacts =

@@ -14,7 +14,7 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
             await (
                     from u in context.Users
                     where u.Id == id
-                    join img in context.AnimalAnnouncementImages
+                    join img in context.Images
                         on u.AvatarImageId equals img.Id into gj
                     from avatar in gj.DefaultIfEmpty()
                     select new MeInfo

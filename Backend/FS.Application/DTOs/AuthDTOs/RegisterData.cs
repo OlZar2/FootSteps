@@ -10,5 +10,5 @@ public record RegisterData(
     string? SecondName,
     string? Patronymic,
     string? Description,
-    FileData? AvatarImage,
+    Guid? AvatarImageId,
     UserContactData[] UserContacts) { }

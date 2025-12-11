@@ -2,16 +2,17 @@
 using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Interfaces.Events;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Contracts.Error;
+using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Core.Exceptions;
 using FS.Core.OutboxDomain.Entities;
 using FS.Core.OutboxDomain.Stores;
 using FS.Core.SearchDomain;
-using FS.Core.SearchDomain.Entities;
 using FS.Core.SearchDomain.Stores;
 using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.SignalR;
@@ -26,7 +27,7 @@ public class SearchService(
     IHubContext<SearchAnnouncementsHub> searchAnnouncementsHub,
     IImageStorageService imageStorageService,
     IOutboxRepository outboxRepository,
-    IImageQueryService imageQueryService,
+    IImageRepository imageRepository,
     IOptions<S3StorageConfiguration> s3StorageConfigurationOptions,
     ITransactionFactory transactionFactory) : ISearchService
 {
@@ -65,16 +66,14 @@ public class SearchService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var s3Key = Guid.NewGuid().ToString();
-        var createdImage = SearchRequestImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
-        await imageStorageService.UploadAsync(searchRequestDto.Image, s3Key, ct);
-        var searchRequest = SearchRequest.Create(createdImage, searchRequestDto.UserId);
+        var image = await imageRepository.GetByIdAsync(searchRequestDto.ImageId, ct);
+        var searchRequest = SearchRequest.Create(image, searchRequestDto.UserId);
 
         await searchRequestRepository.AddAsync(searchRequest, ct);
 
         var outboxPayload = JsonSerializer.Serialize(new SearchRequestEvent(
             SearchId: searchRequest.Id.ToString(),
-            ImageUrl: createdImage.FullImagePath
+            ImageUrl: image.FullImagePath
         ));
 
         var outboxEvent = OutboxEvent.Create("image.search.request", outboxPayload);

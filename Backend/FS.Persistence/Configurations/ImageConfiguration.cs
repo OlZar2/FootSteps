@@ -1,14 +1,14 @@
-﻿using FS.Core.SearchDomain.Entities;
+﻿using FS.Core.ImageDomain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FS.Persistence.Configurations;
 
-public class SearchRequestImageConfiguration : IEntityTypeConfiguration<SearchRequestImage>
+public class ImageConfiguration: IEntityTypeConfiguration<FSImage>
 {
-    public void Configure(EntityTypeBuilder<SearchRequestImage> builder)
+    public void Configure(EntityTypeBuilder<FSImage> builder)
     {
-        builder.ToTable("SearchRequestImages");
+        builder.ToTable("Images");
         
         builder.HasKey(i => i.Id);
         

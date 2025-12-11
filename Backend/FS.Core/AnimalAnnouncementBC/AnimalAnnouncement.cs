@@ -1,7 +1,7 @@
 ﻿using FS.Contracts.Error;
-using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.Exceptions;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.Abstractions;
 using FS.Core.Shared.ValueObjects;
 using Pgvector;
@@ -10,7 +10,7 @@ namespace FS.Core.AnimalAnnouncementBC;
 
 public abstract class AnimalAnnouncement : AggregateRoot
 {
-    protected readonly List<AnimalAnnouncementImage> _images = [];
+    protected readonly List<FSImage> _images = [];
     
     public DateTime CreatedAt { get; private set; }
     
@@ -20,7 +20,7 @@ public abstract class AnimalAnnouncement : AggregateRoot
     
     public string? District { get; private set; }
     
-    public IReadOnlyCollection<AnimalAnnouncementImage> Images => _images.AsReadOnly();
+    public IReadOnlyCollection<FSImage> Images => _images.AsReadOnly();
     
     public Guid CreatorId  { get; set; }
     
@@ -35,7 +35,7 @@ public abstract class AnimalAnnouncement : AggregateRoot
     public bool IsDeleted { get; protected set; } = false;
 
     protected AnimalAnnouncement(
-        List<AnimalAnnouncementImage> images,
+        List<FSImage> images,
         Guid creatorId,
         string? district,
         string? street,

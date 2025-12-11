@@ -21,7 +21,6 @@ public class UserController(
     IUserService userService,
     IClaimService claimService,
     IValidator<UpdateUserInfoRM> updateUserInfoValidator,
-    IValidator<UpdateUserAvatarRM> updateUserAvatarValidator,
     IValidator<UpdateUserLocationRM> updateUserLocationValidator,
     IValidator<AddDeviceRM> addDeviceValidator) : ControllerBase
 {
@@ -62,29 +61,13 @@ public class UserController(
     [HttpPut("{userId:guid}/avatar")]
     public async Task UpdateAvatar(Guid userId, UpdateUserAvatarRM request, CancellationToken ct)
     {
-        await updateUserAvatarValidator.ValidateAndThrowAsync(request, ct);
-        
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
-        
-        byte[]? avatarContent = null;
 
-        if (request.AvatarImage != null)
-        {
-            await using var ms = new MemoryStream();
-            await request.AvatarImage.CopyToAsync(ms, ct);
-            avatarContent = ms.ToArray();
-        }
-        
-        var fileInfo = avatarContent != null ? new FileData
-        {
-            Content = avatarContent
-        } : null;
-
-        var dto = new UpdateUserAvatar()
+        var dto = new UpdateUserAvatar
         {
             UserId = userId,
-            Avatar = fileInfo
+            AvatarId = request.AvatarImageId
         };
         
         await userService.UpdateUserAvatarAsync(currentUserId, dto, ct);

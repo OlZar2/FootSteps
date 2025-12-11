@@ -45,7 +45,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
     {
         return await (from a in context.FindAnnouncements.AsNoTracking()
             join creator in context.Users on a.CreatorId equals creator.Id
-            join avatar in context.AnimalAnnouncementImages on creator.AvatarImageId equals avatar.Id
+            join avatar in context.Images on creator.AvatarImageId equals avatar.Id
             where a.Id == id
             select new FindAnnouncementPage {
                 Id = a.Id,

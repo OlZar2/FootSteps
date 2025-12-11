@@ -4,8 +4,6 @@ namespace FS.API.RequestsModels.User;
 
 public class UpdateUserAvatarRM
 {
-    [Description("Новый аватар пользователя. Если отправить пустой, то аватар удалится. Если расширение неверное " +
-                 "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +
-                 "Если больше 5МБ issue TOO_LARGE. Если файл пустой EMPTY_FILE")]
-    public IFormFile? AvatarImage { get; init; }
+    [Description("Guid Нового аватара пользователя. Если отправить пустой, то аватар удалится")]
+    public Guid? AvatarImageId { get; init; }
 }

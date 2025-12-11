@@ -2,9 +2,9 @@
 using FS.Core.Shared.Abstractions;
 using Pgvector;
 
-namespace FS.Core.SearchDomain.Entities;
+namespace FS.Core.ImageDomain.Entities;
 
-public class SearchRequestImage : Entity
+public class FSImage : Entity
 {
     public string S3Key { get; private set; }
     
@@ -15,21 +15,21 @@ public class SearchRequestImage : Entity
     [Column(TypeName = "vector(512)")]
     public Vector? Embedding { get; set; }
 
-    private SearchRequestImage(string s3Key, string bucketURL, Guid? id = null) : base(id ?? Guid.NewGuid())
+    private FSImage(string s3Key, string bucketURL, Guid? id = null) : base(id ?? Guid.NewGuid())
     {
         S3Key = s3Key;
         BucketURL = bucketURL;
         FullImagePath = $"{bucketURL}/{s3Key}";
     }
 
-    public static SearchRequestImage Create(string s3Key, string bucketURL, Guid? id = null)
+    public static FSImage Create(string s3Key, string bucketURL, Guid? id = null)
     {
         //TODO: подумать какое исключение бросать
         if (string.IsNullOrWhiteSpace(s3Key))
             throw new ArgumentException("Расширение не может быть пустым");
         
 
-        return new SearchRequestImage(s3Key, bucketURL, id);
+        return new FSImage(s3Key, bucketURL, id);
     }
     
     public void SetEmbedding(Vector embedding)
@@ -38,5 +38,5 @@ public class SearchRequestImage : Entity
     }
     
     // EF
-    private SearchRequestImage(){}
+    private FSImage(){}
 }

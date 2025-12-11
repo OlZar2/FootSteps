@@ -36,29 +36,6 @@ public class StreetPetAnnouncementController(
         
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
-
-        var semaphore = new SemaphoreSlim(4);
-        
-        var tasks = request.Images.Select(async image =>
-        {
-            await semaphore.WaitAsync(ct);
-            try
-            {
-                await using var ms = new MemoryStream();
-                await image.CopyToAsync(ms, ct);
-
-                return new FileData
-                {
-                    Content = ms.ToArray()
-                };
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        });
-
-        var fileInfos = await Task.WhenAll(tasks);
         
         var house = await geocoder.GetHouseOrNull(request.Location, ct);
         var street = await geocoder.GetStreetOrNull(request.Location, ct);
@@ -74,7 +51,7 @@ public class StreetPetAnnouncementController(
             House = house,
             Street = street,
             PetType = (PetType)request.PetType!.Value,
-            Images = fileInfos,
+            ImageIds = request.ImageIds,
             PlaceDescription = request.PlaceDescription,
         };
 

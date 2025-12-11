@@ -18,7 +18,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                          .FirstOrDefaultAsync(s => s.Id == searchId, cancellationToken: ct)
             ?? throw new NotFoundException(nameof(SimilarAnnouncement), searchId);
         
-        var similarImages = await context.AnimalAnnouncementImages
+        var similarImages = await context.Images
             .FromSqlRaw(@"
                 SELECT ""Id"", ""FullImagePath""
                 FROM ""Images""

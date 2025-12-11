@@ -21,7 +21,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
-services.AddTelemetryConfiguration(builder.Host);
+services.AddTelemetryConfiguration(builder.Host, builder.Configuration);
 
 services.Configure<ApiBehaviorOptions>(options =>
 {

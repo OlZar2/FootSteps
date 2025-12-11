@@ -1,4 +1,4 @@
-﻿using FS.Core.AnimalAnnouncementBC.Entities;
+﻿using FS.Core.ImageDomain.Entities;
 using FS.Core.UserDomain;
 
 namespace FS.Application.DTOs.UserDTOs;
@@ -13,7 +13,7 @@ public record AnnouncementCreator
     
     public required string? AvatarPath { get; init; }
 
-    public static AnnouncementCreator FromUserAndAvatar(User user, AnimalAnnouncementImage avatar)
+    public static AnnouncementCreator FromUserAndAvatar(User user, FSImage avatar)
     {
         return new AnnouncementCreator
         {

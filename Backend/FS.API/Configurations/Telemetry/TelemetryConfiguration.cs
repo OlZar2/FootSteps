@@ -9,8 +9,12 @@ namespace FS.API.Configurations.Telemetry;
 public static class TelemetryConfiguration
 {
     public static IServiceCollection AddTelemetryConfiguration(this IServiceCollection services,
-        ConfigureHostBuilder host)
+        ConfigureHostBuilder host, IConfiguration configuration)
     {
+        var oltpOptions = configuration.GetSection(nameof(OltpOptions)).Get<OltpOptions>();
+        if (oltpOptions == null)
+            throw new InvalidOperationException("oltpOptions options not found");
+        
         services.AddOpenTelemetry()
             .ConfigureResource(resource =>
                 resource.AddService("fs-api", serviceVersion: "1.0.0"))
@@ -26,7 +30,7 @@ public static class TelemetryConfiguration
                     .AddNpgsql()
                     .AddOtlpExporter(otlp =>
                     {
-                        otlp.Endpoint = new Uri("http://localhost:4317");
+                        otlp.Endpoint = new Uri(oltpOptions.Uri);
                         otlp.Protocol = OtlpExportProtocol.Grpc;
                     });
             });

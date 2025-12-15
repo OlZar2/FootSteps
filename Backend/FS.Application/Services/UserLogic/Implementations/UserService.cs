@@ -1,11 +1,12 @@
 ﻿using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Configurations;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.UserLogic.Interfaces;
-using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.AnimalAnnouncementBC.Stores;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.UserDomain.Entities;
 using FS.Core.UserDomain.Stores;
 using FS.Core.UserDomain.UserPolicies;
@@ -22,11 +23,10 @@ public class UserService(
     IImageStorageService imageStorageService,
     IImageQueryService imageQueryService,
     ITransactionFactory transactionFactory,
+    IImageRepository imageRepository,
     IOptions<S3StorageConfiguration> s3Options
     ) : IUserService
 {
-    private readonly S3StorageConfiguration _s3StorageConfiguration = s3Options.Value;
-    
     public async Task UpdateUserInfoAsync(Guid actorId, UpdateUserInfo userInfo, CancellationToken ct)
     {
         var user = await userRepository.GetByIdWithContactsAsync(userInfo.UserId, ct);
@@ -57,13 +57,11 @@ public class UserService(
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
         var user = await userRepository.GetByIdAsync(updateUserAvatar.UserId, ct);
-        
-        AnimalAnnouncementImage? image = null;
-        if (updateUserAvatar.Avatar != null)
+
+        FSImage? image = null;
+        if (updateUserAvatar.AvatarId != null)
         {
-            var s3Key = Guid.NewGuid().ToString();
-            image = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
-            await imageStorageService.UploadAsync(updateUserAvatar.Avatar.Content, s3Key, ct);
+            image = await imageRepository.GetByIdAsync(updateUserAvatar.AvatarId.Value, ct);
         }
 
         if (user.AvatarImageId != null)

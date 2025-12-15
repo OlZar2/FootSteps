@@ -65,30 +65,6 @@ public class FindAnnouncementsController(
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
         
-        //TODO: картинки в сервис
-        var semaphore = new SemaphoreSlim(4);
-
-        var tasks = data.Images.Select(async image =>
-        {
-            await semaphore.WaitAsync(ct);
-            try
-            {
-                await using var ms = new MemoryStream();
-                await image.CopyToAsync(ms, ct);
-
-                return new FileData
-                {
-                    Content = ms.ToArray()
-                };
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        });
-
-        var fileInfos = await Task.WhenAll(tasks);
-        
         var house = await geocoder.GetHouseOrNull(data.Location, ct);
         var street = await geocoder.GetStreetOrNull(data.Location, ct);
         var district = await geocoder.GetDistrictOrNull(data.Location, ct)
@@ -100,7 +76,7 @@ public class FindAnnouncementsController(
             Street = street,
             District = district,
             Location = data.Location,
-            Images = fileInfos,
+            ImageIds = data.ImageIds,
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,

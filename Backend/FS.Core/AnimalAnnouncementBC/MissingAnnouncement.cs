@@ -1,9 +1,9 @@
 ﻿using FS.Contracts.Error;
-using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Events;
 using FS.Core.AnimalAnnouncementBC.Policies;
 using FS.Core.Exceptions;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.ValueObjects;
 
 namespace FS.Core.AnimalAnnouncementBC;
@@ -17,7 +17,7 @@ public class MissingAnnouncement : PetAnnouncement
     private MissingAnnouncement(
         string? street,
         string? house,
-        List<AnimalAnnouncementImage> images,
+        List<FSImage> images,
         Guid creatorId,
         string? district,
         PetType petType,
@@ -52,7 +52,7 @@ public class MissingAnnouncement : PetAnnouncement
     public static MissingAnnouncement Create(
         string? street,
         string? house,
-        List<AnimalAnnouncementImage> images,
+        List<FSImage> images,
         Guid creatorId,
         string? district,
         PetType petType,

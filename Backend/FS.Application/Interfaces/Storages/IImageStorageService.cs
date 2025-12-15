@@ -1,10 +1,10 @@
 ﻿
-namespace FS.Application.Services.ImageLogic.Interfaces;
+namespace FS.Application.Interfaces.Storages;
 
 public interface IImageStorageService
 {
     Task UploadAsync(
-        byte[] content,
+        Stream stream,
         string storageKey,
         CancellationToken ct);
 

@@ -34,7 +34,8 @@ public static class DependencyInjection
             .AddScoped<INotificationRepository, EFNotificationRepository>()
             .AddScoped<IUserDeviceQueryService, EFUserDevicesQueryService>()
             .AddScoped<INotificationDeliveryQueryService, EFNotificationDeliveryQueryService>()
-            .AddScoped<IAnimalAnnouncementQueryService, EFAnimalAnnouncementQueryService>();
+            .AddScoped<IAnimalAnnouncementQueryService, EFAnimalAnnouncementQueryService>()
+            .AddScoped<IImageRepository, EFImageRepository>();
 
         services
             .AddScoped<IMissingAnnouncementQueryService, EFMissingAnnouncementQueryService>()

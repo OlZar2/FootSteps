@@ -43,7 +43,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
     {
         return await (from a in context.MissingAnnouncements.AsNoTracking()
             join creator in context.Users on a.CreatorId equals creator.Id
-            join avatar in context.AnimalAnnouncementImages on creator.AvatarImageId equals avatar.Id
+            join avatar in context.Images on creator.AvatarImageId equals avatar.Id
             where a.Id == id
             select new MissingAnnouncementPage {
                 Id = a.Id,

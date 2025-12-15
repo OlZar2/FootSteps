@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "df6az0h1f4q2oc"
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -134,7 +134,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "df6az0h1f4q2oc"
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -240,7 +240,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "df6az0h1f4q2oc"
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {},

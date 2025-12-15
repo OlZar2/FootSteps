@@ -11,7 +11,7 @@ public record CreateMissingAnnouncementData
     
     public required CoordinatesDto Location { get; init; }
     
-    public required FileData[] Images  { get; init; }
+    public required Guid[] ImageIds  { get; init; }
     
     public required Guid CreatorId { get; init; }
     

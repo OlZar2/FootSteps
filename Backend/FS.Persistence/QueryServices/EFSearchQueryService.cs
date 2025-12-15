@@ -18,7 +18,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                          .FirstOrDefaultAsync(s => s.Id == searchId, cancellationToken: ct)
             ?? throw new NotFoundException(nameof(SimilarAnnouncement), searchId);
         
-        var similarImages = await context.AnimalAnnouncementImages
+        var similarImages = await context.Images
             .FromSqlRaw(@"
                 SELECT ""Id"", ""FullImagePath""
                 FROM ""Images""
@@ -60,7 +60,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                         ? ((PetAnnouncement)aa).Breed
                         : null,
                 }).ToArray(),
-                SearchImagePath = context.SearchRequestImages
+                SearchImagePath = context.Images
                     .Where(i => i.Id == sr.ImageId)
                     .Select(i => i.FullImagePath)
                     .First(),
@@ -93,7 +93,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                         ? ((PetAnnouncement)aa).Breed
                         : null
                 }).ToArray(),
-                SearchImagePath = context.SearchRequestImages
+                SearchImagePath = context.Images
                     .Where(i => i.Id == sr.ImageId)
                     .Select(i => i.FullImagePath)
                     .First(),

@@ -7,20 +7,12 @@ namespace FS.API.RequestsModels.Search.Validators;
 
 public class SearchRMValidator : AbstractValidator<SearchRequestModel>
 {
-    public SearchRMValidator(IOptions<ImagesOptions> imagesOptions)
+    public SearchRMValidator()
     {
-        RuleFor(x => x.Image)
+        RuleFor(x => x.ImageId)
             .NotNull()
             .WithErrorCode(IssueCodes.Required)
             .NotEmpty()
             .WithErrorCode(IssueCodes.Required);
-        RuleFor(x => x.Image.ContentType)
-            .Must(ct => imagesOptions.Value.AllowedContentTypes.Contains(ct))
-            .WithMessage("Неверный формат файла")
-            .WithErrorCode(IssueCodes.InvalidFormat);
-        RuleFor(x => x.Image.Length)
-            .LessThanOrEqualTo(imagesOptions.Value.MaxByteSize)
-            .WithMessage("Максимальный размер файла — 5 МБ.")
-            .WithErrorCode(IssueCodes.TooLarge);
     }
 }

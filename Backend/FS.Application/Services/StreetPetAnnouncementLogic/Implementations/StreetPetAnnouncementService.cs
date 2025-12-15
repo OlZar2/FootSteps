@@ -1,14 +1,14 @@
 ﻿using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.StreetPetAnnouncementDTOs;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.ImageLogic.Configurations;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC;
-using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.AnimalAnnouncementBC.Specifications;
 using FS.Core.AnimalAnnouncementBC.Stores;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.ReadDomain;
 using FS.Core.ReadDomain.Stores;
 using FS.Core.Shared.ValueObjects;
@@ -25,6 +25,7 @@ public class StreetPetAnnouncementService(
     IMissingAnnouncementRepository missingAnnouncementRepository,
     ILogger<StreetPetAnnouncementService> logger,
     ISimilarAnnouncementRepository similarAnnouncementRepository,
+    IImageRepository imageRepository,
     IOptions<S3StorageConfiguration> s3Options)
     : IStreetPetAnnouncementService
 {
@@ -36,19 +37,12 @@ public class StreetPetAnnouncementService(
         
         var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Latitude);
         
-        var images = new List<AnimalAnnouncementImage>();
-        foreach (var image in data.Images)
-        {
-            var s3Key = Guid.NewGuid().ToString();
-            var createdImage = AnimalAnnouncementImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
-            images.Add(createdImage);
-            await imageStorageService.UploadAsync(image.Content, s3Key, ct);
-        }
+        var images = await imageRepository.GetByIdsAsync(data.ImageIds, ct);
 
         var streetPetAnnouncement = StreetPetAnnouncement.Create(
             street:data.Street,
             house:data.House,
-            images,
+            images.ToList(),
             data.CreatorId,
             data.District,
             data.PetType,

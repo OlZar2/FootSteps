@@ -1,12 +1,11 @@
 ﻿using FS.Application.Events;
 using FS.Core.AnimalAnnouncementBC;
-using FS.Core.AnimalAnnouncementBC.Entities;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.NotificationDomain;
 using FS.Core.NotificationDomain.Entities;
 using FS.Core.OutboxDomain.Entities;
 using FS.Core.ReadDomain;
 using FS.Core.SearchDomain;
-using FS.Core.SearchDomain.Entities;
 using FS.Core.Shared.Abstractions;
 using FS.Core.UserDomain;
 using FS.Core.UserDomain.Entities;
@@ -21,8 +20,7 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     {
         modelBuilder.ApplyConfiguration(new AnimalAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new FindAnnouncementConfiguration());
-        modelBuilder.ApplyConfiguration(new AnimalAnnouncementImageConfiguration());
-        modelBuilder.ApplyConfiguration(new SearchRequestImageConfiguration());
+        modelBuilder.ApplyConfiguration(new ImageConfiguration());
         modelBuilder.ApplyConfiguration(new MissingAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new StreetPetAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
@@ -55,8 +53,7 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     public DbSet<AnimalAnnouncement> AnimalAnnouncements { get; set; } = null!;
     public DbSet<PetAnnouncement> PetAnnouncements { get; set; } = null!;
     public DbSet<FindAnnouncement> FindAnnouncements { get; set; } = null!;
-    public DbSet<AnimalAnnouncementImage> AnimalAnnouncementImages { get; set; } = null!;
-    public DbSet<SearchRequestImage> SearchRequestImages { get; set; } = null!;
+    public DbSet<FSImage> Images { get; set; } = null!;
     public DbSet<MissingAnnouncement> MissingAnnouncements { get; set; } = null!;
     public DbSet<StreetPetAnnouncement> StreetPetAnnouncements { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;

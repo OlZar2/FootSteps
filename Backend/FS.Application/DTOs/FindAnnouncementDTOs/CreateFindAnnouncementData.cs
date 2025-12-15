@@ -5,7 +5,7 @@ namespace FS.Application.DTOs.FindAnnouncementDTOs;
 
 public record CreateFindAnnouncementData
 {
-    public required FileData[] Images { get; init; }
+    public required Guid[] ImageIds { get; init; }
     
     public required PetType PetType { get; init; }
     

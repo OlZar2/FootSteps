@@ -21,31 +21,6 @@ public class RegisterRMValidator : AbstractValidator<RegisterRM>
             .MaximumLength(40).WithErrorCode(IssueCodes.TooLong);
         RuleFor(x => x.Patronymic)
             .MaximumLength(50).WithErrorCode(IssueCodes.TooLong);
-        RuleFor(x => x.AvatarImage)
-            .Custom((file, context) =>
-            {
-                if (file is null) return;
-
-                if (!imagesOptions.Value.AllowedContentTypes.Contains(file.ContentType))
-                {
-                    context.AddFailure(new FluentValidation.Results.ValidationFailure(
-                        nameof(context.InstanceToValidate.AvatarImage),
-                        "Неверный формат файла")
-                    {
-                        ErrorCode = IssueCodes.InvalidFormat
-                    });
-                }
-                
-                if (file.Length > imagesOptions.Value.MaxByteSize)
-                {
-                    context.AddFailure(new FluentValidation.Results.ValidationFailure(
-                        nameof(context.InstanceToValidate.AvatarImage),
-                        "Максимальный размер файла — 5 МБ.")
-                    {
-                        ErrorCode = IssueCodes.TooLarge
-                    });
-                }
-            });
         RuleForEach(x => x.UserContacts)
             .SetValidator(new UserContactRMValidator());
     }

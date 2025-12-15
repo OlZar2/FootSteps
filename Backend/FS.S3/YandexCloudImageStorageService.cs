@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using FS.Application.Interfaces.Storages;
 using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Exceptions;
 using FS.Application.Services.ImageLogic.Interfaces;
@@ -7,7 +8,7 @@ using FS.Contracts.Error;
 using ImageMagick;
 using Microsoft.Extensions.Options;
 
-namespace FS.Application.Services.ImageLogic.Implementations;
+namespace FS.S3;
 
 public class YandexCloudImageStorageService : IImageStorageService
 {
@@ -37,23 +38,21 @@ public class YandexCloudImageStorageService : IImageStorageService
     }
     
     public async Task UploadAsync(
-        byte[] content,
+        Stream stream,
         string storageKey,
         CancellationToken ct)
     {
-        var (ext, mime) = DetectImage(content);
+        var (ext, mime) = DetectImage(stream);
         if (!_imagesOptions.AllowedImageExtensions.Contains(ext))
             throw new ImageValidationException(
                 IssueCodes.File.UnsupportedFormat,
                 "Поддерживаются только JPG и PNG.");
         
-        using MemoryStream memoryStream = new(content);
-        
         var request = new PutObjectRequest
         {
             BucketName = _bucketName,
             Key = storageKey,
-            InputStream = memoryStream,
+            InputStream = stream,
             ContentType = mime,
         };
         
@@ -71,14 +70,14 @@ public class YandexCloudImageStorageService : IImageStorageService
         await _s3Client.DeleteObjectAsync(request, ct);
     }
 
-    private static (string ExtWithDot, string Mime) DetectImage(byte[] content)
+    private static (string ExtWithDot, string Mime) DetectImage(Stream stream)
     {
-        if (content == null || content.Length == 0)
+        if (stream == null)
             throw new ImageValidationException(IssueCodes.File.Empty, "Файл пустой.");
 
         try
         {
-            var info = new MagickImageInfo(content);
+            var info = new MagickImageInfo(stream);
             var fmt  = info.Format;
             var fi   = MagickFormatInfo.Create(fmt);
 

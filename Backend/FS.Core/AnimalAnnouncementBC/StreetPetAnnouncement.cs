@@ -1,6 +1,6 @@
-﻿using FS.Core.AnimalAnnouncementBC.Entities;
-using FS.Core.AnimalAnnouncementBC.Enums;
+﻿using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Events;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.ValueObjects;
 
 namespace FS.Core.AnimalAnnouncementBC;
@@ -12,7 +12,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
     private StreetPetAnnouncement(
         string? street,
         string? house,
-        List<AnimalAnnouncementImage> images,
+        List<FSImage> images,
         Guid creatorId,
         string? district,
         PetType petType,
@@ -37,7 +37,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
     public static StreetPetAnnouncement Create(
         string? street,
         string? house,
-        List<AnimalAnnouncementImage> images,
+        List<FSImage> images,
         Guid creatorId,
         string? district,
         PetType petType,

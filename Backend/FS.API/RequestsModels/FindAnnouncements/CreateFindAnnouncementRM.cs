@@ -8,11 +8,9 @@ public class CreateFindAnnouncementRM
     [Description("Координаты. Обязательно, issue REQUIRED.")]
     public required CoordinatesDto Location { get; init; }
     
-    [Description("Картинки. Обязательно, issue REQUIRED. Если расширение неверное " +
-                 "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +
-                 "Если больше 5МБ issue TOO_LARGE. Если файл пустой EMPTY_FILE" +
-                 "Максимум 5 картинок. Если больше то issue TOO_MANY")]
-    public required IFormFile[] Images  { get; init; }
+    [Description("Id Картинок. Обязательно, issue REQUIRED. " +
+                 "Максимум 5 id. Если больше то issue TOO_MANY")]
+    public required Guid[] ImageIds  { get; init; }
     
     [Description("Тип питомца. Обязательно, issue REQUIRED. Если неверное значение " +
                  "issue INVALID_VALUE. Значения: 0 = Кот, 1 = Собака, 2 = Другое")]

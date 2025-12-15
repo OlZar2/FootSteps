@@ -1,5 +1,5 @@
-﻿using FS.Core.AnimalAnnouncementBC.Entities;
-using FS.Core.AnimalAnnouncementBC.Enums;
+﻿using FS.Core.AnimalAnnouncementBC.Enums;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.ValueObjects;
 
 namespace FS.Core.AnimalAnnouncementBC;
@@ -19,7 +19,7 @@ public abstract class PetAnnouncement : AnimalAnnouncement
     protected PetAnnouncement(
         string? street,
         string? house,
-        List<AnimalAnnouncementImage> images,
+        List<FSImage> images,
         Guid creatorId,
         string? district,
         PetType petType,

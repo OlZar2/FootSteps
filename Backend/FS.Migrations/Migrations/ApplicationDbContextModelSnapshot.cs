@@ -74,7 +74,7 @@ namespace FS.Migrations.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.Entities.AnimalAnnouncementImage", b =>
+            modelBuilder.Entity("FS.Core.ImageDomain.Entities.FSImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,7 +102,7 @@ namespace FS.Migrations.Migrations
 
                     b.HasIndex("AnimalAnnouncementId");
 
-                    b.ToTable("AnimalAnnouncementImages", (string)null);
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("FS.Core.NotificationDomain.Entities.NotificationDelivery", b =>
@@ -226,32 +226,6 @@ namespace FS.Migrations.Migrations
                     b.HasIndex("MissingAnnouncementId");
 
                     b.ToTable("SimilarAnnouncements");
-                });
-
-            modelBuilder.Entity("FS.Core.SearchDomain.Entities.SearchRequestImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("BucketURL")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Vector>("Embedding")
-                        .HasColumnType("vector(512)");
-
-                    b.Property<string>("FullImagePath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("S3Key")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SearchRequestImages", (string)null);
                 });
 
             modelBuilder.Entity("FS.Core.SearchDomain.SearchRequest", b =>
@@ -420,7 +394,7 @@ namespace FS.Migrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.Entities.AnimalAnnouncementImage", b =>
+            modelBuilder.Entity("FS.Core.ImageDomain.Entities.FSImage", b =>
                 {
                     b.HasOne("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", null)
                         .WithMany("Images")
@@ -457,7 +431,7 @@ namespace FS.Migrations.Migrations
 
             modelBuilder.Entity("FS.Core.SearchDomain.SearchRequest", b =>
                 {
-                    b.HasOne("FS.Core.SearchDomain.Entities.SearchRequestImage", "Image")
+                    b.HasOne("FS.Core.ImageDomain.Entities.FSImage", "Image")
                         .WithOne()
                         .HasForeignKey("FS.Core.SearchDomain.SearchRequest", "ImageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -477,7 +451,7 @@ namespace FS.Migrations.Migrations
 
             modelBuilder.Entity("FS.Core.UserDomain.User", b =>
                 {
-                    b.HasOne("FS.Core.AnimalAnnouncementBC.Entities.AnimalAnnouncementImage", null)
+                    b.HasOne("FS.Core.ImageDomain.Entities.FSImage", null)
                         .WithOne()
                         .HasForeignKey("FS.Core.UserDomain.User", "AvatarImageId")
                         .OnDelete(DeleteBehavior.SetNull);

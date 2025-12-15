@@ -1,0 +1,139 @@
+services:
+  fs-api:
+    image: olzar/fs-api:0.28
+    environment:
+      RabbitMqOptions__Uri: "amqp://fs_user@rabbitmq:5672/"
+      OltpOptions__Uri: "http://tempo:4317"
+      Serilog__WriteTo__1__Args__uri: "http://loki:3100"
+      ConnectionStrings__DefaultConnection_FILE: /run/secrets/fs_db_conn
+      JwtOptions__SecretKey_FILE: /run/secrets/fs_jwt_secret
+      S3StorageConfiguration__AccessKey_FILE: /run/secrets/fs_s3_access_key
+      S3StorageConfiguration__SecretKey_FILE: /run/secrets/fs_s3_secret_key
+      YandexApiOptions__ApiKey_FILE: /run/secrets/fs_yandex_api_key
+    secrets:
+      - fs_db_conn
+      - fs_jwt_secret
+      - fs_s3_access_key
+      - fs_s3_secret_key
+      - fs_yandex_api_key
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      fs-pg:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      grafana:
+        condition: service_started
+      tempo:
+        condition: service_started
+      loki:
+        condition: service_started
+    networks:
+      - fs-net
+  fs-pg:
+    image: olzar/postgres-geo-vec
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "FootSteps"
+      POSTGRES_PASSWORD_FILE: /run/secrets/fs_pg_password
+    secrets:
+      - fs_pg_password
+    networks:
+      - fs-net
+    volumes:
+      - fs-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d FootSteps" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5434:5432"
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "fs_user"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - fs-net
+    secrets:
+      - fs_rabbitmq_password
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >
+      export RABBITMQ_DEFAULT_PASS="$(cat /run/secrets/fs_rabbitmq_password)";
+      exec docker-entrypoint.sh rabbitmq-server
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Grafana/dashboards:/etc/grafana/dashboards
+      - ./Grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - loki
+      - tempo
+    environment:
+      - GF_SECURITY_ADMIN_USER: "admin"
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >
+      export GF_SECURITY_ADMIN_PASSWORD="$(cat /run/secrets/fs_grafana_admin_password)";
+      exec /run.sh
+    secrets:
+      - fs_grafana_admin_password
+    networks:
+      - fs-net
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    volumes:
+      - ./Loki/config:/etc/loki/config
+      - ./Loki/data:/loki
+    command: [ "-config.file=/etc/loki/config/loki-config.yaml" ]
+    networks:
+      - fs-net
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo/config/tempo-config.yaml" ]
+    volumes:
+      - ./Tempo/config:/etc/tempo/config
+      - ./Tempo/data:/var/tempo
+    networks:
+      - fs-net
+networks:
+  fs-net:
+    driver: bridge
+volumes:
+  fs-data:
+  rabbitmq-data:
+secrets:
+  fs_pg_password:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_pg_password
+  fs_db_conn:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_db_conn
+  fs_jwt_secret:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_jwt_secret
+  fs_s3_access_key:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_s3_access_key
+  fs_s3_secret_key:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_s3_secret_key
+  fs_yandex_api_key:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_yandex_api_key
+  fs_grafana_admin_password:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_grafana_admin_password
+  fs_rabbitmq_password:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_rabbitmq_password

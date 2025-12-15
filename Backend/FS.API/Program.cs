@@ -8,18 +8,22 @@ using FS.API.Middlewares;
 using FS.API.Middlewares.Culture;
 using FS.API.Middlewares.Errors;
 using FS.API.Middlewares.Telemetry;
+using FS.API.Secrets;
 using FS.Application;
 using FS.Firebase;
 using FS.JWT;
 using FS.Persistence;
 using FS.Persistence.Context;
 using FS.RabbitMq;
+using FS.S3;
 using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+
+FileSecretsLoader.LoadSecretFiles();
 
 services.AddTelemetryConfiguration(builder.Host, builder.Configuration);
 
@@ -38,7 +42,8 @@ services
     .AddFirebase()
     .AddRabbitMq()
     .AddNotificationsHandling()
-    .AddApiServices();
+    .AddApiServices()
+    .AddS3();
 
 services.AddSignalR();
 

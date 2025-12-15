@@ -6,7 +6,7 @@ namespace FS.S3;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection AddS3(this IServiceCollection services)
     {
         services
             .AddScoped<IImageStorageService, YandexCloudImageStorageService>();

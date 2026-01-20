@@ -8,7 +8,6 @@ public static class FileSecretsLoader
         if (!string.IsNullOrWhiteSpace(file) && File.Exists(file))
         {
             var value = File.ReadAllText(file).Trim();
-            Console.WriteLine(value);
             Environment.SetEnvironmentVariable(key, value);
         }
     }

@@ -27,10 +27,10 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Build
-        run: dotnet build Backend/FootSteps.sln -c Release
+        run: dotnet build Backend/FS.sln -c Release
 
       - name: Test
-        run: dotnet test Backend/FootSteps.sln -c Release --no-build
+        run: dotnet test Backend/FS.sln -c Release --no-build
 
       - name: Compose up
         env:

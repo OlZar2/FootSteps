@@ -5,6 +5,9 @@ riderModule.iml
 /_ReSharper.Caches/
 secrets/
 
+.env.local
+.secrets/
+
 # Build results
 bin/
 obj/

@@ -8,7 +8,7 @@ using FS.API.Middlewares;
 using FS.API.Middlewares.Culture;
 using FS.API.Middlewares.Errors;
 using FS.API.Middlewares.Telemetry;
-using FS.API.Secrets;
+using FS.API.SecretsLoader;
 using FS.Application;
 using FS.Firebase;
 using FS.JWT;
@@ -20,10 +20,10 @@ using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+FileSecretsLoader.LoadSecretFiles();
+
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-
-FileSecretsLoader.LoadSecretFiles();
 
 services.AddTelemetryConfiguration(builder.Host, builder.Configuration);
 

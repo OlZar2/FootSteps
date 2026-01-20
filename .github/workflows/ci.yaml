@@ -21,11 +21,23 @@ jobs:
           chmod +x ./scripts/fetch-selectel-secrets.sh
           ./scripts/fetch-selectel-secrets.sh
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Test
+        run: dotnet test -c Release --no-build
+
       - name: Compose up
         env:
           SECRETS_DIR: ${{ github.workspace }}/.secrets
         run: |
-          docker compose up -d --pull always
+          docker compose -f ci-compose.yaml build --pull
+          docker compose -f ci-compose.yaml up -d
 
       - name: Smoke check
         run: |
@@ -38,10 +50,11 @@ jobs:
           done
 
           echo "Swagger did not become available"
-          docker compose ps
-          docker compose logs --no-color
+          docker compose -f ci-compose.yaml ps
+          docker compose -f ci-compose.yaml logs --no-color --tail=200 fs-api
           exit 1
 
       - name: Teardown
         if: always()
-        run: docker compose down -v
+        run: |
+          docker compose -f ci-compose.yaml down -v

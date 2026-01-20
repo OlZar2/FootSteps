@@ -23,6 +23,7 @@ declare -A SECRET_MAP=(
   ["fs_yandex_api_key"]="fs_yandex_api_key"
   ["fs_rabbitmq_password"]="fs_rabbitmq_password"
   ["fs_grafana_admin_password"]="fs_grafana_admin_password"
+  ["fs_rabbitmq_connection"]="fs_rabbitmq_connection"
 )
 
 mkdir -p "$SECRETS_DIR"
@@ -79,17 +80,41 @@ b64decode() {
 fetch_secret_value() {
   local token="$1"
   local name="$2"
-  local json
-  json="$(curl -sS -H "X-Auth-Token: ${token}" "${SECRETS_URL}/${name}")"
 
-  # Extract .value using python (no jq dependency)
-  python3 - <<'PY' "$json"
+  local resp body code
+  resp="$(curl -sS -H "X-Auth-Token: ${token}" -w '\n%{http_code}' "${SECRETS_URL}/${name}")"
+  body="$(printf '%s' "$resp" | sed '$d')"
+  code="$(printf '%s' "$resp" | tail -n 1)"
+
+  if [[ "$code" != "200" ]]; then
+    echo "ERROR: failed to fetch secret '${name}' (HTTP ${code})" >&2
+    echo "Response body:" >&2
+    echo "$body" >&2
+    exit 1
+  fi
+
+  python - <<'PY' "$body"
 import json, sys
 obj = json.loads(sys.argv[1])
+
+# 1) value at root
 v = obj.get("value")
-if not v:
-    raise SystemExit("ERROR: secret JSON has no 'value'")
-print(v)
+if v:
+    print(v)
+    raise SystemExit(0)
+
+# 2) value inside version
+ver = obj.get("version")
+if isinstance(ver, dict):
+    vv = ver.get("value")
+    if vv:
+        print(vv)
+        raise SystemExit(0)
+
+# otherwise: helpful error
+keys = list(obj.keys()) if isinstance(obj, dict) else [type(obj).__name__]
+ver_keys = list(ver.keys()) if isinstance(ver, dict) else [type(ver).__name__]
+raise SystemExit(f"ERROR: neither 'value' nor 'version.value' found. Root keys={keys}, version keys={ver_keys}")
 PY
 }
 

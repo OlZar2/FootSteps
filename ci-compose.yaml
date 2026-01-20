@@ -1,8 +1,11 @@
 services:
   fs-api:
-    image: olzar/fs-api:0.28
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    image: fs-api:ci
     environment:
-      RabbitMqOptions__Uri: "amqp://fs_user@rabbitmq:5672/"
+      RabbitMqOptions__Uri_FILE: "/run/secrets/fs_rabbitmq_connection"
       OltpOptions__Uri: "http://tempo:4317"
       Serilog__WriteTo__1__Args__uri: "http://loki:3100"
       ConnectionStrings__DefaultConnection_FILE: /run/secrets/fs_db_conn
@@ -16,6 +19,7 @@ services:
       - fs_s3_access_key
       - fs_s3_secret_key
       - fs_yandex_api_key
+      - fs_rabbitmq_connection
     ports:
       - "5000:5000"
       - "5001:5001"
@@ -54,9 +58,6 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: "fs_user"
-      RABBITMQ_DEFAULT_VHOST: "/"
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -64,12 +65,10 @@ services:
       - fs-net
     secrets:
       - fs_rabbitmq_password
-    entrypoint: ["/bin/sh", "-ec"]
-    command: >
-      export RABBITMQ_DEFAULT_PASS="$(cat /run/secrets/fs_rabbitmq_password)";
-      exec docker-entrypoint.sh rabbitmq-server
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+      - ./RabbitMQ/entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -87,7 +86,7 @@ services:
       - loki
       - tempo
     environment:
-      - GF_SECURITY_ADMIN_USER: "admin"
+      - GF_SECURITY_ADMIN_USER=admin
     entrypoint: ["/bin/sh", "-ec"]
     command: >
       export GF_SECURITY_ADMIN_PASSWORD="$(cat /run/secrets/fs_grafana_admin_password)";
@@ -137,3 +136,5 @@ secrets:
     file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_grafana_admin_password
   fs_rabbitmq_password:
     file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_rabbitmq_password
+  fs_rabbitmq_connection:
+    file: ${SECRETS_DIR:-/opt/fs/secrets}/fs_rabbitmq_connection

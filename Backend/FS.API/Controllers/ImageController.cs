@@ -10,7 +10,7 @@ public class ImageController(IImageService imageService) : ControllerBase
 {
     [HttpPost("upload")]
     [Authorize]
-    public async Task<Guid> Upload([FromForm] IFormFile file, CancellationToken ct)
+    public async Task<Guid> Upload(IFormFile file, CancellationToken ct)
     {
         await using var stream = file.OpenReadStream();
         

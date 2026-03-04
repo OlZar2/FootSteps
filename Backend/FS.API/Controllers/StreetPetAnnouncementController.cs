@@ -42,6 +42,30 @@ public class StreetPetAnnouncementController(
         var district = await geocoder.GetDistrictOrNull(request.Location, ct)
                        ?? await geocoder.GetLocalityOrNull(request.Location, ct);
 
+        //TODO: в севрис
+        var semaphore = new SemaphoreSlim(4);
+
+        var tasks = request.Images.Select(async image =>
+        {
+            await semaphore.WaitAsync(ct);
+            try
+            {
+                await using var ms = new MemoryStream();
+                await image.CopyToAsync(ms, ct);
+
+                return new FileData
+                {
+                    Content = ms.ToArray()
+                };
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        var fileInfos = await Task.WhenAll(tasks);
+        
         var dto = new CreateStreetPetAnnouncementData
         {
             CreatorId = userId,
@@ -51,7 +75,7 @@ public class StreetPetAnnouncementController(
             House = house,
             Street = street,
             PetType = (PetType)request.PetType!.Value,
-            ImageIds = request.ImageIds,
+            Images = fileInfos,
             PlaceDescription = request.PlaceDescription,
         };
 

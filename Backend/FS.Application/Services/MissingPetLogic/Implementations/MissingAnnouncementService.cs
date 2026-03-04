@@ -1,11 +1,10 @@
-﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
+﻿using FS.Application.Configurations;
+using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
 using FS.Application.DTOs.MissingAnnouncementDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
-using FS.Application.Services.ImageLogic.Configurations;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Specifications;
@@ -18,7 +17,7 @@ namespace FS.Application.Services.MissingPetLogic.Implementations;
 
 public class MissingAnnouncementService(
     IMissingAnnouncementRepository missingAnnouncementRepository,
-    IImageRepository imageRepository,
+    IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
     IMissingAnnouncementQueryService missingAnnouncementQueryService,
     IOptions<S3StorageConfiguration> s3StorageOptions) 
@@ -47,14 +46,22 @@ public class MissingAnnouncementService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var images = await imageRepository.GetByIdsAsync(data.ImageIds, ct);
+        List<FSImage> images = [];
+        
+        foreach (var image in data.Images)
+        {
+            var s3Key = Guid.NewGuid().ToString();
+            var createdImage = FSImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+            images.Add(createdImage);
+            await imageStorageService.UploadAsync(image.Content, s3Key, ct);
+        }
         
         var coordinates = CoordinatesVO.Create(data.Location.Latitude, data.Location.Longitude);
         
         var missingAnnouncement = MissingAnnouncement.Create(
             street: data.Street,
             house: data.House,
-            images.ToList(),
+            images,
             data.CreatorId,
             data.District,
             data.PetType,

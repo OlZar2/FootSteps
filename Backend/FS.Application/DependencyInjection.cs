@@ -6,8 +6,6 @@ using FS.Application.Services.AuthLogic.Implementations;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Application.Services.FindAnnouncementLogic.Implementations;
 using FS.Application.Services.FindAnnouncementLogic.Interfaces;
-using FS.Application.Services.ImageLogic.Implementations;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.MissingPetLogic.Implementations;
 using FS.Application.Services.MissingPetLogic.Interfaces;
 using FS.Application.Services.NotificationLogic.Implementations;
@@ -33,7 +31,6 @@ public static class DependencyInjection
     {
         services
             .AddScoped<IAuthService, AuthService>()
-            .AddScoped<IImageService, ImageService>()
             .AddScoped<IPasswordHasher, PasswordHasher>()
             .AddScoped<IMissingAnnouncementService, MissingAnnouncementService>()
             .AddScoped<IFindAnnouncementService, FindAnnouncementService>()

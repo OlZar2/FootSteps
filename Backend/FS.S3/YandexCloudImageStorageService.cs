@@ -1,9 +1,8 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using FS.Application.Configurations;
 using FS.Application.Interfaces.Storages;
-using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.ImageLogic.Exceptions;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Contracts.Error;
 using ImageMagick;
 using Microsoft.Extensions.Options;
@@ -58,6 +57,30 @@ public class YandexCloudImageStorageService : IImageStorageService
         
         await _s3Client.PutObjectAsync(request, ct);
     }
+    
+    public async Task UploadAsync(
+        byte[] content,
+        string storageKey,
+        CancellationToken ct)
+    {
+        var (ext, mime) = DetectImage(content);
+        if (!_imagesOptions.AllowedImageExtensions.Contains(ext))
+            throw new ImageValidationException(
+                IssueCodes.File.UnsupportedFormat,
+                "Поддерживаются только JPG и PNG.");
+        
+        using MemoryStream memoryStream = new(content);
+        
+        var request = new PutObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = storageKey,
+            InputStream = memoryStream,
+            ContentType = mime,
+        };
+        
+        await _s3Client.PutObjectAsync(request, ct);
+    }
 
     public async Task DeleteAsync(string storageKey, CancellationToken ct)
     {
@@ -70,7 +93,7 @@ public class YandexCloudImageStorageService : IImageStorageService
         await _s3Client.DeleteObjectAsync(request, ct);
     }
 
-    private static (string ExtWithDot, string Mime) DetectImage(Stream stream)
+    private (string ExtWithDot, string Mime) DetectImage(Stream stream)
     {
         if (stream == null)
             throw new ImageValidationException(IssueCodes.File.Empty, "Файл пустой.");
@@ -78,6 +101,33 @@ public class YandexCloudImageStorageService : IImageStorageService
         try
         {
             var info = new MagickImageInfo(stream);
+            var fmt  = info.Format;
+            var fi   = MagickFormatInfo.Create(fmt);
+
+            if (fi == null)
+                throw new InvalidOperationException("Невозможно определить формат изображения.");
+
+            var ext  = fmt.ToString().ToLowerInvariant();
+            var mime = fi.MimeType ?? "application/octet-stream";
+
+            return (ext, mime);
+        }
+        catch (MagickCorruptImageErrorException)
+        {
+            throw new ImageValidationException(
+                IssueCodes.File.NotImageOrCorrupt,
+                "Файл повреждён или не является изображением.");
+        }
+    }
+    
+    private (string ExtWithDot, string Mime) DetectImage(byte[] content)
+    {
+        if (content == null || content.Length == 0)
+            throw new ImageValidationException(IssueCodes.File.Empty, "Файл пустой.");
+
+        try
+        {
+            var info = new MagickImageInfo(content);
             var fmt  = info.Format;
             var fi   = MagickFormatInfo.Create(fmt);
 

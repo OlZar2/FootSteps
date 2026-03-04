@@ -1,9 +1,9 @@
-﻿using FS.Application.DTOs.Shared;
+﻿using FS.Application.Configurations;
+using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
-using FS.Application.Services.ImageLogic.Configurations;
 using FS.Application.Services.UserLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Core.ImageDomain.Entities;
@@ -27,6 +27,8 @@ public class UserService(
     IOptions<S3StorageConfiguration> s3Options
     ) : IUserService
 {
+    private readonly S3StorageConfiguration _s3StorageConfiguration = s3Options.Value;
+    
     public async Task UpdateUserInfoAsync(Guid actorId, UpdateUserInfo userInfo, CancellationToken ct)
     {
         var user = await userRepository.GetByIdWithContactsAsync(userInfo.UserId, ct);
@@ -56,21 +58,25 @@ public class UserService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var user = await userRepository.GetByIdAsync(updateUserAvatar.UserId, ct);
+        var user = await userRepository.GetByIdWithAvatarAsync(updateUserAvatar.UserId, ct);
 
         FSImage? image = null;
-        if (updateUserAvatar.AvatarId != null)
+        var newAvatar = updateUserAvatar.Avatar;
+        if (newAvatar != null)
         {
-            image = await imageRepository.GetByIdAsync(updateUserAvatar.AvatarId.Value, ct);
+            var s3Key = Guid.NewGuid().ToString();
+            var createdImage = FSImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+            image = createdImage;
+            await imageStorageService.UploadAsync(newAvatar.Content, s3Key, ct);
         }
 
-        if (user.AvatarImageId != null)
+        if (user.AvatarImage != null)
         {
-            var imageStorageKey = await imageQueryService.GetStorageKeyByImageId(user.AvatarImageId.Value, ct);
+            var imageStorageKey = await imageQueryService.GetStorageKeyByImageId(user.AvatarImage.Id, ct);
             await imageStorageService.DeleteAsync(imageStorageKey, ct);
         }
         
-        user.UpdateAvatar(actorId, image?.Id, editUserPolicy);
+        user.UpdateAvatar(actorId, image, editUserPolicy);
         await userRepository.UpdateAsync(user, ct);
 
         await transaction.CommitAsync(ct);

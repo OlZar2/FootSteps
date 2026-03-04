@@ -1,4 +1,5 @@
-﻿using FS.Application.DTOs.AuthDTOs;
+﻿using FS.Application.Configurations;
+using FS.Application.DTOs.AuthDTOs;
 using FS.Application.Exceptions;
 using FS.Application.Interfaces.Jwt;
 using FS.Application.Interfaces.QueryServices;
@@ -6,7 +7,6 @@ using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Services.AuthLogic.Exceptions;
 using FS.Application.Services.AuthLogic.Interfaces;
-using FS.Application.Services.ImageLogic.Configurations;
 using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Core.Exceptions;
@@ -60,7 +60,7 @@ public class AuthService(
             hashedPassword,
             fullNameVo,
             userRegisterData.Description,
-            image?.Id,
+            image,
             userInitContacts);
 
         await userRepository.CreateAsync(user, ct);

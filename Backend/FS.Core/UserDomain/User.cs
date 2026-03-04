@@ -1,5 +1,6 @@
 ﻿using FS.Contracts.Error;
 using FS.Core.Exceptions;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.Abstractions;
 using FS.Core.UserDomain.Entities;
 using FS.Core.UserDomain.UserPolicies;
@@ -20,6 +21,7 @@ public class User : AggregateRoot
     public string? Description { get; private set; }
     
     public Guid? AvatarImageId { get; private set; }
+    public FSImage? AvatarImage { get; private set; }
     
     public Email Email { get; private set; }
     
@@ -32,7 +34,7 @@ public class User : AggregateRoot
         string passwordHash,
         FullName fullName,
         string? description,
-        Guid? avatarImageId,
+        FSImage? avatarImage,
         List<UserContact> contacts,
         Guid? id = null) : base(id ?? Guid.NewGuid())
     {
@@ -40,7 +42,8 @@ public class User : AggregateRoot
         PasswordHash = passwordHash;
         FullName = fullName;
         Description = description;
-        AvatarImageId = avatarImageId;
+        AvatarImage = avatarImage;
+        AvatarImageId = avatarImage?.Id;
         _contacts = contacts;
     }
     
@@ -49,7 +52,7 @@ public class User : AggregateRoot
         string passwordHash,
         FullName fullName,
         string? description,
-        Guid? avatarImageId,
+        FSImage? avatarImage,
         InitialContact[] initialContacts,
         Guid? id = null)
     {
@@ -64,7 +67,7 @@ public class User : AggregateRoot
             passwordHash,
             fullName,
             description,
-            avatarImageId,
+            avatarImage,
             contacts,
             id
         );
@@ -94,12 +97,12 @@ public class User : AggregateRoot
         _contacts.AddRange(contacts);
     }
 
-    public void UpdateAvatar(Guid editorId, Guid? avatarImageId, IEditUserPolicy editUserPolicy)
+    public void UpdateAvatar(Guid editorId, FSImage? avatarImage, IEditUserPolicy editUserPolicy)
     {
         if(!editUserPolicy.CanEdit(this, editorId))
             return;
         
-        AvatarImageId = avatarImageId;
+        AvatarImage = avatarImage;
     }
 
     public void AddDevice(UserDevice device)

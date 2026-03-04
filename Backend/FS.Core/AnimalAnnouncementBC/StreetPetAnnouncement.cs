@@ -58,10 +58,8 @@ public class StreetPetAnnouncement : AnimalAnnouncement
             createdAt,
             eventDate,
             placeDescription);
-        
-        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id,
-            created.Images
-                .ToDictionary(i => i.Id, i => i.FullImagePath)));
+
+        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id));
         
         return created;
     }

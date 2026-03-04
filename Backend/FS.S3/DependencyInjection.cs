@@ -1,5 +1,4 @@
 ﻿using FS.Application.Interfaces.Storages;
-using FS.Application.Services.ImageLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FS.S3;

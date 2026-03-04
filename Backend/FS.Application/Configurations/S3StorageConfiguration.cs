@@ -1,4 +1,4 @@
-﻿namespace FS.Application.Services.ImageLogic.Configurations;
+﻿namespace FS.Application.Configurations;
 
 public record S3StorageConfiguration
 {

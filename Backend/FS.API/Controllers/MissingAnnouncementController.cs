@@ -67,6 +67,30 @@ public class MissingAnnouncementController(
         var street = await geocoder.GetStreetOrNull(data.Location, ct);
         var district = await geocoder.GetDistrictOrNull(data.Location, ct)
                        ?? await geocoder.GetLocalityOrNull(data.Location, ct);
+        
+        //TODO: в севрис
+        var semaphore = new SemaphoreSlim(4);
+
+        var tasks = data.Images.Select(async image =>
+        {
+            await semaphore.WaitAsync(ct);
+            try
+            {
+                await using var ms = new MemoryStream();
+                await image.CopyToAsync(ms, ct);
+
+                return new FileData
+                {
+                    Content = ms.ToArray()
+                };
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        var fileInfos = await Task.WhenAll(tasks);
 
         var createDTO = new CreateMissingAnnouncementData
         {
@@ -74,7 +98,7 @@ public class MissingAnnouncementController(
             House = house,
             District = district,
             Location = data.Location,
-            ImageIds = data.ImageIds,
+            Images = fileInfos,
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,

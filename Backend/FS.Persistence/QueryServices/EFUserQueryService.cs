@@ -14,16 +14,13 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
             await (
                     from u in context.Users
                     where u.Id == id
-                    join img in context.Images
-                        on u.AvatarImageId equals img.Id into gj
-                    from avatar in gj.DefaultIfEmpty()
                     select new MeInfo
                     {
                         Id = u.Id,
                         FirstName = u.FullName.FirstName,
                         SecondName = u.FullName.SecondName,
                         Patronymic = u.FullName.Patronymic,
-                        AvatarPath = avatar.FullImagePath,
+                        AvatarPath = u.AvatarImage == null ? null : u.AvatarImage.FullImagePath,
                         Contacts = u.Contacts
                             .Select(c => new MeContactData
                             {

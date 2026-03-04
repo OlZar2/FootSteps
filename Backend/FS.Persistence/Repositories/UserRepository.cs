@@ -36,6 +36,14 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
                    .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
                ?? throw new NotFoundException(nameof(User), id);
     }
+    
+    public async Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Users
+                   .Include(u => u.AvatarImage)
+                   .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
+               ?? throw new NotFoundException(nameof(User), id);
+    }
 
     public async Task<bool> IsEmailUnique(string email, CancellationToken cancellationToken)
     {
@@ -52,7 +60,6 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
     public async Task UpdateAsync(User user, CancellationToken cancellationToken)
     {
-        context.Users.Update(user);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

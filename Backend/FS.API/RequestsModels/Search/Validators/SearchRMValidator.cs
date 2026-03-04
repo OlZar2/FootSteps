@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FS.Application.Services.ImageLogic.Configurations;
 using FS.Contracts.Error;
 using Microsoft.Extensions.Options;
 

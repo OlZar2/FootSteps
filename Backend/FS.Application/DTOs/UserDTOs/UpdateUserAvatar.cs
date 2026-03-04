@@ -6,5 +6,5 @@ public record UpdateUserAvatar
 {
     public required Guid UserId { get; init; }
     
-    public required Guid? AvatarId { get; init; }
+    public required FileData? Avatar { get; init; }
 }

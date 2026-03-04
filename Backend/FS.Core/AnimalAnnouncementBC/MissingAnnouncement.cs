@@ -84,10 +84,7 @@ public class MissingAnnouncement : PetAnnouncement
             description);
         
         created.AddDomainEvent(new MissingAnnouncementCreatedDomainEvent(created.Id));
-        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id,
-            created.Images
-                .ToDictionary(i => i.Id, i => i.FullImagePath)));
-        
+        created.AddDomainEvent(new AnnouncementCreatedDomainEvent(created.Id));
         return created;
     }
 

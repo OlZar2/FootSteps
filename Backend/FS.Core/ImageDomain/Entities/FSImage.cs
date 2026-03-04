@@ -15,21 +15,21 @@ public class FSImage : Entity
     [Column(TypeName = "vector(512)")]
     public Vector? Embedding { get; set; }
 
-    private FSImage(string s3Key, string bucketURL, Guid? id = null) : base(id ?? Guid.NewGuid())
+    private FSImage(string s3Key, string bucketURL)
     {
         S3Key = s3Key;
         BucketURL = bucketURL;
         FullImagePath = $"{bucketURL}/{s3Key}";
     }
 
-    public static FSImage Create(string s3Key, string bucketURL, Guid? id = null)
+    public static FSImage Create(string s3Key, string bucketURL)
     {
         //TODO: подумать какое исключение бросать
         if (string.IsNullOrWhiteSpace(s3Key))
             throw new ArgumentException("Расширение не может быть пустым");
         
 
-        return new FSImage(s3Key, bucketURL, id);
+        return new FSImage(s3Key, bucketURL);
     }
     
     public void SetEmbedding(Vector embedding)

@@ -1,11 +1,10 @@
 ﻿using System.Text.Json;
+using FS.Application.Configurations;
 using FS.Application.DTOs.SearchDTOs;
 using FS.Application.Interfaces.Events;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
-using FS.Application.Services.ImageLogic.Configurations;
-using FS.Application.Services.ImageLogic.Interfaces;
 using FS.Application.Services.SearchLogic.Interfaces;
 using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC.Stores;

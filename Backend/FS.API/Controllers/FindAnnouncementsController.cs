@@ -70,13 +70,37 @@ public class FindAnnouncementsController(
         var district = await geocoder.GetDistrictOrNull(data.Location, ct)
             ?? await geocoder.GetLocalityOrNull(data.Location, ct);
 
+        //TODO: картинки в сервис
+        var semaphore = new SemaphoreSlim(4);
+
+        var tasks = data.Images.Select(async image =>
+        {
+            await semaphore.WaitAsync(ct);
+            try
+            {
+                await using var ms = new MemoryStream();
+                await image.CopyToAsync(ms, ct);
+
+                return new FileData
+                {
+                    Content = ms.ToArray()
+                };
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        var fileInfos = await Task.WhenAll(tasks);
+        
         var createDTO = new CreateFindAnnouncementData
         {
             House = house,
             Street = street,
             District = district,
             Location = data.Location,
-            ImageIds = data.ImageIds,
+            Images = fileInfos,
             CreatorId = userId,
             Breed = data.Breed,
             Color = data.Color,

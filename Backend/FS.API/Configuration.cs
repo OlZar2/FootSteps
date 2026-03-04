@@ -1,5 +1,5 @@
 ﻿using FS.API.Services.GeoLogic.Options;
-using FS.Application.Services.ImageLogic.Configurations;
+using FS.Application.Configurations;
 using FS.JWT;
 using FS.RabbitMq.Options;
 

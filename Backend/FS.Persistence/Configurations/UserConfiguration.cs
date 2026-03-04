@@ -33,7 +33,7 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
             .HasColumnType("geometry(Point,4326)");
         
         builder
-            .HasOne<FSImage>()
+            .HasOne(u => u.AvatarImage)
             .WithOne()
             .HasForeignKey<User>(u => u.AvatarImageId)
             .OnDelete(DeleteBehavior.SetNull);

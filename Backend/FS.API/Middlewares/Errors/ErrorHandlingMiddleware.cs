@@ -36,21 +36,6 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
         }
-        catch (ImageBackendException ibe)
-        {
-            ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            ctx.Response.ContentType = "application/json";
-            
-            var payload = new
-            {
-                error = ErrorFactory.Domain(ibe) with
-                {
-                    code = "IMAGE_BACKEND_ERROR", message = "Ошибка подсистемы обработки изображений."
-                }
-            };
-
-            await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
-        }
         catch (DomainException dex)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;

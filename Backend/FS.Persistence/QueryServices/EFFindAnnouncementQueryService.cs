@@ -45,7 +45,6 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
     {
         return await (from a in context.FindAnnouncements.AsNoTracking()
             join creator in context.Users on a.CreatorId equals creator.Id
-            join avatar in context.Images on creator.AvatarImageId equals avatar.Id
             where a.Id == id
             select new FindAnnouncementPage {
                 Id = a.Id,
@@ -53,7 +52,14 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 House = a.House,
                 District = a.District,
                 ImagesPaths = a.Images.Select(image => image.FullImagePath).ToArray(),
-                Creator = AnnouncementCreator.FromUserAndAvatar(creator, avatar),
+                Creator = new AnnouncementCreator
+                {
+                    Id = creator.Id,
+                    FirstName = creator.FullName.FirstName,
+                    SecondName = creator.FullName.FirstName,
+                    Patronymic = creator.FullName.FirstName,
+                    AvatarPath = creator.AvatarImage == null ? null : creator.AvatarImage.FullImagePath,
+                },
                 PetType = a.PetType,
                 Gender = a.Gender,
                 Breed = a.Breed,

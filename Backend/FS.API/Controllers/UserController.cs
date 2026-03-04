@@ -59,15 +59,29 @@ public class UserController(
     /// </summary>
     [Authorize]
     [HttpPut("{userId:guid}/avatar")]
-    public async Task UpdateAvatar(Guid userId, UpdateUserAvatarRM request, CancellationToken ct)
+    public async Task UpdateAvatar(Guid userId, [FromForm] UpdateUserAvatarRM request, CancellationToken ct)
     {
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
 
-        var dto = new UpdateUserAvatar
+        byte[]? avatarContent = null;
+
+        if (request.AvatarImage != null)
+        {
+            await using var ms = new MemoryStream();
+            await request.AvatarImage.CopyToAsync(ms, ct);
+            avatarContent = ms.ToArray();
+        }
+        
+        var fileInfo = avatarContent != null ? new FileData
+        {
+            Content = avatarContent
+        } : null;
+
+        var dto = new UpdateUserAvatar()
         {
             UserId = userId,
-            AvatarId = request.AvatarImageId
+            Avatar = fileInfo
         };
         
         await userService.UpdateUserAvatarAsync(currentUserId, dto, ct);

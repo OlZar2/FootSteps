@@ -207,7 +207,7 @@ namespace FS.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OutboxEvents");
+                    b.ToTable("OutboxEvents", (string)null);
                 });
 
             modelBuilder.Entity("FS.Core.ReadDomain.SimilarAnnouncements", b =>
@@ -225,7 +225,7 @@ namespace FS.Migrations.Migrations
 
                     b.HasIndex("MissingAnnouncementId");
 
-                    b.ToTable("SimilarAnnouncements");
+                    b.ToTable("SimilarAnnouncements", (string)null);
                 });
 
             modelBuilder.Entity("FS.Core.SearchDomain.SearchRequest", b =>
@@ -322,7 +322,7 @@ namespace FS.Migrations.Migrations
 
                     b.HasIndex("SearchRequestId");
 
-                    b.ToTable("SearchResults");
+                    b.ToTable("SearchResults", (string)null);
                 });
 
             modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.PetAnnouncement", b =>
@@ -376,7 +376,7 @@ namespace FS.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("AnimalAnnouncements", t =>
+                    b.ToTable("AnimalAnnouncements", null, t =>
                         {
                             t.Property("DeleteReason")
                                 .HasColumnName("MissingAnnouncement_DeleteReason");
@@ -494,7 +494,7 @@ namespace FS.Migrations.Migrations
 
                             b1.HasKey("UserId");
 
-                            b1.ToTable("Users");
+                            b1.ToTable("Users", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");
@@ -520,7 +520,7 @@ namespace FS.Migrations.Migrations
 
                             b1.HasKey("UserId");
 
-                            b1.ToTable("Users");
+                            b1.ToTable("Users", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");

@@ -9,7 +9,7 @@ public class CreateStreetPetAnnouncementData
     public required string? Street { get; init; }
     public required string? District { get; init; }
     
-    public required Guid[] ImageIds  { get; init; }
+    public required FileData[] Images { get; init; }
     
     public required Guid CreatorId  { get; init; }
     

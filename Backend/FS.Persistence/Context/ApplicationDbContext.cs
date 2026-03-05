@@ -7,6 +7,7 @@ using FS.Core.OutboxDomain.Entities;
 using FS.Core.ReadDomain;
 using FS.Core.SearchDomain;
 using FS.Core.Shared.Abstractions;
+using FS.Core.Shared.Geo;
 using FS.Core.UserDomain;
 using FS.Core.UserDomain.Entities;
 using FS.Persistence.Configurations;
@@ -63,4 +64,6 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     public DbSet<NotificationDelivery> NotificationDeliveries { get; set; } = null!;
     public DbSet<UserDevice> UserDevices { get; set; } = null!;
     public DbSet<SimilarAnnouncements> SimilarAnnouncements { get; set; } = null!;
+    // public DbSet<City> Cities { get; set; } = null!;
+    // public DbSet<District> Districts { get; set; } = null!;
 }

@@ -115,17 +115,11 @@ public class UserController(
     [HttpPost("device")]
     public async Task AddDevice(AddDeviceRM addDevice, CancellationToken ct)
     {
-        if (addDevice is null)
-        {
-            throw new ValidationException([
-                new ValidationFailure("Body", "Тело запроса обязательно.")
-            ]);
-        }
         await addDeviceValidator.ValidateAndThrowAsync(addDevice, ct);
         
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
         
-        await userService.AddDevice(currentUserId, addDevice.DeviceToken, ct);
+        await userService.AddDevice(currentUserId, addDevice.DeviceToken!, ct);
     }
 }

@@ -2,5 +2,5 @@
 
 public record AddDeviceRM
 {
-    public required string DeviceToken { get; init; }
+    public string? DeviceToken { get; init; }
 }

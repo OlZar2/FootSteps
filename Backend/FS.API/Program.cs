@@ -27,11 +27,6 @@ var services = builder.Services;
 
 services.AddTelemetryConfiguration(builder.Host, builder.Configuration);
 
-services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
-
 services
     .AddJwtServices()
     .AddServices()

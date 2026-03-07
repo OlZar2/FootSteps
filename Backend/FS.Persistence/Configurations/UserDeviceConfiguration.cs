@@ -11,5 +11,6 @@ public class UserDeviceConfiguration:  IEntityTypeConfiguration<UserDevice>
         builder.ToTable("UserDevices");
         
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
     }
 }

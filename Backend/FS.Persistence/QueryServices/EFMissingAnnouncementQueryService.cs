@@ -116,4 +116,15 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             })
             .FirstOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(MissingAnnouncement), nameof(id));;
     }
+
+    public async Task<Guid[]> GetCreatorDevicesByAnnouncementIdAsync(Guid announcementId, CancellationToken ct)
+    {
+        return await (
+            from a in context.MissingAnnouncements.AsNoTracking()
+            join creator in context.Users on a.CreatorId equals creator.Id
+            from device in creator.UserDevices
+            where a.Id == announcementId
+            select device.Id
+        ).ToArrayAsync(ct);
+    }
 }

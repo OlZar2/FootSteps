@@ -1,6 +1,6 @@
 ﻿namespace FS.Application.DTOs.AuthDTOs;
 
-public record MeInfo
+public record UserMainInfo
 {
     public required Guid Id { get; init; }
     

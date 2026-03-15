@@ -21,6 +21,7 @@ using FS.Core.UserDomain.UserPolicies;
 using Microsoft.Extensions.DependencyInjection;
 using FS.Application.Events;
 using FS.Application.Services.AnnouncementLogic.Handlers;
+using FS.Application.Services.MissingPetLogic.EventHandlers;
 using FS.Core.AnimalAnnouncementBC.Events;
 
 namespace FS.Application;
@@ -47,9 +48,11 @@ public static class DependencyInjection
         services
             .AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
         
-        services.AddScoped<IDomainEventHandler<MissingAnnouncementCreatedDomainEvent>, MissingAnnouncementCreatedDomainEventHandler>();
-        services.AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>, StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>();
-        services.AddScoped<IDomainEventHandler<AnnouncementCreatedDomainEvent>, AnnouncementCreatedDomainEventHandler>();
+        services.AddScoped<IDomainEventHandler<MissingAnnouncementCreatedDomainEvent>, MissingAnnouncementCreatedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>, StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<AnnouncementCreatedDomainEvent>, AnnouncementCreatedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<ReportFoundDomainEvent>, ReportFoundDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<ReportSpottedDomainEvent>, ReportSpottedDomainEventHandler>();
 
         return services;
     }

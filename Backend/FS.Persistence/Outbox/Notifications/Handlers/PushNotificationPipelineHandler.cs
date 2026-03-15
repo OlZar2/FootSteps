@@ -29,6 +29,7 @@ public class PushNotificationPipelineHandler(
 
             foreach (var device in devices)
             {
+                //TODO: а если миллион пушей
                 var pushNotification = new PushNotificationDto
                 {
                     Title = notification.Subject,
@@ -42,6 +43,7 @@ public class PushNotificationPipelineHandler(
                 {
                     await pushNotificationSender.SendAsync(pushNotification);
                     notification.MarkDeliveryAsSent(device.DeliveryId);
+                    //TODO: подумать о правильности вызова saveChanges после каждого пуша
                     await notificationRepository.SaveChangesAsync(ct);
                 }
                 catch (NotificationDeliveryException ex)

@@ -1,5 +1,6 @@
 ﻿using FS.Application.Events;
 using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.NotificationDomain;
 using FS.Core.NotificationDomain.Entities;
@@ -29,6 +30,7 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
         modelBuilder.ApplyConfiguration(new NotificationDeliveryConfiguration());
         modelBuilder.ApplyConfiguration(new UserDeviceConfiguration());
         modelBuilder.ApplyConfiguration(new SimilarAnnouncementsConfiguration());
+        modelBuilder.ApplyConfiguration(new SpottedLocationConfiguration());
         
         base.OnModelCreating(modelBuilder);
         
@@ -37,8 +39,6 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     
     public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
-        var result = await base.SaveChangesAsync(ct);
-
         var domainEvents = ChangeTracker.Entries<AggregateRoot>()
             .SelectMany(e => e.Entity.DomainEvents)
             .ToList();
@@ -47,7 +47,8 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
             e.Entity.ClearDomainEvents();
         
         await dispatcher.DispatchAsync(domainEvents, ct);
-        return result;
+        
+        return await base.SaveChangesAsync(ct);;
     }
     
     public DbSet<AnimalAnnouncement> AnimalAnnouncements { get; set; } = null!;
@@ -63,4 +64,5 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     public DbSet<NotificationDelivery> NotificationDeliveries { get; set; } = null!;
     public DbSet<UserDevice> UserDevices { get; set; } = null!;
     public DbSet<SimilarAnnouncements> SimilarAnnouncements { get; set; } = null!;
+    public DbSet<SpottedLocation> SpottedLocations { get; set; } = null!;
 }

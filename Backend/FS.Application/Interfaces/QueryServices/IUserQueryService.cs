@@ -4,5 +4,5 @@ namespace FS.Application.Interfaces.QueryServices;
 
 public interface IUserQueryService
 {
-    Task<MeInfo> GetUserMainInfoByIdAsync(Guid id, CancellationToken ct);
+    Task<UserMainInfo> GetUserMainInfoByIdAsync(Guid id, CancellationToken ct);
 }

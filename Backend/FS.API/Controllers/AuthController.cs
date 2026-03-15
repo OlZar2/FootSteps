@@ -4,7 +4,6 @@ using FS.API.Errors;
 using FS.API.RequestsModels.Auth;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.DTOs.AuthDTOs;
-using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Services.AuthLogic.Interfaces;
 using FS.Contracts.Error;
@@ -12,7 +11,6 @@ using FS.Core.UserDomain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using MeInfo = FS.Application.DTOs.AuthDTOs.MeInfo;
 
 namespace FS.API.Controllers;
 
@@ -33,13 +31,13 @@ public class AuthController(
     /// </summary>
     [HttpGet("me")]
     [Authorize]
-    [ProducesResponseType(typeof(MeInfo), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserMainInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(
         Description = "Возвращает информацию о текущем пользователе"
     )]
-    public async Task<MeInfo> GetMeAsync(CancellationToken ct)
+    public async Task<UserMainInfo> GetMeAsync(CancellationToken ct)
     {
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);

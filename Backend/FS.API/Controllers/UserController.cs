@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using FluentValidation;
-using FluentValidation.Results;
 using FS.API.RequestsModels.User;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.Application.DTOs.AuthDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Services.UserLogic.Interfaces;
@@ -115,17 +115,21 @@ public class UserController(
     [HttpPost("device")]
     public async Task AddDevice(AddDeviceRM addDevice, CancellationToken ct)
     {
-        if (addDevice is null)
-        {
-            throw new ValidationException([
-                new ValidationFailure("Body", "Тело запроса обязательно.")
-            ]);
-        }
         await addDeviceValidator.ValidateAndThrowAsync(addDevice, ct);
         
         var currentUserIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var currentUserId = claimService.TryParseGuidClaim(currentUserIdClaim);
         
-        await userService.AddDevice(currentUserId, addDevice.DeviceToken, ct);
+        await userService.AddDevice(currentUserId, addDevice.DeviceToken!, ct);
     }
+
+    /// <summary>
+    /// Возвращает профиль пользователя
+    /// </summary>
+    /// <param name="userId">id пользователя</param>
+    /// <param name="ct"></param>
+    [Authorize]
+    [HttpGet("{userId:guid}")]
+    public async Task<UserMainInfo> GetProfile(Guid userId, CancellationToken ct) =>
+        await userService.GetUserMainInfo(userId, ct);
 }

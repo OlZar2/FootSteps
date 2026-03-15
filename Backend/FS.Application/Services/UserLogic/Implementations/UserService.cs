@@ -1,4 +1,5 @@
 ﻿using FS.Application.Configurations;
+using FS.Application.DTOs.AuthDTOs;
 using FS.Application.DTOs.Shared;
 using FS.Application.DTOs.UserDTOs;
 using FS.Application.Interfaces.QueryServices;
@@ -23,7 +24,7 @@ public class UserService(
     IImageStorageService imageStorageService,
     IImageQueryService imageQueryService,
     ITransactionFactory transactionFactory,
-    IImageRepository imageRepository,
+    IUserQueryService userQueryService,
     IOptions<S3StorageConfiguration> s3Options
     ) : IUserService
 {
@@ -103,4 +104,7 @@ public class UserService(
         user.AddDevice(userDevice);
         await userRepository.UpdateAsync(user, ct);
     }
+
+    public async Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct) =>
+        await userQueryService.GetUserMainInfoByIdAsync(userId, ct);
 }

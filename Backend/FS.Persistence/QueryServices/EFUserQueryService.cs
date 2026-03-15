@@ -8,13 +8,13 @@ namespace FS.Persistence.QueryServices;
 
 public class EFUserQueryService(ApplicationDbContext context) : IUserQueryService
 {
-    public async Task<MeInfo> GetUserMainInfoByIdAsync(Guid id, CancellationToken ct)
+    public async Task<UserMainInfo> GetUserMainInfoByIdAsync(Guid id, CancellationToken ct)
     {
         var result =
             await (
                     from u in context.Users
                     where u.Id == id
-                    select new MeInfo
+                    select new UserMainInfo
                     {
                         Id = u.Id,
                         FirstName = u.FullName.FirstName,

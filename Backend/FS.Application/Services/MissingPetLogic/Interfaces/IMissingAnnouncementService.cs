@@ -18,4 +18,10 @@ public interface IMissingAnnouncementService
         Guid creatorId,
         DateTime lastDateTime,
         CancellationToken ct);
+
+    Task ReportSpottedAsync(SpottedInfo spottedInfo, CancellationToken ct);
+
+    Task ReportFoundAsync(FoundInfo foundInfo, CancellationToken ct);
+
+    Task<SpottedLocationDto[]> GetSpottedLocations(Guid missingAnnouncementId, CancellationToken ct);
 }

@@ -20,7 +20,8 @@ public class MissingAnnouncementService(
     IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
     IMissingAnnouncementQueryService missingAnnouncementQueryService,
-    IOptions<S3StorageConfiguration> s3StorageOptions) 
+    IOptions<S3StorageConfiguration> s3StorageOptions,
+    ISpottedLocationsQueryService spottedLocationsQueryService) 
     : IMissingAnnouncementService
 {
     private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageOptions.Value;
@@ -94,7 +95,7 @@ public class MissingAnnouncementService(
         
         announcement.Cancel(data.DeleteReason, deletionPolicy);
         
-        await missingAnnouncementRepository.UpdateAsync(announcement, ct);
+        await missingAnnouncementRepository.SaveChangesAsync(ct);
     }
 
     public async Task<MyAnnouncementFeed[]> GetFeedItemsByCreatorByPage(
@@ -102,4 +103,23 @@ public class MissingAnnouncementService(
         DateTime lastDateTime,
         CancellationToken ct) =>
     await missingAnnouncementQueryService.GetFeedForUserAsync(creatorId, lastDateTime, ct);
+
+    public async Task ReportSpottedAsync(SpottedInfo spottedInfo, CancellationToken ct)
+    {
+        var coordinatesVO = CoordinatesVO.Create(spottedInfo.Location.Latitude, spottedInfo.Location.Longitude);
+        var announcement = await missingAnnouncementRepository.GetByIdAsync(spottedInfo.AnnouncementId, ct);
+        announcement.ReportSpotted(spottedInfo.SpottedUserId, coordinatesVO);
+        
+        await missingAnnouncementRepository.SaveChangesAsync(ct);
+    }
+    
+    public async Task ReportFoundAsync(FoundInfo foundInfo, CancellationToken ct)
+    {
+        var announcement = await missingAnnouncementRepository.GetByIdAsync(foundInfo.AnnouncementId, ct);
+        announcement.ReportFound(foundInfo.FoundUserId);
+        await missingAnnouncementRepository.SaveChangesAsync(ct);
+    }
+
+    public async Task<SpottedLocationDto[]> GetSpottedLocations(Guid missingAnnouncementId, CancellationToken ct) =>
+        await spottedLocationsQueryService.GetSpottedLocationsByAnnouncementIdAsync(missingAnnouncementId, ct);
 }

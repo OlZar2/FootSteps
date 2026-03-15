@@ -22,15 +22,11 @@ public class AuthService(
     IJwtProvider jwtProvider,
     IPasswordHasher passwordHasher,
     IUserRepository userRepository,
-    IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
     IUserQueryService userQueryService,
-    IImageRepository imageRepository,
-    IOptions<S3StorageConfiguration> s3StorageOptions)
+    IImageRepository imageRepository)
     : IAuthService
 {
-    private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageOptions.Value;
-    
     public async Task RegisterUserAsync(RegisterData userRegisterData, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
@@ -84,7 +80,7 @@ public class AuthService(
         }
     }
 
-    public async Task<MeInfo> GetMeAsync(Guid userId, CancellationToken ct)
+    public async Task<UserMainInfo> GetMeAsync(Guid userId, CancellationToken ct)
     {
         var info = await userQueryService.GetUserMainInfoByIdAsync(userId, ct);
         return info;

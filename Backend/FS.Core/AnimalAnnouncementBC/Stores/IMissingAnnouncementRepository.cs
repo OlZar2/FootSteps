@@ -8,7 +8,7 @@ public interface IMissingAnnouncementRepository
     
     Task<MissingAnnouncement> GetByIdAsync(Guid id, CancellationToken ct);
     
-    Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct);
+    Task SaveChangesAsync(CancellationToken ct);
 
     Task<MissingAnnouncement[]> GetSimilarMissingAnnouncementAsync(Vector vector, CancellationToken ct);
 }

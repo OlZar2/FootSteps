@@ -8,5 +8,8 @@ public class MissingAnnouncementConfiguration: IEntityTypeConfiguration<MissingA
 {
     public void Configure(EntityTypeBuilder<MissingAnnouncement> builder)
     {
+        builder.HasMany(ma => ma.SpottedLocations)
+            .WithOne()
+            .HasForeignKey(sl => sl.MissingAnnouncementId);
     }
 }

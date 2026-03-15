@@ -1,4 +1,5 @@
 ﻿using FS.Contracts.Error;
+using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Events;
 using FS.Core.AnimalAnnouncementBC.Policies;
@@ -10,9 +11,13 @@ namespace FS.Core.AnimalAnnouncementBC;
 
 public class MissingAnnouncement : PetAnnouncement
 {
+    private readonly List<SpottedLocation> _spottedLocations = [];
+    
     public string PetName { get; private set; }
     
     public MissingAnnouncementDeleteReason DeleteReason { get; private set; }
+    
+    public IReadOnlyList<SpottedLocation> SpottedLocations => _spottedLocations;
     
     private MissingAnnouncement(
         string? street,
@@ -99,6 +104,26 @@ public class MissingAnnouncement : PetAnnouncement
 
         IsDeleted = true;
         DeleteReason = reason;
+    }
+
+    public void ReportSpotted(Guid spottedUserId, CoordinatesVO location)
+    {
+        var spottedLocation = SpottedLocation.Create(
+            location: location,
+            spottedUserId: spottedUserId,
+            missingAnnouncementId: Id);
+        
+        _spottedLocations.Add(spottedLocation);
+        
+        AddDomainEvent(new ReportSpottedDomainEvent(
+            MissingAnnouncementId: Id));
+    }
+    
+    public void ReportFound(Guid foundUserId)
+    {
+        AddDomainEvent(new ReportFoundDomainEvent(
+            AnnouncementId: Id,
+            FoundUserId: foundUserId));
     }
     
     // EF

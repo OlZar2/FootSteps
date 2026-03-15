@@ -25,9 +25,8 @@ public class MissingAnnouncementRepository(ApplicationDbContext context) : IMiss
         return missingAnnouncement;
     }
 
-    public async Task UpdateAsync(MissingAnnouncement missingAnnouncement, CancellationToken ct)
+    public async Task SaveChangesAsync(CancellationToken ct)
     {
-        context.MissingAnnouncements.Update(missingAnnouncement);
         await context.SaveChangesAsync(ct);
     }
     

@@ -172,4 +172,54 @@ public class MissingAnnouncementController(
 
         return await missingAnnouncementService.GetFeedItemsByCreatorByPage(userId, lastDateTime, ct);
     }
+
+    /// <summary>
+    /// Метод для сообщения о нахождении потервшегося питомца
+    /// </summary>
+    /// <param name="announcementId">id объявления о пропаже</param>
+    /// <param name="ct"></param>
+    [HttpPost("{announcementId:guid}/report-found")]
+    [Authorize]
+    public async Task ReportFound(Guid announcementId, CancellationToken ct)
+    {
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = claimService.TryParseGuidClaim(userIdClaim);
+
+        var foundInfo = new FoundInfo(
+            FoundUserId: userId,
+            AnnouncementId: announcementId);
+        
+        await missingAnnouncementService.ReportFoundAsync(foundInfo, ct);
+    }
+    
+    /// <summary>
+    /// Метод для сообщения о том, что питомца заметили
+    /// </summary>
+    /// <param name="announcementId">id объявления о пропаже</param>
+    /// <param name="coordinates">точка, где питомец был замечен</param>
+    /// <param name="ct"></param>
+    [HttpPost("{announcementId:guid}/report-spotted")]
+    [Authorize]
+    public async Task ReportSpotted(Guid announcementId, CoordinatesDto coordinates, CancellationToken ct)
+    {
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = claimService.TryParseGuidClaim(userIdClaim);
+        
+        var spottedInfo = new SpottedInfo(
+            SpottedUserId: userId,
+            AnnouncementId: announcementId,
+            Location: coordinates);
+        
+        await missingAnnouncementService.ReportSpottedAsync(spottedInfo, ct);
+    }
+    
+    /// <summary>
+    /// Возвращает список точек, где замечали питомца
+    /// </summary>
+    /// <param name="announcementId">id объявления о пропаже</param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    [HttpGet("{announcementId:guid}/spotted-locations")]
+    public async Task<SpottedLocationDto[]> ReportSpotted(Guid announcementId, CancellationToken ct) =>
+        await missingAnnouncementService.GetSpottedLocations(announcementId, ct);
 }

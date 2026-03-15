@@ -2,5 +2,7 @@
 
 public enum NotificationType
 {
-    MissingAnnouncementCreated
+    MissingAnnouncementCreated,
+    ReportSpotted,
+    ReportFound
 }

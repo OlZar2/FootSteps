@@ -7,7 +7,8 @@
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5275",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\OlZar\\Desktop\\FootSteps\\FS\\Secrets\\footsteps-1e536-firebase-adminsdk-fbsvc-1c24b26658.json"
       }
     },
     "https": {
@@ -16,7 +17,8 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7189;http://localhost:5275",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\OlZar\\Desktop\\FootSteps\\FS\\Secrets\\footsteps-1e536-firebase-adminsdk-fbsvc-1c24b26658.json"
       }
     }
   }

@@ -16,15 +16,9 @@ public class AnimalAnnouncementConfiguration: IEntityTypeConfiguration<AnimalAnn
         builder.ToTable("AnimalAnnouncements");
         
         builder.HasKey(i => i.Id);
-        
-        var converter = new ValueConverter<CoordinatesVO, Point>(
-            coord => new Point(coord.Longitude, coord.Latitude) { SRID = 4326 },
-            point => CoordinatesVO.Create(point.Y, point.X)
-        );
 
         builder.Property(loc => loc.Location)
-            .HasConversion(converter)
-            .HasColumnType("geometry(Point,4326)");
+            .HasColumnType("geography(Point,4326)");
 
         builder
             .HasMany(p => p.Images)

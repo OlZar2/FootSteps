@@ -1,7 +1,7 @@
-﻿using FS.Application.DTOs.Notification;
-using FS.Application.Exceptions;
-using FS.Application.Interfaces.Notifications;
+﻿using FS.Application.Interfaces.Notifications;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.NotificationLogic.DTOs;
+using FS.Application.NotificationLogic.Exceptions;
 using FS.Core.Enums.Notifications;
 using FS.Core.NotificationDomain;
 using FS.Core.NotificationDomain.Stores;

@@ -1,4 +1,4 @@
-﻿using FS.Application.Events;
+﻿using FS.Application.EventLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Entities;
 using FS.Core.ImageDomain.Entities;
@@ -46,9 +46,11 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
         foreach (var e in ChangeTracker.Entries<AggregateRoot>())
             e.Entity.ClearDomainEvents();
         
-        await dispatcher.DispatchAsync(domainEvents, ct);
+        var result = await base.SaveChangesAsync(ct);
         
-        return await base.SaveChangesAsync(ct);;
+        await dispatcher.DispatchAsync(domainEvents, ct);
+
+        return result;
     }
     
     public DbSet<AnimalAnnouncement> AnimalAnnouncements { get; set; } = null!;

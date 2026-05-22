@@ -1,0 +1,24 @@
+﻿using FS.Core.AnimalAnnouncementBC.Enums;
+
+namespace FS.Application.MissingPetLogic.DTOs;
+
+public record MissingAnnouncementFeed
+{
+    public required Guid Id { get; init; }
+    
+    public required DateTime CreatedAt { get; init; }
+    
+    public required string? District { get; init; }
+    
+    public required PetType PetType { get; init; }
+    
+    public required string MainImagePath  { get; init; }
+    
+    public required string PetName { get; init; }
+    
+    public required Gender Gender { get; init; }
+    
+    public required string? Description { get; init; }
+    
+    public required string? Breed { get; init; }
+}

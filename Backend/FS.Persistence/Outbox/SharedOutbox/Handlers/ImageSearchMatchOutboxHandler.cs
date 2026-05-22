@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using FS.Application.Interfaces.Events;
-using FS.Application.Services.SearchLogic.Interfaces;
+using FS.Application.SearchLogic.Interfaces;
 using FS.Core.OutboxDomain.Entities;
 using FS.Persistence.Outbox.Shared.Interfaces;
 

@@ -27,8 +27,8 @@ public class SpottedLocationConfiguration : IEntityTypeConfiguration<SpottedLoca
         builder.Property(loc => loc.Location)
             .HasConversion(converter)
             .HasColumnType("geometry(Point,4326)");
-        
-        builder.Property(sp => sp.Location)
-            .HasColumnType("geometry(Point,4326)");
+
+        builder.HasMany(sl => sl.Images)
+            .WithOne();
     }
 }

@@ -1,4 +1,4 @@
-﻿using FS.Application.Exceptions;
+﻿using FS.Application.Shared.Exceptions;
 using FS.Core.SearchDomain;
 using FS.Core.SearchDomain.Stores;
 using FS.Persistence.Context;

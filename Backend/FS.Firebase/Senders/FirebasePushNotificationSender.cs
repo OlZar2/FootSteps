@@ -1,7 +1,7 @@
 ﻿using FirebaseAdmin.Messaging;
-using FS.Application.DTOs.Notification;
-using FS.Application.Exceptions;
 using FS.Application.Interfaces.Notifications;
+using FS.Application.NotificationLogic.DTOs;
+using FS.Application.NotificationLogic.Exceptions;
 using FS.Firebase.Constants;
 using Microsoft.Extensions.Logging;
 

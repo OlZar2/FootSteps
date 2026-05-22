@@ -1,5 +1,5 @@
-﻿using FS.Application.DTOs.Notification;
-using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.Interfaces.QueryServices;
+using FS.Application.NotificationLogic.DTOs;
 using FS.Core.Enums.Notifications;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;

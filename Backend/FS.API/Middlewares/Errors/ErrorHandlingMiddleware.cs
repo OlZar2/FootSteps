@@ -2,9 +2,9 @@
 using System.Text.Json;
 using FluentValidation;
 using FS.API.Errors;
-using FS.Application.Exceptions;
-using FS.Application.Services.AuthLogic.Exceptions;
-using FS.Application.Services.ImageLogic.Exceptions;
+using FS.Application.AuthLogic.Exceptions;
+using FS.Application.ImageLogic.Exceptions;
+using FS.Application.Shared.Exceptions;
 using FS.Core.Exceptions;
 
 namespace FS.API.Middlewares.Errors;

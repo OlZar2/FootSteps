@@ -1,4 +1,4 @@
-﻿using FS.Application.DTOs.SearchDTOs;
+﻿using FS.Application.SearchLogic.DTOs;
 using FS.Core.AnimalAnnouncementBC;
 
 namespace FS.Application.Interfaces.QueryServices;

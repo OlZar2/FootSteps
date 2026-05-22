@@ -4,7 +4,6 @@ using FS.API.Configurations.Controllers;
 using FS.API.Configurations.Cors;
 using FS.API.Configurations.Swagger;
 using FS.API.Configurations.Telemetry;
-using FS.API.Middlewares;
 using FS.API.Middlewares.Culture;
 using FS.API.Middlewares.Errors;
 using FS.API.Middlewares.Telemetry;
@@ -17,7 +16,6 @@ using FS.Persistence.Context;
 using FS.RabbitMq;
 using FS.S3;
 using FS.SignalR.Hubs;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 FileSecretsLoader.LoadSecretFiles();
@@ -57,7 +55,7 @@ app.UseMiddleware<TracingLoggingMiddleware>();
 app.UseCors("DevCors");
 
 app.MapHub<SearchAnnouncementsHub>("/hubs/search-announcements")
-    .RequireAuthorization();;
+    .RequireAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {

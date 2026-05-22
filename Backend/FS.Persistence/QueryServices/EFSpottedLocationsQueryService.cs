@@ -1,6 +1,6 @@
-﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
-using FS.Application.DTOs.Shared;
-using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.Interfaces.QueryServices;
+using FS.Application.MissingPetLogic.DTOs;
+using FS.Application.Shared.DTOs;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +26,9 @@ public class EFSpottedLocationsQueryService(ApplicationDbContext context) : ISpo
                 {
                     Latitude = spottedLocation.Location.Latitude,
                     Longitude = spottedLocation.Location.Longitude
-                })).ToArrayAsync(ct);
+                },
+                spottedLocation.Images.Select(i => i.FullImagePath).ToArray()
+                )).ToArrayAsync(ct);
 
         return result;
     }

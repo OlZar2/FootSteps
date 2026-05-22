@@ -1,6 +1,6 @@
-﻿using FS.Application.DTOs.AuthDTOs;
-using FS.Application.Exceptions;
+﻿using FS.Application.AuthLogic.DTOs;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Shared.Exceptions;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

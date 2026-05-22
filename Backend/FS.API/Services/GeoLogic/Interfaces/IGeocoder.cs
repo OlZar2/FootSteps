@@ -1,4 +1,4 @@
-﻿using FS.Application.DTOs.Shared;
+﻿using FS.Application.Shared.DTOs;
 
 namespace FS.API.Services.GeoLogic.Interfaces;
 

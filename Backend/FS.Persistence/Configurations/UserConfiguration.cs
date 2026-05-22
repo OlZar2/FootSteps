@@ -1,5 +1,4 @@
-﻿using FS.Core.ImageDomain.Entities;
-using FS.Core.UserDomain;
+﻿using FS.Core.UserDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -30,7 +29,7 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
         });
         
         builder.Property(loc => loc.LastCoordinates)
-            .HasColumnType("geometry(Point,4326)");
+            .HasColumnType("geography(Point,4326)");
         
         builder
             .HasOne(u => u.AvatarImage)
@@ -44,6 +43,7 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
             nb.WithOwner().HasForeignKey("UserId");
             nb.HasKey("Id");
             nb.Property<Guid>("UserId");
+            nb.Property(c => c.Id).ValueGeneratedNever();
         });
     }
 }

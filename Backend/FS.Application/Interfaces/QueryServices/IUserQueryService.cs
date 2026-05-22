@@ -1,4 +1,4 @@
-﻿using FS.Application.DTOs.AuthDTOs;
+﻿using FS.Application.AuthLogic.DTOs;
 
 namespace FS.Application.Interfaces.QueryServices;
 

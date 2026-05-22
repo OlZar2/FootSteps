@@ -52,7 +52,7 @@ namespace FS.Migrations.Migrations
 
                     b.Property<Point>("Location")
                         .IsRequired()
-                        .HasColumnType("geometry(Point,4326)");
+                        .HasColumnType("geography(Point,4326)");
 
                     b.Property<int>("PetType")
                         .HasColumnType("integer");
@@ -125,9 +125,14 @@ namespace FS.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("SpottedLocationId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalAnnouncementId");
+
+                    b.HasIndex("SpottedLocationId");
 
                     b.ToTable("Images", (string)null);
                 });
@@ -322,7 +327,7 @@ namespace FS.Migrations.Migrations
                         .HasColumnType("text");
 
                     b.Property<Point>("LastCoordinates")
-                        .HasColumnType("geometry(Point,4326)");
+                        .HasColumnType("geography(Point,4326)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -438,6 +443,10 @@ namespace FS.Migrations.Migrations
                     b.HasOne("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", null)
                         .WithMany("Images")
                         .HasForeignKey("AnimalAnnouncementId");
+
+                    b.HasOne("FS.Core.AnimalAnnouncementBC.Entities.SpottedLocation", null)
+                        .WithMany("Images")
+                        .HasForeignKey("SpottedLocationId");
                 });
 
             modelBuilder.Entity("FS.Core.NotificationDomain.Entities.NotificationDelivery", b =>
@@ -498,7 +507,6 @@ namespace FS.Migrations.Migrations
                     b.OwnsMany("FS.Core.UserDomain.Entities.UserContact", "Contacts", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid");
 
                             b1.Property<int>("Type")
@@ -592,6 +600,11 @@ namespace FS.Migrations.Migrations
                 });
 
             modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.AnimalAnnouncement", b =>
+                {
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("FS.Core.AnimalAnnouncementBC.Entities.SpottedLocation", b =>
                 {
                     b.Navigation("Images");
                 });

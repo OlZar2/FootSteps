@@ -1,0 +1,26 @@
+﻿using System.ComponentModel;
+using FS.Application.Shared.DTOs;
+
+namespace FS.API.Controllers.StreetPetAnnouncement.RequestModels;
+
+public class CreateStreetPetAnnouncementRM
+{
+    [Description("Картинки. Обязательно, issue REQUIRED. Если расширение неверное " +
+                 "issue INVALID_FORMAT или UNSUPPORTED_FORMAT или NOT_IMAGE_OR_CORRUPT " +
+                 "Если больше 5МБ issue TOO_LARGE. Если файл пустой EMPTY_FILE" +
+                 "Максимум 5 картинок. Если больше то issue TOO_MANY")]
+    public required IFormFile[] Images  { get; init; }
+    
+    [Description("Тип питомца. Обязательно, issue REQUIRED. Если неверное значение " +
+                 "issue INVALID_VALUE. Значения: 0 = Кот, 1 = Собака, 2 = Другое")]
+    public required int? PetType { get; init; }
+    
+    [Description("Координаты. Обязательно, issue REQUIRED.")]
+    public required CoordinatesDto Location { get; init; }
+    
+    [Description("Время пропажи. Обязательно, issue REQUIRED.")]
+    public required DateTime? EventDate { get; init; }
+    
+    [Description("Описание места.")]
+    public string? PlaceDescription { get; init; }
+}

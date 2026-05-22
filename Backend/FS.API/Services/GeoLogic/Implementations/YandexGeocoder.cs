@@ -2,7 +2,7 @@
 using System.Text.Json;
 using FS.API.Services.GeoLogic.Interfaces;
 using FS.API.Services.GeoLogic.Options;
-using FS.Application.DTOs.Shared;
+using FS.Application.Shared.DTOs;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 

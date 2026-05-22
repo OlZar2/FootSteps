@@ -1,20 +1,27 @@
-﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
-using FS.Application.DTOs.Shared;
-using FS.Application.DTOs.UserDTOs;
-using FS.Application.Exceptions;
-using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.Interfaces.QueryServices;
+using FS.Application.MissingPetLogic.DTOs;
+using FS.Application.Shared.DTOs;
+using FS.Application.Shared.Exceptions;
+using FS.Application.UserLogic.DTOs;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Specifications;
 using FS.Persistence.Context;
+using FS.Persistence.Extensions;
+using FS.Persistence.Projections.MissingAnnouncement;
+using FS.Persistence.Projections.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace FS.Persistence.QueryServices;
 
 public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : IMissingAnnouncementQueryService
 {
-    public async Task<MissingAnnouncementFeed[]> GetFilteredByPageAsync(DateTime lastDateTime, 
-        PetAnnouncementFeedSpecification<MissingAnnouncement> spec, CancellationToken ct)
+    public async Task<MissingAnnouncementFeed[]> GetFilteredByPageAsync(
+        PetAnnouncementFeedSpecification<MissingAnnouncement> spec,
+        DateTime? lastDateTime = null,
+        CancellationToken ct = default)
     {
+        lastDateTime ??= DateTime.MaxValue;
+        
         IQueryable<MissingAnnouncement> query = context.MissingAnnouncements;
         
         foreach (var include in spec.Includes) query = query.Include(include);
@@ -22,7 +29,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
         return await query
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
-            .Where(ma => ma.CreatedAt > lastDateTime)
+            .Where(ma => ma.CreatedAt < lastDateTime)
             .Take(20)
             .Select(a => new MissingAnnouncementFeed
             {
@@ -41,10 +48,12 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
     
     public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
-        return await (from a in context.MissingAnnouncements.AsNoTracking()
+        var page = await (
+            from a in context.MissingAnnouncements.AsNoTracking()
             join creator in context.Users on a.CreatorId equals creator.Id
             where a.Id == id
-            select new MissingAnnouncementPage {
+            select new MissingAnnouncementPageProjection
+            {
                 Id = a.Id,
                 Street = a.Street,
                 District = a.District,
@@ -54,43 +63,50 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 {
                     Id = creator.Id,
                     FirstName = creator.FullName.FirstName,
-                    SecondName = creator.FullName.FirstName,
-                    Patronymic = creator.FullName.FirstName,
-                    AvatarPath = creator.AvatarImage == null ? null : creator.AvatarImage.FullImagePath,
+                    SecondName = creator.FullName.SecondName,
+                    Patronymic = creator.FullName.Patronymic,
+                    AvatarPath = creator.AvatarImage == null 
+                        ? null 
+                        : creator.AvatarImage.FullImagePath,
+                    Description = creator.Description,
                 },
                 PetType = a.PetType,
                 Gender = a.Gender,
                 Breed = a.Breed,
                 Color = a.Color,
                 Type = a.Type,
-                Location = new CoordinatesDto()
-                {
-                    Latitude = a.Location.Latitude,
-                    Longitude = a.Location.Longitude
-                },
+                Location = a.Location,
                 EventDate = a.EventDate,
                 Description = a.Description,
                 PetName = a.PetName,
                 SimilarAnnouncements = (
                     from sa in context.SimilarAnnouncements
-                    join ann in context.StreetPetAnnouncements on sa.StreetPetAnnouncementId equals ann.Id
+                    join ann in context.StreetPetAnnouncements 
+                        on sa.StreetPetAnnouncementId equals ann.Id
                     where sa.MissingAnnouncementId == a.Id
-                    select new SimilarMapAnnouncement {
+                    select new SimilarMapAnnouncementProjection
+                    {
                         Id = ann.Id,
-                        Coordinates = new CoordinatesDto {
-                            Latitude = ann.Location.Latitude,
-                            Longitude = ann.Location.Longitude
-                        },
+                        Location = ann.Location,
                         CreatedAt = ann.CreatedAt
                     }
                 ).ToArray()
-            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException("MissingAnnouncement", nameof(id));
+            }
+        ).SingleOrDefaultAsync(ct);
+
+        return page is null ? throw new NotFoundException("MissingAnnouncement", nameof(id)) : ToPageDto(page);
     }
 
-    public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct)
+    public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(
+        Guid id,
+        DateTime? lastDateTime = null,
+        CancellationToken ct = default)
     {
+        lastDateTime ??= DateTime.MaxValue;
+        
         return await context.MissingAnnouncements
-            .Where(ma => ma.CreatedAt > lastDateTime && ma.CreatorId == id)
+            .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
+            .OrderByDescending(ma => ma.CreatedAt)
             .Select(ma => new MyAnnouncementFeed
             {   
                 Id = ma.Id,
@@ -105,16 +121,28 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             .ToArrayAsync(ct);
     }
 
-    public async Task<MissingAnnouncementForNotifyData> GetDataForNotifyAsync(Guid id, CancellationToken ct)
+    public async Task<MissingAnnouncementForNotifyData> GetDataForNotifyAsync(
+        Guid id, 
+        CancellationToken ct)
     {
-        return await context.MissingAnnouncements
+        var data = await context.MissingAnnouncements
+            .AsNoTracking()
             .Where(ma => ma.Id == id)
-            .Select(ma => new MissingAnnouncementForNotifyData
+            .Select(ma => new
             {
-                Coordinates = CoordinatesDto.From(ma.Location),
-                CreatorId = ma.CreatorId,
+                ma.Location,
+                ma.CreatorId
             })
-            .FirstOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(MissingAnnouncement), nameof(id));;
+            .FirstOrDefaultAsync(ct);
+
+        if (data is null)
+            throw new NotFoundException(nameof(MissingAnnouncement), nameof(id));
+
+        return new MissingAnnouncementForNotifyData
+        {
+            Coordinates = data.Location.ToCoordinatesDto(),
+            CreatorId = data.CreatorId
+        };
     }
 
     public async Task<Guid[]> GetCreatorDevicesByAnnouncementIdAsync(Guid announcementId, CancellationToken ct)
@@ -126,5 +154,41 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             where a.Id == announcementId
             select device.Id
         ).ToArrayAsync(ct);
+    }
+    
+    private static MissingAnnouncementPage ToPageDto(MissingAnnouncementPageProjection page)
+    {
+        return new MissingAnnouncementPage
+        {
+            Id = page.Id,
+            Street = page.Street,
+            District = page.District,
+            House = page.House,
+            ImagesPaths = page.ImagesPaths,
+            Creator = page.Creator,
+            PetType = page.PetType,
+            Gender = page.Gender,
+            Breed = page.Breed,
+            Color = page.Color,
+            Type = page.Type,
+            Location = page.Location.ToCoordinatesDto(),
+            EventDate = page.EventDate,
+            Description = page.Description,
+            PetName = page.PetName,
+            SimilarAnnouncements = page.SimilarAnnouncements
+                .Select(ToSimilarMapAnnouncement)
+                .ToArray()
+        };
+    }
+
+    private static SimilarMapAnnouncement ToSimilarMapAnnouncement(
+        SimilarMapAnnouncementProjection source)
+    {
+        return new SimilarMapAnnouncement
+        {
+            Id = source.Id,
+            Coordinates = source.Location.ToCoordinatesDto(),
+            CreatedAt = source.CreatedAt
+        };
     }
 }

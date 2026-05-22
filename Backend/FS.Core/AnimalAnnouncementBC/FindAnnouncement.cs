@@ -5,6 +5,7 @@ using FS.Core.AnimalAnnouncementBC.Policies;
 using FS.Core.Exceptions;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.ValueObjects;
+using NetTopologySuite.Geometries;
 
 namespace FS.Core.AnimalAnnouncementBC;
 
@@ -23,7 +24,7 @@ public class FindAnnouncement : PetAnnouncement
         string? color,
         string? breed,
         bool isCompleted,
-        CoordinatesVO location,
+        Point location,
         DateTime createdAt,
         DateTime eventDate,
         string? description)
@@ -53,7 +54,7 @@ public class FindAnnouncement : PetAnnouncement
         Gender gender,
         string? color,
         string? breed,
-        CoordinatesVO location,
+        Point location,
         DateTime eventDate,
         string? description)
     {

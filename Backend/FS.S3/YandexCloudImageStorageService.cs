@@ -1,8 +1,9 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using FS.Application.Configurations;
+using FS.Application.ImageLogic.Configurations;
+using FS.Application.ImageLogic.Exceptions;
 using FS.Application.Interfaces.Storages;
-using FS.Application.Services.ImageLogic.Exceptions;
+using FS.Application.Shared.Configurations;
 using FS.Contracts.Error;
 using ImageMagick;
 using Microsoft.Extensions.Options;

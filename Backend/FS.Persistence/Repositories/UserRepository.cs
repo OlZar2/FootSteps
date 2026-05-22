@@ -1,4 +1,4 @@
-﻿using FS.Application.Exceptions;
+﻿using FS.Application.Shared.Exceptions;
 using FS.Core.UserDomain;
 using FS.Core.UserDomain.Stores;
 using FS.Persistence.Context;

@@ -1,6 +1,6 @@
-﻿using FS.Application.DTOs.SearchDTOs;
-using FS.Application.Exceptions;
-using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.Interfaces.QueryServices;
+using FS.Application.SearchLogic.DTOs;
+using FS.Application.Shared.Exceptions;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.SearchDomain;
 using FS.Persistence.Context;

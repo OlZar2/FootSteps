@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using FluentValidation;
-using FS.API.RequestsModels.Auth.Validators;
+using FS.API.Controllers.Auth.RequestModels.Validators;
 
 namespace FS.API.Configurations.Controllers;
 

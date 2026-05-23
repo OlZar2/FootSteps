@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
+using FS.Application.AnnouncementLogic.Interfaces;
 using FS.Application.Interfaces.Events;
-using FS.Application.Services.AnnouncementLogic.Interfaces;
 using FS.RabbitMq.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

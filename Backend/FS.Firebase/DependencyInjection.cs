@@ -12,7 +12,7 @@ public static class DependencyInjection
     {
         var firebaseApp = FirebaseApp.Create(new AppOptions
         {
-            Credential = GoogleCredential.FromFile("footsteps-1e536-firebase-adminsdk-fbsvc-3c34098cef.json")
+            Credential = GoogleCredential.GetApplicationDefault()
         });
         
         services.AddSingleton(firebaseApp);

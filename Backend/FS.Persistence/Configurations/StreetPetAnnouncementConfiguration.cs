@@ -8,7 +8,5 @@ public class StreetPetAnnouncementConfiguration : IEntityTypeConfiguration<Stree
 {
     public void Configure(EntityTypeBuilder<StreetPetAnnouncement> builder)
     {
-        builder.Property(sp => sp.Location)
-            .HasColumnType("geometry(Point,4326)");
     }
 }

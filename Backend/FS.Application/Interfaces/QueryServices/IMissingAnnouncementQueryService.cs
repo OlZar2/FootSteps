@@ -1,5 +1,5 @@
-﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
-using FS.Application.DTOs.Shared;
+﻿using FS.Application.MissingPetLogic.DTOs;
+using FS.Application.Shared.DTOs;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Specifications;
 
@@ -7,12 +7,17 @@ namespace FS.Application.Interfaces.QueryServices;
 
 public interface IMissingAnnouncementQueryService
 {
-    Task<MissingAnnouncementFeed[]> GetFilteredByPageAsync(DateTime lastDateTime,
-        PetAnnouncementFeedSpecification<MissingAnnouncement> spec, CancellationToken ct);
+    Task<MissingAnnouncementFeed[]> GetFilteredByPageAsync(
+        PetAnnouncementFeedSpecification<MissingAnnouncement> spec,
+        DateTime? lastDateTime = null,
+        CancellationToken ct = default);
     
     Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct);
 
-    Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct);
+    Task<MyAnnouncementFeed[]> GetFeedForUserAsync(
+        Guid id,
+        DateTime? lastDateTime = null,
+        CancellationToken ct = default);
 
     Task<MissingAnnouncementForNotifyData> GetDataForNotifyAsync(Guid id, CancellationToken ct);
 

@@ -1,5 +1,4 @@
 ﻿using FS.Core.Shared.Abstractions;
-using FS.Core.Shared.ValueObjects;
 
 namespace FS.Core.AnimalAnnouncementBC.Events;
 

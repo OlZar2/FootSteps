@@ -1,6 +1,6 @@
 ﻿using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.ImageDomain.Entities;
-using FS.Core.Shared.ValueObjects;
+using NetTopologySuite.Geometries;
 
 namespace FS.Core.AnimalAnnouncementBC;
 
@@ -27,7 +27,7 @@ public abstract class PetAnnouncement : AnimalAnnouncement
         string? color,
         string? breed,
         bool isCompleted,
-        CoordinatesVO location,
+        Point location,
         DateTime createdAt,
         DateTime eventDate,
         string? description) : 

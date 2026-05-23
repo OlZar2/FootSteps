@@ -4,6 +4,7 @@ using FS.Core.Exceptions;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.Abstractions;
 using FS.Core.Shared.ValueObjects;
+using NetTopologySuite.Geometries;
 using Pgvector;
 
 namespace FS.Core.AnimalAnnouncementBC;
@@ -28,7 +29,7 @@ public abstract class AnimalAnnouncement : AggregateRoot
     
     public AnnouncementType Type { get; private set; }
     
-    public CoordinatesVO Location { get; private set; }
+    public Point Location { get; private set; }
     
     public DateTime EventDate { get; private set; }
     
@@ -41,7 +42,7 @@ public abstract class AnimalAnnouncement : AggregateRoot
         string? street,
         string? house,
         PetType petType,
-        CoordinatesVO location,
+        Point location,
         DateTime createdAt,
         DateTime eventDate,
         Guid? id = null) : base(id ?? Guid.NewGuid())

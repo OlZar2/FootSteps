@@ -1,6 +1,6 @@
-﻿using FS.Application.Exceptions;
-using FS.Application.Interfaces.Events;
+﻿using FS.Application.Interfaces.Events;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Shared.Exceptions;
 using FS.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

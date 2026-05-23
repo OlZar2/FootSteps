@@ -1,4 +1,4 @@
-﻿using FS.Application.DTOs.MissingAnnouncementDTOs;
+﻿using FS.Application.MissingPetLogic.DTOs;
 
 namespace FS.Application.Interfaces.QueryServices;
 

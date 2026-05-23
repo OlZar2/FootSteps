@@ -1,7 +1,7 @@
 ﻿using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Events;
 using FS.Core.ImageDomain.Entities;
-using FS.Core.Shared.ValueObjects;
+using NetTopologySuite.Geometries;
 
 namespace FS.Core.AnimalAnnouncementBC;
 
@@ -16,7 +16,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Guid creatorId,
         string? district,
         PetType petType,
-        CoordinatesVO location,
+        Point location,
         DateTime createdAt,
         DateTime eventDate,
         string? placeDescription)
@@ -41,7 +41,7 @@ public class StreetPetAnnouncement : AnimalAnnouncement
         Guid creatorId,
         string? district,
         PetType petType,
-        CoordinatesVO location,
+        Point location,
         DateTime eventDate,
         string? placeDescription)
     {

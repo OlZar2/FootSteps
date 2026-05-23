@@ -1,4 +1,4 @@
-﻿using FS.Application.Exceptions;
+﻿using FS.Application.Shared.Exceptions;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Persistence.Context;

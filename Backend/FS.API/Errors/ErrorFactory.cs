@@ -1,4 +1,4 @@
-﻿using FS.Application.Exceptions;
+﻿using FS.Application.Shared.Exceptions;
 using FS.Contracts.Error;
 using FS.Core.Exceptions;
 

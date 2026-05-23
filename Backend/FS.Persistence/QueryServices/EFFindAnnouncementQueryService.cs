@@ -1,20 +1,29 @@
-﻿using FS.Application.DTOs.FindAnnouncementDTOs;
-using FS.Application.DTOs.Shared;
-using FS.Application.DTOs.UserDTOs;
-using FS.Application.Exceptions;
+﻿using FS.Application.FindAnnouncementLogic.DTOs;
 using FS.Application.Interfaces.QueryServices;
+using FS.Application.Shared.DTOs;
+using FS.Application.Shared.Exceptions;
+using FS.Application.UserLogic.DTOs;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Specifications;
 using FS.Persistence.Context;
+using FS.Persistence.Extensions;
+using FS.Persistence.Projections.FindAnnouncement;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 
 namespace FS.Persistence.QueryServices;
 
 public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFindAnnouncementQueryService
 {
-    public async Task<FindAnnouncementFeed[]> GetFeedAsync(DateTime lastDateTime, 
-        PetAnnouncementFeedSpecification<FindAnnouncement> spec, CancellationToken ct)
+    public async Task<FindAnnouncementFeed[]> GetFeedAsync(
+        PetAnnouncementFeedSpecification<FindAnnouncement> spec,
+        DateTime? lastDateTime = null,
+        Point? searchCenter = null,
+        int? searchRadius = null,
+        CancellationToken ct = default)
     {
+        lastDateTime ??= DateTime.MaxValue;
+        
         IQueryable<FindAnnouncement> query = context.FindAnnouncements;
         
         foreach (var include in spec.Includes) query = query.Include(include);
@@ -23,7 +32,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
             .Where(ma => !ma.IsCompleted && !ma.IsDeleted)
-            .Where(ma => ma.CreatedAt > lastDateTime)
+            .Where(ma => ma.CreatedAt < lastDateTime)
             .Take(20)
             .Select(fa => new FindAnnouncementFeed
             {
@@ -43,10 +52,12 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
     
     public async Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
-        return await (from a in context.FindAnnouncements.AsNoTracking()
+        var pageProjection = await (from a in context.FindAnnouncements
+                .AsNoTracking()
             join creator in context.Users on a.CreatorId equals creator.Id
             where a.Id == id
-            select new FindAnnouncementPage {
+            select new FindAnnouncementPageProjection
+            {
                 Id = a.Id,
                 Street = a.Street,
                 House = a.House,
@@ -56,29 +67,34 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 {
                     Id = creator.Id,
                     FirstName = creator.FullName.FirstName,
-                    SecondName = creator.FullName.FirstName,
-                    Patronymic = creator.FullName.FirstName,
+                    SecondName = creator.FullName.SecondName,
+                    Patronymic = creator.FullName.Patronymic,
                     AvatarPath = creator.AvatarImage == null ? null : creator.AvatarImage.FullImagePath,
+                    Description = creator.Description,
                 },
                 PetType = a.PetType,
                 Gender = a.Gender,
                 Breed = a.Breed,
                 Color = a.Color,
                 Type = a.Type,
-                Location = new CoordinatesDto()
-                {
-                    Latitude = a.Location.Latitude,
-                    Longitude = a.Location.Longitude
-                },
+                Location = a.Location,
                 EventDate = a.EventDate,
                 Description = a.Description,
-            }).SingleOrDefaultAsync(ct) ?? throw new NotFoundException(nameof(FindAnnouncement), nameof(id));
+            }).FirstOrDefaultAsync(ct);
+        
+        return pageProjection is null ? throw new NotFoundException("MissingAnnouncement", nameof(id)) : ToPageDto(pageProjection);
     }
     
-    public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(Guid id, DateTime lastDateTime, CancellationToken ct)
+    public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(
+        Guid id,
+        DateTime? lastDateTime = null,
+        CancellationToken ct = default)
     {
+        lastDateTime ??= DateTime.MaxValue;
+        
         return await context.FindAnnouncements
-            .Where(ma => ma.CreatedAt > lastDateTime && ma.CreatorId == id)
+            .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
+            .OrderByDescending(ma => ma.CreatedAt)
             .Select(ma => new MyAnnouncementFeed
             {   
                 Id = ma.Id,
@@ -91,5 +107,26 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
             })
             .Take(20)
             .ToArrayAsync(ct);
+    }
+    
+    private static FindAnnouncementPage ToPageDto(FindAnnouncementPageProjection page)
+    {
+        return new FindAnnouncementPage
+        {
+            Id = page.Id,
+            Street = page.Street,
+            District = page.District,
+            House = page.House,
+            ImagesPaths = page.ImagesPaths,
+            Creator = page.Creator,
+            PetType = page.PetType,
+            Gender = page.Gender,
+            Breed = page.Breed,
+            Color = page.Color,
+            Type = page.Type,
+            Location = page.Location.ToCoordinatesDto(),
+            EventDate = page.EventDate,
+            Description = page.Description,
+        };
     }
 }

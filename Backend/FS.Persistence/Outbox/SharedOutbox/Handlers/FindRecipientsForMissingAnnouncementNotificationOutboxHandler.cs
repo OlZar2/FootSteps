@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using FS.Application.Services.NotificationLogic.Interfaces;
+using FS.Application.NotificationLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC.Events;
 using FS.Core.OutboxDomain.Entities;
 using FS.Persistence.Outbox.Shared.Interfaces;

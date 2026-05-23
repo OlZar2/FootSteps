@@ -1,0 +1,12 @@
+﻿using FS.Core.AnimalAnnouncementBC.Enums;
+
+namespace FS.Application.MissingPetLogic.DTOs;
+
+public class DeleteMissingAnnouncementData
+{
+    public required Guid DeleterId { get; set; }
+    
+    public required Guid AnnouncementId { get; set; }
+    
+    public required MissingAnnouncementDeleteReason  DeleteReason { get; set; }
+}

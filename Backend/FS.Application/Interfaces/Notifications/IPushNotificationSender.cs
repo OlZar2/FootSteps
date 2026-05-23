@@ -1,4 +1,4 @@
-﻿using FS.Application.DTOs.Notification;
+﻿using FS.Application.NotificationLogic.DTOs;
 
 namespace FS.Application.Interfaces.Notifications;
 

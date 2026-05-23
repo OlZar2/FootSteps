@@ -1,28 +1,30 @@
-﻿using FS.Application.DomainPolicies.AnimalAnnouncementPolicies;
-using FS.Application.DomainPolicies.UserPolicies;
-using FS.Application.Services.AnnouncementLogic.Implementations;
-using FS.Application.Services.AnnouncementLogic.Interfaces;
-using FS.Application.Services.AuthLogic.Implementations;
-using FS.Application.Services.AuthLogic.Interfaces;
-using FS.Application.Services.FindAnnouncementLogic.Implementations;
-using FS.Application.Services.FindAnnouncementLogic.Interfaces;
-using FS.Application.Services.MissingPetLogic.Implementations;
-using FS.Application.Services.MissingPetLogic.Interfaces;
-using FS.Application.Services.NotificationLogic.Implementations;
-using FS.Application.Services.NotificationLogic.Interfaces;
-using FS.Application.Services.SearchLogic.Implementations;
-using FS.Application.Services.SearchLogic.Interfaces;
-using FS.Application.Services.StreetPetAnnouncementLogic.Implementations;
-using FS.Application.Services.StreetPetAnnouncementLogic.Interfaces;
-using FS.Application.Services.UserLogic.Implementations;
-using FS.Application.Services.UserLogic.Interfaces;
+﻿using FS.Application.AnnouncementLogic.Handlers;
+using FS.Application.AnnouncementLogic.Implementations;
+using FS.Application.AnnouncementLogic.Interfaces;
+using FS.Application.AnnouncementLogic.Policies;
+using FS.Application.AuthLogic.Implementations;
+using FS.Application.AuthLogic.Interfaces;
+using FS.Application.EventLogic.Implementations;
+using FS.Application.EventLogic.Interfaces;
 using FS.Core.AnimalAnnouncementBC.Policies;
 using FS.Core.UserDomain.UserPolicies;
 using Microsoft.Extensions.DependencyInjection;
-using FS.Application.Events;
-using FS.Application.Services.AnnouncementLogic.Handlers;
-using FS.Application.Services.MissingPetLogic.EventHandlers;
+using FS.Application.FindAnnouncementLogic.Implementations;
+using FS.Application.FindAnnouncementLogic.Interfaces;
+using FS.Application.MissingPetLogic.EventHandlers;
+using FS.Application.MissingPetLogic.Implementations;
+using FS.Application.MissingPetLogic.Interfaces;
+using FS.Application.NotificationLogic.Implementations;
+using FS.Application.NotificationLogic.Interfaces;
+using FS.Application.SearchLogic.Implementations;
+using FS.Application.SearchLogic.Interfaces;
+using FS.Application.StreetPetAnnouncementLogic.Implementations;
+using FS.Application.StreetPetAnnouncementLogic.Interfaces;
+using FS.Application.UserLogic.Implementations;
+using FS.Application.UserLogic.Interfaces;
+using FS.Application.UserLogic.Policies;
 using FS.Core.AnimalAnnouncementBC.Events;
+using NetTopologySuite;
 
 namespace FS.Application;
 
@@ -47,6 +49,9 @@ public static class DependencyInjection
         
         services
             .AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
+        
+        services.AddSingleton(provider =>
+            NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
         
         services.AddScoped<IDomainEventHandler<MissingAnnouncementCreatedDomainEvent>, MissingAnnouncementCreatedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>, StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>()

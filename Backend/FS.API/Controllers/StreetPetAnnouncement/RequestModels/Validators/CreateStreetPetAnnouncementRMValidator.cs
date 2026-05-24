@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FS.API.Controllers.Shared.Validators;
 using FS.Application.ImageLogic.Configurations;
 using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC.Enums;
@@ -8,26 +9,19 @@ namespace FS.API.Controllers.StreetPetAnnouncement.RequestModels.Validators;
 
 public class CreateStreetPetAnnouncementRMValidator : AbstractValidator<CreateStreetPetAnnouncementRM>
 {
-    public CreateStreetPetAnnouncementRMValidator(IOptions<ImagesOptions> imagesOptions)
+    public CreateStreetPetAnnouncementRMValidator(ImageFileValidator imageFileValidator)
     {
         RuleFor(x => x.Images)
             .NotEmpty()
-                .WithErrorCode(IssueCodes.Required)
+            .WithErrorCode(IssueCodes.Required);
+        RuleFor(x => x.Images)
             .Must(images => images.Length is >= 1 and <= 5)
-                .WithMessage("number of images must be between 1 and 5")
-                .WithErrorCode(IssueCodes.TooMany);
-        RuleForEach(x => x.Images).ChildRules(file =>
-        {
-            file.RuleFor(f => f.ContentType)
-                .Must(ct => imagesOptions.Value.AllowedContentTypes.Contains(ct))
-                .WithMessage("Неверный формат файла")
-                .WithErrorCode(IssueCodes.InvalidFormat);
-
-            file.RuleFor(f => f.Length)
-                .LessThanOrEqualTo(imagesOptions.Value.MaxByteSize)
-                .WithMessage("Максимальный размер файла — 5 МБ.")
-                .WithErrorCode(IssueCodes.TooLarge);
-        });
+            .WithMessage("number of images must be between 1 and 5")
+            .WithErrorCode(IssueCodes.TooMany)
+            .When(x => x.Images != null);
+        RuleForEach(x => x.Images)
+            .SetValidator(imageFileValidator)
+            .When(x => x.Images != null);
         RuleFor(x => x.PetType)
             .Cascade(CascadeMode.Stop)
             .NotNull()

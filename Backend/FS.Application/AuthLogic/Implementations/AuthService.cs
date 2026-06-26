@@ -82,6 +82,18 @@ public class AuthService(
         }
     }
 
+    public async Task ResendEmailConfirmationAsync(string email, CancellationToken ct)
+    {
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+
+        var user = await userRepository.GetByEmailForUpdateAsync(email, ct);
+        user.RequestEmailConfirmationResend(DateTime.UtcNow);
+
+        await userRepository.UpdateAsync(user, ct);
+
+        await transaction.CommitAsync(ct);
+    }
+
     public async Task ConfirmEmailAsync(Guid userId, string token, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);

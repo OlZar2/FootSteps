@@ -60,7 +60,8 @@ public static class DependencyInjection
             .AddScoped<IDomainEventHandler<AnnouncementCreatedDomainEvent>, AnnouncementCreatedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<ReportFoundDomainEvent>, ReportFoundDomainEventHandler>()
             .AddScoped<IDomainEventHandler<ReportSpottedDomainEvent>, ReportSpottedDomainEventHandler>()
-            .AddScoped<IDomainEventHandler<UserRegisteredDomainEvent>, UserRegisteredDomainEventHandler>();
+            .AddScoped<IDomainEventHandler<UserRegisteredDomainEvent>, UserRegisteredDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<EmailConfirmationRequestedDomainEvent>, EmailConfirmationRequestedDomainEventHandler>();
 
         return services;
     }

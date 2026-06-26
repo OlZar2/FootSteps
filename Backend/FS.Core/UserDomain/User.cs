@@ -31,6 +31,8 @@ public class User : AggregateRoot
     public bool IsEmailConfirmed { get; private set; }
 
     public string? EmailConfirmationToken { get; private set; }
+
+    public DateTime? EmailConfirmationLastSentAt { get; private set; }
     
     public Point? LastCoordinates { get; private set; }
     
@@ -51,6 +53,7 @@ public class User : AggregateRoot
         AvatarImageId = avatarImage?.Id;
         IsEmailConfirmed = false;
         EmailConfirmationToken = Guid.NewGuid().ToString("N");
+        EmailConfirmationLastSentAt = DateTime.UtcNow;
         _contacts = contacts;
     }
     
@@ -101,6 +104,39 @@ public class User : AggregateRoot
 
         IsEmailConfirmed = true;
         EmailConfirmationToken = null;
+        EmailConfirmationLastSentAt = null;
+    }
+
+    public void RequestEmailConfirmationResend(DateTime utcNow)
+    {
+        if (IsEmailConfirmed)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EmailConfirmationToken))
+        {
+            throw new DomainException(
+                IssueCodes.InvalidValue,
+                "email confirmation token is missing.",
+                nameof(EmailConfirmationToken));
+        }
+
+        if (EmailConfirmationLastSentAt.HasValue &&
+            utcNow - EmailConfirmationLastSentAt.Value < TimeSpan.FromMinutes(1))
+        {
+            throw new DomainException(
+                IssueCodes.TooMany,
+                "email confirmation can be requested only once per minute.",
+                nameof(EmailConfirmationLastSentAt));
+        }
+
+        EmailConfirmationLastSentAt = utcNow;
+
+        AddDomainEvent(new EmailConfirmationRequestedDomainEvent(
+            Id,
+            Email.Value,
+            EmailConfirmationToken));
     }
 
     public void UpdateFullName(Guid editorId, FullName fullName, IEditUserPolicy editUserPolicy)

@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace FS.Application.AuthLogic.Handlers;
 
-public class UserRegisteredDomainEventHandler(
+public class EmailConfirmationRequestedDomainEventHandler(
     INotificationRepository notificationRepository,
-    IOptions<EmailConfirmationOptions> options) : IDomainEventHandler<UserRegisteredDomainEvent>
+    IOptions<EmailConfirmationOptions> options) : IDomainEventHandler<EmailConfirmationRequestedDomainEvent>
 {
-    public async Task Handle(UserRegisteredDomainEvent domainEvent, CancellationToken ct)
+    public async Task Handle(EmailConfirmationRequestedDomainEvent domainEvent, CancellationToken ct)
     {
         var notification = EmailConfirmationNotificationFactory.Create(
             domainEvent.UserId,

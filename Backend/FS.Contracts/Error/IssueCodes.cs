@@ -35,5 +35,6 @@ public static class IssueCodes
     public const string Unauthorized    = "UNAUTHORIZED";
     public const string NotFound        = "NOT_FOUND";
     public const string InvalidCredentials    = "INVALID_CREDENTIALS";
+    public const string EmailNotConfirmed    = "EMAIL_NOT_CONFIRMED";
     public const string TooMany    = "TOO_MANY";
 }

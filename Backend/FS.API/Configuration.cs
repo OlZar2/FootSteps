@@ -1,4 +1,5 @@
 ﻿using FS.API.Services.GeoLogic.Options;
+using FS.Application.AuthLogic.Configurations;
 using FS.Application.ImageLogic.Configurations;
 using FS.Application.Shared.Configurations;
 using FS.JWT;
@@ -28,6 +29,9 @@ public static class Configuration
         
         services.Configure<ImagesOptions>(
             configuration.GetSection(nameof(ImagesOptions)));
+
+        services.Configure<EmailConfirmationOptions>(
+            configuration.GetSection(nameof(EmailConfirmationOptions)));
         return services;
     }
 }

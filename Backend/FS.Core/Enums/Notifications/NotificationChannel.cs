@@ -3,4 +3,5 @@
 public enum NotificationChannel
 {
     Push,
+    Email
 }

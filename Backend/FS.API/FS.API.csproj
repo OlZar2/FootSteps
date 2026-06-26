@@ -40,6 +40,7 @@
     <ItemGroup>
       <ProjectReference Include="..\FS.Application\FS.Application.csproj" />
       <ProjectReference Include="..\FS.Contracts\FS.Contracts.csproj" />
+      <ProjectReference Include="..\FS.Email\FS.Email.csproj" />
       <ProjectReference Include="..\FS.Firebase\FS.Firebase.csproj" />
       <ProjectReference Include="..\FS.JWT\FS.JWT.csproj" />
       <ProjectReference Include="..\FS.Migrations\FS.Migrations.csproj" />

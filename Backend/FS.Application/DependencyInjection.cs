@@ -2,6 +2,7 @@
 using FS.Application.AnnouncementLogic.Implementations;
 using FS.Application.AnnouncementLogic.Interfaces;
 using FS.Application.AnnouncementLogic.Policies;
+using FS.Application.AuthLogic.Handlers;
 using FS.Application.AuthLogic.Implementations;
 using FS.Application.AuthLogic.Interfaces;
 using FS.Application.EventLogic.Implementations;
@@ -24,6 +25,7 @@ using FS.Application.UserLogic.Implementations;
 using FS.Application.UserLogic.Interfaces;
 using FS.Application.UserLogic.Policies;
 using FS.Core.AnimalAnnouncementBC.Events;
+using FS.Core.UserDomain.Events;
 using NetTopologySuite;
 
 namespace FS.Application;
@@ -57,7 +59,8 @@ public static class DependencyInjection
             .AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>, StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<AnnouncementCreatedDomainEvent>, AnnouncementCreatedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<ReportFoundDomainEvent>, ReportFoundDomainEventHandler>()
-            .AddScoped<IDomainEventHandler<ReportSpottedDomainEvent>, ReportSpottedDomainEventHandler>();
+            .AddScoped<IDomainEventHandler<ReportSpottedDomainEvent>, ReportSpottedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<UserRegisteredDomainEvent>, UserRegisteredDomainEventHandler>();
 
         return services;
     }

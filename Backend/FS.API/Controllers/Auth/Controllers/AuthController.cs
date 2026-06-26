@@ -23,6 +23,7 @@ public class AuthController(
     IAuthService authService,
     IValidator<RegisterRM> registerValidator,
     IValidator<LoginRM> loginValidator,
+    IValidator<ResendEmailConfirmationRM> resendEmailConfirmationValidator,
     IClaimService claimService) : ControllerBase
 {
     /// <summary>
@@ -72,6 +73,24 @@ public class AuthController(
         );
 
         await authService.RegisterUserAsync(registerDTO, ct);
+    }
+
+    /// <summary>
+    /// Повторная отправка письма для подтверждения почты
+    /// </summary>
+    [HttpPost("resend-email-confirmation")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    [SwaggerOperation(
+        Description = "Повторно отправляет письмо со ссылкой для подтверждения почты. Для одного пользователя доступно не чаще одного раза в минуту."
+    )]
+    public async Task ResendEmailConfirmation(ResendEmailConfirmationRM request, CancellationToken ct)
+    {
+        await resendEmailConfirmationValidator.ValidateAndThrowAsync(request, ct);
+
+        await authService.ResendEmailConfirmationAsync(request.Email, ct);
     }
 
     /// <summary>

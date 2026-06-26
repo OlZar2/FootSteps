@@ -58,6 +58,22 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
             ?? throw new NotFoundException(nameof(User), email);
     }
 
+    public async Task<User> GetByEmailForUpdateAsync(string email, CancellationToken cancellationToken)
+    {
+        var users = await context.Users
+            .FromSqlInterpolated($"""
+                                  SELECT *
+                                  FROM "Users"
+                                  WHERE "Email" = {email}
+                                  LIMIT 1
+                                  FOR UPDATE
+                                  """)
+            .ToArrayAsync(cancellationToken);
+
+        return users.FirstOrDefault()
+               ?? throw new NotFoundException(nameof(User), email);
+    }
+
     public async Task UpdateAsync(User user, CancellationToken cancellationToken)
     {
         await context.SaveChangesAsync(cancellationToken);

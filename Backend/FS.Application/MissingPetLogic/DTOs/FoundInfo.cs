@@ -1,3 +1,5 @@
-﻿namespace FS.Application.MissingPetLogic.DTOs;
+﻿using FS.Application.Shared.DTOs;
 
-public record FoundInfo(Guid FoundUserId, Guid AnnouncementId) { }
+namespace FS.Application.MissingPetLogic.DTOs;
+
+public record FoundInfo(Guid FoundUserId, Guid AnnouncementId, FileData[] Images) { }

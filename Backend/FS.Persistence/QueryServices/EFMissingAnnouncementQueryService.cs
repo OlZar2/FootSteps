@@ -1,4 +1,5 @@
-﻿using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.AuthLogic.DTOs;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.MissingPetLogic.DTOs;
 using FS.Application.Shared.DTOs;
 using FS.Application.Shared.Exceptions;
@@ -15,7 +16,7 @@ namespace FS.Persistence.QueryServices;
 
 public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : IMissingAnnouncementQueryService
 {
-    public async Task<MissingAnnouncementFeed[]> GetFilteredByPageAsync(
+    public async Task<MissingAnnouncementFeed[]> GetFeedAsync(
         PetAnnouncementFeedSpecification<MissingAnnouncement> spec,
         DateTime? lastDateTime = null,
         CancellationToken ct = default)
@@ -30,6 +31,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
             .Where(ma => ma.CreatedAt < lastDateTime)
+            .Where(ma => !ma.IsCompleted && !ma.IsDeleted)
             .Take(20)
             .Select(a => new MissingAnnouncementFeed
             {
@@ -69,6 +71,11 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                         ? null 
                         : creator.AvatarImage.FullImagePath,
                     Description = creator.Description,
+                    Contacts = creator.Contacts.Select(uc => new ContactData
+                    {
+                        ContactType = uc.Type,
+                        Url = uc.Url,
+                    }).ToArray()
                 },
                 PetType = a.PetType,
                 Gender = a.Gender,
@@ -106,6 +113,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
         
         return await context.MissingAnnouncements
             .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
+            .Where(ma => !ma.IsDeleted)
             .OrderByDescending(ma => ma.CreatedAt)
             .Select(ma => new MyAnnouncementFeed
             {   
@@ -151,7 +159,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             from a in context.MissingAnnouncements.AsNoTracking()
             join creator in context.Users on a.CreatorId equals creator.Id
             from device in creator.UserDevices
-            where a.Id == announcementId
+            where a.Id == announcementId && device.IsActive
             select device.Id
         ).ToArrayAsync(ct);
     }

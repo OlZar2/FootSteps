@@ -23,6 +23,7 @@ public class EFUserDevicesQueryService(ApplicationDbContext context) : IUserDevi
                       false) &&
                   u.Id != mineId
             from d in u.UserDevices
+            where d.IsActive
             select d.Id;
     
         return await query.ToArrayAsync(ct);

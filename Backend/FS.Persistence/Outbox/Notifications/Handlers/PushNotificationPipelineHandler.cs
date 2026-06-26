@@ -29,6 +29,13 @@ public class PushNotificationPipelineHandler(
 
             foreach (var device in devices)
             {
+                if (!device.IsActive)
+                {
+                    notification.MarkDeliveryAsUnactual(device.DeliveryId);
+                    await notificationRepository.SaveChangesAsync(ct);
+                    continue;
+                }
+                
                 //TODO: а если миллион пушей
                 var pushNotification = new PushNotificationDto
                 {

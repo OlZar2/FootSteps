@@ -31,6 +31,7 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
         modelBuilder.ApplyConfiguration(new UserDeviceConfiguration());
         modelBuilder.ApplyConfiguration(new SimilarAnnouncementsConfiguration());
         modelBuilder.ApplyConfiguration(new SpottedLocationConfiguration());
+        modelBuilder.ApplyConfiguration(new FoundReportConfiguration());
         
         base.OnModelCreating(modelBuilder);
         
@@ -67,4 +68,5 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     public DbSet<UserDevice> UserDevices { get; set; } = null!;
     public DbSet<SimilarAnnouncements> SimilarAnnouncements { get; set; } = null!;
     public DbSet<SpottedLocation> SpottedLocations { get; set; } = null!;
+    public DbSet<FoundReport> FoundReports { get; set; } = null!;
 }

@@ -98,10 +98,17 @@ public class UserService(
     
     public async Task AddDevice(Guid userId, string deviceToken, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdWithDevicesAsync(userId, ct);
-        var userDevice = UserDevice.Create(user, deviceToken);
-        user.AddDevice(userDevice);
-        await userRepository.UpdateAsync(user, ct);
+        var usersWithThisActiveDevice = await userRepository.GetByActiveDeviceTokenWithDevicesAsync(deviceToken, ct);
+        var userAddingDevice = await userRepository.GetByIdWithDevicesAsync(userId, ct);
+        
+        var userDevice = UserDevice.Create(userAddingDevice, deviceToken);
+        foreach (var userWithActiveDevice in usersWithThisActiveDevice)
+        {
+            userWithActiveDevice.DeactivateDevice(userDevice);
+        }
+        userAddingDevice.AddOrActivateDevice(userDevice);
+        
+        await userRepository.UpdateAsync(userAddingDevice, ct);
     }
 
     public async Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct) =>

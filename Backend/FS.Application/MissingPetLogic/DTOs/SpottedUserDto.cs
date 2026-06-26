@@ -1,3 +1,6 @@
-﻿namespace FS.Application.MissingPetLogic.DTOs;
+﻿using FS.Application.AuthLogic.DTOs;
+using FS.Core.UserDomain.Entities;
 
-public record SpottedUserDto(Guid Id, string FirstName, string? SecondName) { }
+namespace FS.Application.MissingPetLogic.DTOs;
+
+public record SpottedUserDto(Guid Id, string FirstName, string? SecondName, ContactData[] Contacts) { }

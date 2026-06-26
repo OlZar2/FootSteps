@@ -26,6 +26,7 @@ public class MissingAnnouncementController(
     IValidator<CancelMissingAnnouncementRM> deleteAnnouncementValidator,
     IValidator<AnnouncementFilter> filterValidator,
     IValidator<ReportSpottedRM> reportSpottedValidator,
+    IValidator<ReportFoundRM> reportFoundValidator,
     IGeocoder geocoder) : ControllerBase
 {
     /// <summary>
@@ -183,17 +184,44 @@ public class MissingAnnouncementController(
     /// Метод для сообщения о нахождении потервшегося питомца
     /// </summary>
     /// <param name="announcementId">id объявления о пропаже</param>
+    /// <param name="request">данные запроса</param>
     /// <param name="ct"></param>
     [HttpPost("{announcementId:guid}/report-found")]
     [Authorize]
-    public async Task ReportFound(Guid announcementId, CancellationToken ct)
+    public async Task ReportFound(Guid announcementId, [FromForm] ReportFoundRM request, CancellationToken ct)
     {
+        await reportFoundValidator.ValidateAndThrowAsync(request, ct);
+        
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
+        
+        var semaphore = new SemaphoreSlim(4);
+
+        var tasks = request.Images.Select(async image =>
+        {
+            await semaphore.WaitAsync(ct);
+            try
+            {
+                await using var ms = new MemoryStream();
+                await image.CopyToAsync(ms, ct);
+
+                return new FileData
+                {
+                    Content = ms.ToArray()
+                };
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        });
+
+        var fileInfos = await Task.WhenAll(tasks);
 
         var foundInfo = new FoundInfo(
             FoundUserId: userId,
-            AnnouncementId: announcementId);
+            AnnouncementId: announcementId,
+            fileInfos);
         
         await missingAnnouncementService.ReportFoundAsync(foundInfo, ct);
     }
@@ -252,6 +280,16 @@ public class MissingAnnouncementController(
     /// <param name="ct"></param>
     /// <returns></returns>
     [HttpGet("{announcementId:guid}/spotted-locations")]
-    public async Task<SpottedLocationDto[]> ReportSpotted(Guid announcementId, CancellationToken ct) =>
+    public async Task<SpottedLocationDto[]> GetSpottedLocations(Guid announcementId, CancellationToken ct) =>
         await missingAnnouncementService.GetSpottedLocations(announcementId, ct);
+    
+    /// <summary>
+    /// Возвращает список сообщений о находке питомца
+    /// </summary>
+    /// <param name="announcementId">id объявления о пропаже</param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    [HttpGet("{announcementId:guid}/found-reports")]
+    public async Task<FoundReportDto[]> GetFoundReports(Guid announcementId, CancellationToken ct) =>
+        await missingAnnouncementService.GetFoundReports(announcementId, ct);
 }

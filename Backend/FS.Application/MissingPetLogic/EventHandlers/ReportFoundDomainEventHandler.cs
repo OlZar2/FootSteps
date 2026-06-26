@@ -19,7 +19,7 @@ public class ReportFoundDomainEventHandler(
             "Пользователь сообщил о находке вашего питомца",
             "Нажмите, чтобы посмотреть контакты",
             [NotificationChannel.Push],
-            domainEvent.FoundUserId);
+            domainEvent.AnnouncementId);
         
         var creatorDeviceIds = await missingAnnouncementQueryService.GetCreatorDevicesByAnnouncementIdAsync(
             domainEvent.AnnouncementId, 

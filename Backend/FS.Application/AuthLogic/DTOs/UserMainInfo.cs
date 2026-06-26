@@ -10,7 +10,7 @@ public record UserMainInfo
     
     public required string? AvatarPath { get; init; }
     
-    public required MeContactData[] Contacts { get; init; }
+    public required ContactData[] Contacts { get; init; }
     
     public required string? Description { get; init; }
 }

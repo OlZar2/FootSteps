@@ -26,4 +26,6 @@ public interface IMissingAnnouncementService
     Task ReportFoundAsync(FoundInfo foundInfo, CancellationToken ct);
 
     Task<SpottedLocationDto[]> GetSpottedLocations(Guid missingAnnouncementId, CancellationToken ct);
+
+    Task<FoundReportDto[]> GetFoundReports(Guid missingAnnouncementId, CancellationToken ct);
 }

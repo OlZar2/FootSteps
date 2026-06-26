@@ -7,7 +7,7 @@ namespace FS.Application.Interfaces.QueryServices;
 
 public interface IMissingAnnouncementQueryService
 {
-    Task<MissingAnnouncementFeed[]> GetFilteredByPageAsync(
+    Task<MissingAnnouncementFeed[]> GetFeedAsync(
         PetAnnouncementFeedSpecification<MissingAnnouncement> spec,
         DateTime? lastDateTime = null,
         CancellationToken ct = default);

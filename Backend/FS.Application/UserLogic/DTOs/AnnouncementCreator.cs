@@ -1,5 +1,4 @@
-﻿using FS.Core.ImageDomain.Entities;
-using FS.Core.UserDomain;
+﻿using FS.Application.AuthLogic.DTOs;
 
 namespace FS.Application.UserLogic.DTOs;
 
@@ -14,4 +13,6 @@ public record AnnouncementCreator
     public required string? AvatarPath { get; init; }
     
     public string? Description { get; init; }
+    
+    public required ContactData[] Contacts { get; init; }
 }

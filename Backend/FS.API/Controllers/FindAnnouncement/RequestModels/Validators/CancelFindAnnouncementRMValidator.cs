@@ -9,7 +9,7 @@ public class CancelFindAnnouncementRMValidator : AbstractValidator<CancelFindAnn
     public CancelFindAnnouncementRMValidator()
     {
         RuleFor(x => x.CancelReason)
-            .NotEmpty()
+            .NotNull()
             .WithErrorCode(IssueCodes.Required)
             .Must(v => Enum.IsDefined(typeof(FindAnnouncementDeleteReason), v)).WithErrorCode(IssueCodes.InvalidValue)
             .WithMessage("Недопустимое значение DeleteReason")

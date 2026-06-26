@@ -90,6 +90,12 @@ public class Notification : AggregateRoot
         delivery.MarkAsFailed();
     }
     
+    public void MarkDeliveryAsUnactual(Guid deliveryId)
+    {
+        var delivery = GetDelivery(deliveryId);
+        delivery.MarkAsUnActual();
+    }
+    
     private NotificationDelivery GetDelivery(Guid deliveryId)
     {
         return _notificationDeliveries.FirstOrDefault(d => d.Id == deliveryId)

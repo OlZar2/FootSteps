@@ -56,6 +56,7 @@ public class NotificationDelivery : Entity
         Status = DeliveryStatus.Sent;
         SentAt = DateTime.UtcNow;
         LastAttemptAt = SentAt;
+        AttemptCount++;
     }
     
     public void MarkAsFailed()
@@ -63,6 +64,11 @@ public class NotificationDelivery : Entity
         Status = AttemptCount > 10 ? DeliveryStatus.Stoped : DeliveryStatus.Failed;
         LastAttemptAt = DateTime.UtcNow;
         AttemptCount++;
+    }
+    
+    public void MarkAsUnActual()
+    {
+        Status = DeliveryStatus.Unactual;
     }
     
     // EF

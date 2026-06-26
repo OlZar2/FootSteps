@@ -1,4 +1,5 @@
-﻿using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.AuthLogic.DTOs;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.Shared.Exceptions;
 using FS.Application.StreetPetAnnouncementLogic.DTOs;
 using FS.Application.UserLogic.DTOs;
@@ -68,6 +69,11 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
                     Patronymic = creator.FullName.FirstName,
                     AvatarPath = creator.AvatarImage == null ? null : creator.AvatarImage.FullImagePath,
                     Description = creator.Description,
+                    Contacts = creator.Contacts.Select(uc => new ContactData
+                    {
+                        ContactType = uc.Type,
+                        Url = uc.Url,
+                    }).ToArray()
                 },
                 PetType = a.PetType,
                 Location = a.Location,

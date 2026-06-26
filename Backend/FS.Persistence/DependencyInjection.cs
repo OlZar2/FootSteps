@@ -32,10 +32,8 @@ public static class DependencyInjection
             .AddScoped<IOutboxRepository, EFOutboxRepository>()
             .AddScoped<ISearchRequestRepository, EFSearchRequestRepository>()
             .AddScoped<INotificationRepository, EFNotificationRepository>()
-            .AddScoped<IUserDeviceQueryService, EFUserDevicesQueryService>()
-            .AddScoped<INotificationDeliveryQueryService, EFNotificationDeliveryQueryService>()
-            .AddScoped<IAnimalAnnouncementQueryService, EFAnimalAnnouncementQueryService>()
-            .AddScoped<ISpottedLocationsQueryService, EFSpottedLocationsQueryService>()
+            .AddScoped<ISimilarAnnouncementRepository, EFSimilarAnnouncementRepository>()
+            .AddScoped<IAnimalAnnouncementRepository, EFAnimalAnnouncementRepository>()
             .AddScoped<IImageRepository, EFImageRepository>();
 
         services
@@ -44,9 +42,13 @@ public static class DependencyInjection
             .AddScoped<IStreetPetAnnouncementQueryService, EFStreetPetAnnouncementQueryService>()
             .AddScoped<IUserQueryService, EFUserQueryService>()
             .AddScoped<ISearchQueryService, EFSearchQueryService>()
-            .AddScoped<IImageQueryService, EFAnimalAnnouncementImageQueryService>()
-            .AddScoped<ISimilarAnnouncementRepository, EFSimilarAnnouncementRepository>()
-            .AddScoped<IAnimalAnnouncementRepository, EFAnimalAnnouncementRepository>();
+            .AddScoped<IFoundReportsQueryService, EFFoundReportsQueryService>()
+            .AddScoped<IUserDeviceQueryService, EFUserDevicesQueryService>()
+            .AddScoped<INotificationDeliveryQueryService, EFNotificationDeliveryQueryService>()
+            .AddScoped<IAnimalAnnouncementQueryService, EFAnimalAnnouncementQueryService>()
+            .AddScoped<ISpottedLocationsQueryService, EFSpottedLocationsQueryService>()
+            .AddScoped<IImageQueryService, EFAnimalAnnouncementImageQueryService>();
+            
         
         services.AddScoped<ITransactionFactory, EfCoreTransactionFactory>();
         

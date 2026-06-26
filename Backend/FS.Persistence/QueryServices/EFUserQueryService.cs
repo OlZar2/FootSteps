@@ -22,7 +22,7 @@ public class EFUserQueryService(ApplicationDbContext context) : IUserQueryServic
                         Patronymic = u.FullName.Patronymic,
                         AvatarPath = u.AvatarImage == null ? null : u.AvatarImage.FullImagePath,
                         Contacts = u.Contacts
-                            .Select(c => new MeContactData
+                            .Select(c => new ContactData
                             {
                                 ContactType = c.Type,
                                 Url = c.Url,

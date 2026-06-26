@@ -31,6 +31,16 @@ public class UserDevice : Entity
 
         return new UserDevice(user.Id, deviceToken);
     }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+    
+    public void Activate()
+    {
+        IsActive = true;
+    }
     
     // EF
     private UserDevice() { } 

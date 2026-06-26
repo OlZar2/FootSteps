@@ -1,4 +1,5 @@
-﻿using FS.Application.Interfaces.QueryServices;
+﻿using FS.Application.AuthLogic.DTOs;
+using FS.Application.Interfaces.QueryServices;
 using FS.Application.MissingPetLogic.DTOs;
 using FS.Application.Shared.DTOs;
 using FS.Persistence.Context;
@@ -20,7 +21,12 @@ public class EFSpottedLocationsQueryService(ApplicationDbContext context) : ISpo
                 new SpottedUserDto(
                     spottedUser.Id,
                     spottedUser.FullName.FirstName,
-                    spottedUser.FullName.SecondName),
+                    spottedUser.FullName.SecondName,
+                    spottedUser.Contacts.Select(uc => new ContactData
+                    {
+                        ContactType = uc.Type,
+                        Url = uc.Url,
+                    }).ToArray()),
                 spottedLocation.CreatedAt,
                 new CoordinatesDto
                 {

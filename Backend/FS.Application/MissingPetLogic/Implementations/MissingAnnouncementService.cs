@@ -23,6 +23,7 @@ public class MissingAnnouncementService(
     IMissingAnnouncementQueryService missingAnnouncementQueryService,
     IOptions<S3StorageConfiguration> s3StorageOptions,
     ISpottedLocationsQueryService spottedLocationsQueryService,
+    IFoundReportsQueryService foundReportsQueryService,
     GeometryFactory geometryFactory) 
     : IMissingAnnouncementService
 {
@@ -51,7 +52,7 @@ public class MissingAnnouncementService(
             null,
             a => a.Images);
         
-        var feed = await missingAnnouncementQueryService.GetFilteredByPageAsync(
+        var feed = await missingAnnouncementQueryService.GetFeedAsync(
                 missingAnnouncementSpecification,
                 lastDateTime,
                 ct);
@@ -145,10 +146,24 @@ public class MissingAnnouncementService(
     public async Task ReportFoundAsync(FoundInfo foundInfo, CancellationToken ct)
     {
         var announcement = await missingAnnouncementRepository.GetByIdAsync(foundInfo.AnnouncementId, ct);
-        announcement.ReportFound(foundInfo.FoundUserId);
+        
+        List<FSImage> images = [];
+        
+        foreach (var image in foundInfo.Images)
+        {
+            var s3Key = Guid.NewGuid().ToString();
+            var createdImage = FSImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+            images.Add(createdImage);
+            await imageStorageService.UploadAsync(image.Content, s3Key, ct);
+        }
+        
+        announcement.ReportFound(foundInfo.FoundUserId, images);
         await missingAnnouncementRepository.SaveChangesAsync(ct);
     }
 
     public async Task<SpottedLocationDto[]> GetSpottedLocations(Guid missingAnnouncementId, CancellationToken ct) =>
         await spottedLocationsQueryService.GetSpottedLocationsByAnnouncementIdAsync(missingAnnouncementId, ct);
+    
+    public async Task<FoundReportDto[]> GetFoundReports(Guid missingAnnouncementId, CancellationToken ct) =>
+        await foundReportsQueryService.GetFoundReportsByAnnouncementIdAsync(missingAnnouncementId, ct);
 }

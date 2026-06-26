@@ -105,12 +105,23 @@ public class User : AggregateRoot
         AvatarImage = avatarImage;
     }
 
-    public void AddDevice(UserDevice device)
+    public void AddOrActivateDevice(UserDevice device)
     {
-        if (!_userDevices.Select(ud => ud.DeviceToken).Contains(device.DeviceToken))
+        var deviceToActivate = _userDevices.FirstOrDefault(ud => ud.DeviceToken == device.DeviceToken);
+        if (deviceToActivate is null)
         {
             _userDevices.Add(device);
         }
+        else
+        {
+            deviceToActivate.Activate();
+        }
+    }
+    
+    public void DeactivateDevice(UserDevice device)
+    {
+        var deviceToDeactivate = _userDevices.FirstOrDefault(ud => ud.DeviceToken == device.DeviceToken);
+        deviceToDeactivate?.Deactivate();
     }
     
     public void UpdateLastCoordinates(Point coordinates)

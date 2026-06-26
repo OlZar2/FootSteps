@@ -22,6 +22,7 @@ public class EFNotificationDeliveryQueryService(ApplicationDbContext context) : 
                 {
                     DeliveryId = delivery.Id,
                     DeviceToken = device.DeviceToken,
+                    IsActive = device.IsActive
                 })
             .ToArrayAsync(ct);
     }

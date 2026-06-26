@@ -62,4 +62,14 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     {
         await context.SaveChangesAsync(cancellationToken);
     }
+    
+    public async Task<User[]> GetByActiveDeviceTokenWithDevicesAsync(string deviceToken, CancellationToken cancellationToken)
+    {
+        return await context.Users
+            .Where(u => u.UserDevices.Any(ud =>
+                ud.DeviceToken == deviceToken &&
+                ud.IsActive))
+            .Include(u => u.UserDevices.Where(ud => ud.IsActive))
+            .ToArrayAsync(cancellationToken);
+    }
 }

@@ -6,5 +6,6 @@ public enum DeliveryStatus
     Sent    = 1,
     Failed  = 2,
     Read    = 3,
-    Stoped  = 4
+    Stoped  = 4,
+    Unactual = 5,
 }

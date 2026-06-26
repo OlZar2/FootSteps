@@ -1,4 +1,5 @@
-﻿using FS.Application.FindAnnouncementLogic.DTOs;
+﻿using FS.Application.AuthLogic.DTOs;
+using FS.Application.FindAnnouncementLogic.DTOs;
 using FS.Application.Interfaces.QueryServices;
 using FS.Application.Shared.DTOs;
 using FS.Application.Shared.Exceptions;
@@ -71,6 +72,11 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                     Patronymic = creator.FullName.Patronymic,
                     AvatarPath = creator.AvatarImage == null ? null : creator.AvatarImage.FullImagePath,
                     Description = creator.Description,
+                    Contacts = creator.Contacts.Select(uc => new ContactData
+                    {
+                        ContactType = uc.Type,
+                        Url = uc.Url,
+                    }).ToArray()
                 },
                 PetType = a.PetType,
                 Gender = a.Gender,
@@ -95,6 +101,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
         return await context.FindAnnouncements
             .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
             .OrderByDescending(ma => ma.CreatedAt)
+            .Where(ma => !ma.IsDeleted)
             .Select(ma => new MyAnnouncementFeed
             {   
                 Id = ma.Id,

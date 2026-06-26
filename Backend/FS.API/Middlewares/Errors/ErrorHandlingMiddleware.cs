@@ -31,7 +31,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             ctx.Response.ContentType = "application/json";
-            
+
             var payload = new { error = ErrorFactory.Domain(ive) };
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
@@ -48,7 +48,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         {
             ctx.Response.StatusCode = StatusCodes.Status404NotFound;
             ctx.Response.ContentType = "application/json";
-            
+
             var payload = ErrorFactory.NotFound(nfex);
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
@@ -57,10 +57,14 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         {
             ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
             ctx.Response.ContentType = "application/json";
-            
+
             var payload = ErrorFactory.WrongPassword();
-            
+
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
+        }
+        catch (OperationCanceledException operationCanceledException)
+        {
+            logger.LogInformation(operationCanceledException, "Operation Canceled {Path}", ctx.Request.Path);
         }
         catch (Exception ex)
         {

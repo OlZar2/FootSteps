@@ -13,12 +13,14 @@ namespace FS.Core.AnimalAnnouncementBC;
 public class MissingAnnouncement : PetAnnouncement
 {
     private readonly List<SpottedLocation> _spottedLocations = [];
+    private readonly List<FoundReport> _foundReports = [];
     
     public string PetName { get; private set; }
     
     public MissingAnnouncementDeleteReason DeleteReason { get; private set; }
     
     public IReadOnlyList<SpottedLocation> SpottedLocations => _spottedLocations;
+    public IReadOnlyList<FoundReport> FoundReports => _foundReports;
     
     private MissingAnnouncement(
         string? street,
@@ -124,8 +126,15 @@ public class MissingAnnouncement : PetAnnouncement
             MissingAnnouncementId: Id));
     }
     
-    public void ReportFound(Guid foundUserId)
+    public void ReportFound(Guid foundUserId, List<FSImage> images)
     {
+        var foundReport = FoundReport.Create(
+            foundUserId: foundUserId,
+            images: images,
+            missingAnnouncementId: Id);
+        
+        _foundReports.Add(foundReport);
+            
         AddDomainEvent(new ReportFoundDomainEvent(
             AnnouncementId: Id,
             FoundUserId: foundUserId));

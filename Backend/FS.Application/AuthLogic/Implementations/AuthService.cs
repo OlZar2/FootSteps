@@ -68,6 +68,11 @@ public class AuthService(
             var account = await userRepository.GetByEmailAsync(loginData.Email, ct);
             passwordHasher.VerifyPassword(loginData.Password, account.PasswordHash);
 
+            if (!account.IsEmailConfirmed)
+            {
+                throw new EmailNotConfirmedException();
+            }
+
             var token = jwtProvider.GenerateToken(account.Id);
             return new JwtData(token);
         }
@@ -75,6 +80,18 @@ public class AuthService(
         {
             throw new WrongPasswordException();
         }
+    }
+
+    public async Task ConfirmEmailAsync(Guid userId, string token, CancellationToken ct)
+    {
+        await using var transaction = await transactionFactory.BeginAsync(ct);
+
+        var user = await userRepository.GetByIdAsync(userId, ct);
+        user.ConfirmEmail(token);
+
+        await userRepository.UpdateAsync(user, ct);
+
+        await transaction.CommitAsync(ct);
     }
 
     public async Task<UserMainInfo> GetMeAsync(Guid userId, CancellationToken ct)

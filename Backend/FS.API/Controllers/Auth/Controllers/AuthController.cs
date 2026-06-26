@@ -75,6 +75,18 @@ public class AuthController(
     }
 
     /// <summary>
+    /// Подтверждение почты пользователя
+    /// </summary>
+    [HttpGet("confirm-email")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task ConfirmEmail([FromQuery] Guid userId, [FromQuery] string token, CancellationToken ct)
+    {
+        await authService.ConfirmEmailAsync(userId, token, ct);
+    }
+
+    /// <summary>
     /// Логин
     /// </summary>
     [HttpPost("login")]

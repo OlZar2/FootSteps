@@ -53,14 +53,14 @@ public class PushNotificationPipelineHandler(
                     //TODO: подумать о правильности вызова saveChanges после каждого пуша
                     await notificationRepository.SaveChangesAsync(ct);
                 }
-                catch (NotificationDeliveryException ex)
+                catch (NotificationDeliveryException)
                 {
                     notification.MarkDeliveryAsFailed(device.DeliveryId);
                     hasErrors = true;
                     await notificationRepository.SaveChangesAsync(ct);
                 }
             }
-            
+
             if (hasErrors)
             {
                 throw new NotificationDeliveryException();

@@ -93,8 +93,12 @@ public static class DependencyInjection
     {
         services
             .AddHostedService<NotificationsOutboxWorker>();
-        
-        services.AddScoped<INotificationPipelineHandler, PushNotificationPipelineHandler>();
+
+        services.AddScoped<INotificationPipelineHandler>(sp =>
+        {
+            var pushHandler = ActivatorUtilities.CreateInstance<PushNotificationPipelineHandler>(sp);
+            return ActivatorUtilities.CreateInstance<EmailNotificationPipelineHandler>(sp, pushHandler);
+        });
         
         return services;
     }

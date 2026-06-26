@@ -4,5 +4,6 @@ public enum NotificationType
 {
     MissingAnnouncementCreated,
     ReportSpotted,
-    ReportFound
+    ReportFound,
+    EmailConfirmation
 }

@@ -44,6 +44,15 @@ public static class ErrorFactory
             [
                 new ErrorDetail(field: "", issue: IssueCodes.InvalidCredentials, "Неверный логин или пароль")
             ]);
+
+    public static ErrorEnvelope EmailNotConfirmed() =>
+        new(
+            code: "UNAUTHORIZED",
+            message: "Почта не подтверждена.",
+            details:
+            [
+                new ErrorDetail(field: "", issue: IssueCodes.EmailNotConfirmed, "Подтвердите почту перед входом")
+            ]);
     
     public static ErrorEnvelope BadCoordinates() =>
         new(

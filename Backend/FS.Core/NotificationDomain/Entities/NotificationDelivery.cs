@@ -8,6 +8,8 @@ public class NotificationDelivery : Entity
     public Guid NotificationId { get; private set; }
     
     public Guid? UserDeviceId { get; private set; }
+
+    public string? RecipientEmail { get; private set; }
     
     public NotificationChannel Channel { get; private set; }
     
@@ -26,11 +28,13 @@ public class NotificationDelivery : Entity
     private NotificationDelivery(
         Guid notificationId,
         Guid? userDeviceId,
+        string? recipientEmail,
         NotificationChannel channel,
         Guid? id = null) : base(id ?? Guid.NewGuid())
     {
         NotificationId = notificationId;
         UserDeviceId = userDeviceId;
+        RecipientEmail = recipientEmail;
         Channel = channel;
 
         Status = DeliveryStatus.Pending;
@@ -48,7 +52,21 @@ public class NotificationDelivery : Entity
         if (notificationId == Guid.Empty)
             throw new ArgumentException("NotificationId is required.", nameof(notificationId));
         
-        return new NotificationDelivery(notificationId, userDeviceId, channel, id);
+        return new NotificationDelivery(notificationId, userDeviceId, null, channel, id);
+    }
+
+    public static NotificationDelivery CreateEmail(
+        Guid notificationId,
+        string recipientEmail,
+        Guid? id = null)
+    {
+        if (notificationId == Guid.Empty)
+            throw new ArgumentException("NotificationId is required.", nameof(notificationId));
+
+        if (string.IsNullOrWhiteSpace(recipientEmail))
+            throw new ArgumentException("RecipientEmail is required.", nameof(recipientEmail));
+
+        return new NotificationDelivery(notificationId, null, recipientEmail, NotificationChannel.Email, id);
     }
 
     public void MarkAsSent()

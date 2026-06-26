@@ -9,6 +9,7 @@ using FS.API.Middlewares.Errors;
 using FS.API.Middlewares.Telemetry;
 using FS.API.SecretsLoader;
 using FS.Application;
+using FS.Email;
 using FS.Firebase;
 using FS.JWT;
 using FS.Persistence;
@@ -31,6 +32,7 @@ services
     .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
     .AddOutboxHandling()
     .AddConfiguration(builder.Configuration)
+    .AddEmail(builder.Configuration)
     .AddJwtAuth(builder.Configuration)
     .AddFirebase()
     .AddRabbitMq()

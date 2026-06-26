@@ -3,6 +3,7 @@ using FS.Core.Exceptions;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.Abstractions;
 using FS.Core.UserDomain.Entities;
+using FS.Core.UserDomain.Events;
 using FS.Core.UserDomain.UserPolicies;
 using FS.Core.UserDomain.ValueObjects;
 using NetTopologySuite.Geometries;
@@ -26,6 +27,10 @@ public class User : AggregateRoot
     public Email Email { get; private set; }
     
     public string PasswordHash { get; private set; }
+
+    public bool IsEmailConfirmed { get; private set; }
+
+    public string? EmailConfirmationToken { get; private set; }
     
     public Point? LastCoordinates { get; private set; }
     
@@ -44,6 +49,8 @@ public class User : AggregateRoot
         Description = description;
         AvatarImage = avatarImage;
         AvatarImageId = avatarImage?.Id;
+        IsEmailConfirmed = false;
+        EmailConfirmationToken = Guid.NewGuid().ToString("N");
         _contacts = contacts;
     }
     
@@ -62,7 +69,7 @@ public class User : AggregateRoot
         EnsureUniqueKinds(initialContacts);
         var contacts = initialContacts.Select(ic => UserContact.Create(ic.ContactType, ic.Url)).ToList();
 
-        return new User(
+        var user = new User(
             email,
             passwordHash,
             fullName,
@@ -71,6 +78,29 @@ public class User : AggregateRoot
             contacts,
             id
         );
+
+        user.AddDomainEvent(new UserRegisteredDomainEvent(
+            user.Id,
+            user.Email.Value,
+            user.EmailConfirmationToken!));
+
+        return user;
+    }
+
+    public void ConfirmEmail(string confirmationToken)
+    {
+        if (IsEmailConfirmed)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(confirmationToken) || EmailConfirmationToken != confirmationToken)
+        {
+            throw new DomainException(IssueCodes.InvalidValue, "email confirmation token is invalid.", "token");
+        }
+
+        IsEmailConfirmed = true;
+        EmailConfirmationToken = null;
     }
 
     public void UpdateFullName(Guid editorId, FullName fullName, IEditUserPolicy editUserPolicy)

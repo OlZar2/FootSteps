@@ -101,11 +101,11 @@ public class AuthController(
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<ContentResult> ConfirmEmail([FromQuery] Guid userId, [FromQuery] string token, CancellationToken ct)
+    public async Task<IActionResult> ConfirmEmail([FromQuery] Guid userId, [FromQuery] string token, CancellationToken ct)
     {
         await authService.ConfirmEmailAsync(userId, token, ct);
 
-        return Content(EmailConfirmationPages.Success(), EmailConfirmationPages.ContentType);
+        return Redirect(EmailConfirmationPageRoutes.Success);
     }
 
     /// <summary>

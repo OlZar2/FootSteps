@@ -22,10 +22,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         }
         catch (UserForEmailConfirmationNotFoundException)
         {
-            ctx.Response.StatusCode = StatusCodes.Status404NotFound;
-            ctx.Response.ContentType = EmailConfirmationPages.ContentType;
-
-            await ctx.Response.WriteAsync(EmailConfirmationPages.UserNotFoundError(), ctx.RequestAborted);
+            ctx.Response.Redirect(EmailConfirmationPageRoutes.UserNotFound);
         }
         catch (ValidationException vex)
         {

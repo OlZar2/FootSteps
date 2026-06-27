@@ -1,0 +1,17 @@
+@page "/email-confirmation/success"
+@{
+    Layout = "/Pages/Shared/_EmailConfirmationLayout.cshtml";
+    ViewData["Title"] = "Почта подтверждена";
+    ViewData["Status"] = "Готово";
+    ViewData["Action"] = "Открыть приложение";
+    ViewData["IsSuccess"] = true;
+}
+
+@section Mark {
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5"></path>
+    </svg>
+}
+
+<h1 id="email-confirmation-title">Почта подтверждена</h1>
+<p>Теперь можно вернуться в приложение и войти в аккаунт.</p>

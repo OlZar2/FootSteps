@@ -15,6 +15,8 @@ public static class ControllersConfiguration
             })
             .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
+        services.AddRazorPages();
+
         services.AddValidatorsFromAssemblyContaining<RegisterRMValidator>();
         
         return services;

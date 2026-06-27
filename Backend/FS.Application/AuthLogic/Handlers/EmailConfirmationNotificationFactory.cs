@@ -1,4 +1,3 @@
-using FS.Application.AuthLogic.Configurations;
 using FS.Core.Enums.Notifications;
 using FS.Core.NotificationDomain;
 using FS.Core.NotificationDomain.Entities;
@@ -10,14 +9,12 @@ internal static class EmailConfirmationNotificationFactory
     public static Notification Create(
         Guid userId,
         string email,
-        string emailConfirmationToken,
-        EmailConfirmationOptions options)
+        string emailConfirmationToken)
     {
-        var confirmationUrl = BuildConfirmationUrl(userId, emailConfirmationToken, options);
         var notification = Notification.Create(
             NotificationType.EmailConfirmation,
             "Подтверждение почты",
-            $"Для завершения регистрации подтвердите почту: {confirmationUrl}",
+            emailConfirmationToken,
             [NotificationChannel.Email],
             userId);
 
@@ -25,15 +22,5 @@ internal static class EmailConfirmationNotificationFactory
         notification.SetDeliveries([delivery]);
 
         return notification;
-    }
-
-    private static string BuildConfirmationUrl(
-        Guid userId,
-        string emailConfirmationToken,
-        EmailConfirmationOptions options)
-    {
-        return options.ConfirmationUrlTemplate
-            .Replace("{userId}", Uri.EscapeDataString(userId.ToString()))
-            .Replace("{token}", Uri.EscapeDataString(emailConfirmationToken));
     }
 }

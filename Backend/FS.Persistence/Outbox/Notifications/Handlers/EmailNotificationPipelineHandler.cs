@@ -42,6 +42,10 @@ public class EmailNotificationPipelineHandler(
                 var email = new EmailNotificationDto
                 {
                     Type = notification.Type,
+                    TargetEntityId = notification.TargetEntityId,
+                    EmailConfirmationToken = notification.Type == NotificationType.EmailConfirmation
+                        ? notification.Text
+                        : null,
                     RecipientEmail = delivery.RecipientEmail,
                     Subject = notification.Subject,
                     Body = notification.Text,

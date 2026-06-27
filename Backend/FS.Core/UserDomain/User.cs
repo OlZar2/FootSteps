@@ -99,7 +99,7 @@ public class User : AggregateRoot
 
         if (string.IsNullOrWhiteSpace(confirmationToken) || EmailConfirmationToken != confirmationToken)
         {
-            throw new DomainException(IssueCodes.InvalidValue, "email confirmation token is invalid.", "token");
+            throw new InvalidEmailConfirmationTokenException(Id, nameof(confirmationToken));
         }
 
         IsEmailConfirmed = true;

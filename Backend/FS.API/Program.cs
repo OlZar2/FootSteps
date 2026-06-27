@@ -66,6 +66,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapControllers();
+app.MapRazorPages();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<ErrorHandlingMiddleware>();

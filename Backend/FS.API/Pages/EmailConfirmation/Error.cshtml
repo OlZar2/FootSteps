@@ -1,0 +1,9 @@
+@page "/email-confirmation/error"
+@{
+    Layout = "/Pages/Shared/_EmailConfirmationLayout.cshtml";
+    Response.StatusCode = 400;
+    ViewData["Title"] = "Не удалось подтвердить почту";
+}
+
+<h1 id="email-confirmation-title">Ссылка не сработала</h1>
+<p>Проверьте письмо или запросите новую ссылку для подтверждения почты.</p>

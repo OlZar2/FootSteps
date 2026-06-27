@@ -2,6 +2,7 @@
 using System.Text.Json;
 using FluentValidation;
 using FS.API.Errors;
+using FS.API.Pages;
 using FS.Application.AuthLogic.Exceptions;
 using FS.Application.ImageLogic.Exceptions;
 using FS.Application.Shared.Exceptions;
@@ -18,6 +19,14 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         try
         {
             await next(ctx);
+        }
+        catch (UserForEmailConfirmationNotFoundException)
+        {
+            ctx.Response.Redirect(EmailConfirmationPageRoutes.Error);
+        }
+        catch (InvalidEmailConfirmationTokenException)
+        {
+            ctx.Response.Redirect(EmailConfirmationPageRoutes.Error);
         }
         catch (ValidationException vex)
         {

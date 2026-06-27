@@ -13,10 +13,10 @@ public static class DependencyInjection
         services.Configure<SmtpEmailOptions>(
             configuration.GetSection(nameof(SmtpEmailOptions)));
 
-        services.AddSingleton<HtmlRenderer>();
-        services.AddSingleton<HtmlEmailRenderer>();
-        services.AddSingleton<IEmailMessageBodyFactory, RazorEmailMessageBodyFactory>();
-        services.AddSingleton<IEmailNotificationSender, SmtpEmailNotificationSender>();
+        services.AddScoped<HtmlRenderer>();
+        services.AddScoped<HtmlEmailRenderer>();
+        services.AddScoped<IEmailMessageBodyFactory, RazorEmailMessageBodyFactory>();
+        services.AddScoped<IEmailNotificationSender, SmtpEmailNotificationSender>();
 
         return services;
     }

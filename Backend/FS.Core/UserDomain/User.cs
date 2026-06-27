@@ -116,10 +116,7 @@ public class User : AggregateRoot
 
         if (string.IsNullOrWhiteSpace(EmailConfirmationToken))
         {
-            throw new DomainException(
-                IssueCodes.InvalidValue,
-                "email confirmation token is missing.",
-                nameof(EmailConfirmationToken));
+            EmailConfirmationToken = Guid.NewGuid().ToString("N");
         }
 
         if (EmailConfirmationLastSentAt.HasValue &&

@@ -41,6 +41,7 @@ public class EmailNotificationPipelineHandler(
 
                 var email = new EmailNotificationDto
                 {
+                    Type = notification.Type,
                     RecipientEmail = delivery.RecipientEmail,
                     Subject = notification.Subject,
                     Body = notification.Text,

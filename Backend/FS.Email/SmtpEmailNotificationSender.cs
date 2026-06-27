@@ -11,7 +11,8 @@ namespace FS.Email;
 
 public class SmtpEmailNotificationSender(
     IOptions<SmtpEmailOptions> options,
-    ILogger<SmtpEmailNotificationSender> logger) : IEmailNotificationSender
+    ILogger<SmtpEmailNotificationSender> logger,
+    IEmailMessageBodyFactory emailMessageBodyFactory) : IEmailNotificationSender
 {
     public async Task SendAsync(EmailNotificationDto notification, CancellationToken ct)
     {
@@ -39,10 +40,7 @@ public class SmtpEmailNotificationSender(
             message.From.Add(new MailboxAddress(smtpOptions.FromName, smtpOptions.FromEmail));
             message.To.Add(MailboxAddress.Parse(notification.RecipientEmail));
             message.Subject = notification.Subject;
-            message.Body = new TextPart("plain")
-            {
-                Text = notification.Body
-            };
+            message.Body = (await emailMessageBodyFactory.CreateAsync(notification, ct)).ToMimeEntity();
 
             using var client = new SmtpClient();
             var socketOptions = smtpOptions.UseSsl

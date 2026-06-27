@@ -1,4 +1,6 @@
 using FS.Application.Interfaces.Notifications;
+using FS.Email.Templates;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +13,10 @@ public static class DependencyInjection
         services.Configure<SmtpEmailOptions>(
             configuration.GetSection(nameof(SmtpEmailOptions)));
 
-        services.AddSingleton<IEmailNotificationSender, SmtpEmailNotificationSender>();
+        services.AddScoped<HtmlRenderer>();
+        services.AddScoped<HtmlEmailRenderer>();
+        services.AddScoped<IEmailMessageBodyFactory, RazorEmailMessageBodyFactory>();
+        services.AddScoped<IEmailNotificationSender, SmtpEmailNotificationSender>();
 
         return services;
     }

@@ -22,7 +22,11 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         }
         catch (UserForEmailConfirmationNotFoundException)
         {
-            ctx.Response.Redirect(EmailConfirmationPageRoutes.UserNotFound);
+            ctx.Response.Redirect(EmailConfirmationPageRoutes.Error);
+        }
+        catch (InvalidEmailConfirmationTokenException)
+        {
+            ctx.Response.Redirect(EmailConfirmationPageRoutes.Error);
         }
         catch (ValidationException vex)
         {

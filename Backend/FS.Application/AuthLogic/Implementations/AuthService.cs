@@ -100,7 +100,14 @@ public class AuthService(
 
         var user = await userRepository.GetByIdAsync(userId, ct)
                    ?? throw new UserForEmailConfirmationNotFoundException(userId);
-        user.ConfirmEmail(token);
+        try
+        {
+            user.ConfirmEmail(token);
+        }
+        catch (DomainException ex) when (ex.Issue == IssueCodes.InvalidValue && ex.Field == "token")
+        {
+            throw new InvalidEmailConfirmationTokenException(userId);
+        }
 
         await userRepository.UpdateAsync(user, ct);
 

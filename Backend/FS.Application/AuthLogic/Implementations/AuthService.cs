@@ -98,7 +98,8 @@ public class AuthService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
 
-        var user = await userRepository.GetByIdAsync(userId, ct);
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new UserForEmailConfirmationNotFoundException(userId);
         user.ConfirmEmail(token);
 
         await userRepository.UpdateAsync(user, ct);

@@ -4,9 +4,11 @@ using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Shared.Configurations;
 using FS.Application.Shared.DTOs;
+using FS.Application.Shared.Exceptions;
 using FS.Application.UserLogic.DTOs;
 using FS.Application.UserLogic.Interfaces;
 using FS.Core.ImageDomain.Entities;
+using FS.Core.UserDomain;
 using FS.Core.UserDomain.Entities;
 using FS.Core.UserDomain.Stores;
 using FS.Core.UserDomain.UserPolicies;
@@ -84,7 +86,8 @@ public class UserService(
 
     public async Task UpdateUserLocation(Guid userId, CoordinatesDto coordinates, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct);
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new NotFoundException(nameof(User), userId);
         
         var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
         var point = geometryFactory.CreatePoint(new Coordinate(

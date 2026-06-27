@@ -2,6 +2,7 @@
 using System.Text.Json;
 using FluentValidation;
 using FS.API.Errors;
+using FS.API.Pages;
 using FS.Application.AuthLogic.Exceptions;
 using FS.Application.ImageLogic.Exceptions;
 using FS.Application.Shared.Exceptions;
@@ -18,6 +19,13 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         try
         {
             await next(ctx);
+        }
+        catch (UserForEmailConfirmationNotFoundException)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+            ctx.Response.ContentType = EmailConfirmationPages.ContentType;
+
+            await ctx.Response.WriteAsync(EmailConfirmationPages.UserNotFoundError(), ctx.RequestAborted);
         }
         catch (ValidationException vex)
         {

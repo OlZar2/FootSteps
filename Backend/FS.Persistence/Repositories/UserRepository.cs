@@ -30,11 +30,10 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
                ?? throw new NotFoundException(nameof(User), id);
     }
 
-    public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Users
-                   .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
-               ?? throw new NotFoundException(nameof(User), id);
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
     
     public async Task<User> GetByIdWithAvatarAsync(Guid id, CancellationToken cancellationToken)

@@ -12,7 +12,7 @@ public interface IUserRepository
     
     Task<User> GetByIdWithContactsAsync(Guid id, CancellationToken ct);
     
-    Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
     Task UpdateAsync(User user, CancellationToken cancellationToken);
 

@@ -2,6 +2,7 @@
 using FluentValidation;
 using FS.API.Controllers.Auth.RequestModels;
 using FS.API.Errors;
+using FS.API.Pages;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.AuthLogic.DTOs;
 using FS.Application.AuthLogic.Interfaces;
@@ -100,9 +101,11 @@ public class AuthController(
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task ConfirmEmail([FromQuery] Guid userId, [FromQuery] string token, CancellationToken ct)
+    public async Task<ContentResult> ConfirmEmail([FromQuery] Guid userId, [FromQuery] string token, CancellationToken ct)
     {
         await authService.ConfirmEmailAsync(userId, token, ct);
+
+        return Content(EmailConfirmationPages.Success(), EmailConfirmationPages.ContentType);
     }
 
     /// <summary>

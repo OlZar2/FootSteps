@@ -21,6 +21,14 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
                .FirstOrDefaultAsync(u => u.Id == id, ct)
                ?? throw new NotFoundException(nameof(User), id);
     }
+
+    public async Task<User> GetByIdWithRolesAsync(Guid id, CancellationToken ct)
+    {
+        return await context.Users
+                   .Include(u => u.Roles)
+                   .FirstOrDefaultAsync(u => u.Id == id, ct)
+               ?? throw new NotFoundException(nameof(User), id);
+    }
     
     public async Task<User> GetByIdWithDevicesAsync(Guid id, CancellationToken ct)
     {
@@ -49,9 +57,10 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return !await context.Users.Where(u => u.Email.Value == email).AnyAsync(cancellationToken);
     }
 
-    public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    public async Task<User> GetByEmailWithRolesAsync(string email, CancellationToken cancellationToken)
     {
         return await context.Users
+                   .Include(u => u.Roles)
                    .Where(u => u.Email.Value == email)
                    .FirstOrDefaultAsync(cancellationToken)
             ?? throw new NotFoundException(nameof(User), email);

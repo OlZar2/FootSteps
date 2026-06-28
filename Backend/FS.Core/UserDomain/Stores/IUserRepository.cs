@@ -6,11 +6,13 @@ public interface IUserRepository
     
     Task<bool> IsEmailUnique(string email, CancellationToken cancellationToken);
 
-    Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken);
+    Task<User> GetByEmailWithRolesAsync(string email, CancellationToken cancellationToken);
 
     Task<User> GetByEmailForUpdateAsync(string email, CancellationToken cancellationToken);
     
     Task<User> GetByIdWithContactsAsync(Guid id, CancellationToken ct);
+
+    Task<User> GetByIdWithRolesAsync(Guid id, CancellationToken ct);
     
     Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     

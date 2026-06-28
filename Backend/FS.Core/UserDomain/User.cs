@@ -3,6 +3,7 @@ using FS.Core.Exceptions;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.Shared.Abstractions;
 using FS.Core.UserDomain.Entities;
+using FS.Core.UserDomain.Enums;
 using FS.Core.UserDomain.Events;
 using FS.Core.UserDomain.UserPolicies;
 using FS.Core.UserDomain.ValueObjects;
@@ -14,8 +15,10 @@ public class User : AggregateRoot
 {
     private readonly List<UserContact> _contacts = [];
     private readonly List<UserDevice> _userDevices = [];
+    private readonly List<UserRole> _roles = [];
     public IReadOnlyCollection<UserContact> Contacts => _contacts.AsReadOnly();
     public IReadOnlyCollection<UserDevice> UserDevices => _userDevices.AsReadOnly();
+    public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
     
     public FullName FullName { get; private set; }
     
@@ -55,6 +58,7 @@ public class User : AggregateRoot
         EmailConfirmationToken = Guid.NewGuid().ToString("N");
         EmailConfirmationLastSentAt = DateTime.UtcNow;
         _contacts = contacts;
+        AssignRole(Role.User);
     }
     
     public static User Register(
@@ -190,6 +194,16 @@ public class User : AggregateRoot
     public void UpdateLastCoordinates(Point coordinates)
     {
         LastCoordinates = coordinates;
+    }
+
+    public void AssignRole(Role role)
+    {
+        if (_roles.Any(userRole => userRole.Role == role))
+        {
+            return;
+        }
+
+        _roles.Add(UserRole.Create(Id, role));
     }
 
     private static void EnsureUniqueKinds(InitialContact[]? contacts)

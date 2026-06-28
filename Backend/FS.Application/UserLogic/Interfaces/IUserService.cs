@@ -13,6 +13,8 @@ public interface IUserService
     Task UpdateUserLocation(Guid userId, CoordinatesDto coordinates, CancellationToken ct);
     
     Task AddDevice(Guid userId, string deviceToken, CancellationToken ct);
+
+    Task AssignAdminRoleAsync(Guid userId, CancellationToken ct);
     
     Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct);
 }

@@ -10,6 +10,7 @@ using FS.Application.UserLogic.Interfaces;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.UserDomain;
 using FS.Core.UserDomain.Entities;
+using FS.Core.UserDomain.Enums;
 using FS.Core.UserDomain.Stores;
 using FS.Core.UserDomain.UserPolicies;
 using FS.Core.UserDomain.ValueObjects;
@@ -112,6 +113,15 @@ public class UserService(
         userAddingDevice.AddOrActivateDevice(userDevice);
         
         await userRepository.UpdateAsync(userAddingDevice, ct);
+    }
+
+    public async Task AssignAdminRoleAsync(Guid userId, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdWithRolesAsync(userId, ct);
+
+        user.AssignRole(Role.Admin);
+
+        await userRepository.UpdateAsync(user, ct);
     }
 
     public async Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct) =>

@@ -124,6 +124,16 @@ public class UserController(
     }
 
     /// <summary>
+    /// Назначить пользователю роль администратора
+    /// </summary>
+    [Authorize(Roles = nameof(Role.Admin))]
+    [HttpPost("{userId:guid}/roles/admin")]
+    public async Task AssignAdminRole(Guid userId, CancellationToken ct)
+    {
+        await userService.AssignAdminRoleAsync(userId, ct);
+    }
+
+    /// <summary>
     /// Возвращает профиль пользователя
     /// </summary>
     /// <param name="userId">id пользователя</param>

@@ -15,6 +15,8 @@ public interface IUserService
     Task AddDevice(Guid userId, string deviceToken, CancellationToken ct);
 
     Task AssignAdminRoleAsync(Guid userId, CancellationToken ct);
+
+    Task RemoveAdminRoleAsync(Guid userId, CancellationToken ct);
     
     Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct);
 }

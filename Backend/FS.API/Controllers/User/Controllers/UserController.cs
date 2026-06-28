@@ -134,6 +134,16 @@ public class UserController(
     }
 
     /// <summary>
+    /// Удалить у пользователя роль администратора
+    /// </summary>
+    [Authorize(Roles = nameof(Role.Admin))]
+    [HttpDelete("{userId:guid}/roles/admin")]
+    public async Task RemoveAdminRole(Guid userId, CancellationToken ct)
+    {
+        await userService.RemoveAdminRoleAsync(userId, ct);
+    }
+
+    /// <summary>
     /// Возвращает профиль пользователя
     /// </summary>
     /// <param name="userId">id пользователя</param>

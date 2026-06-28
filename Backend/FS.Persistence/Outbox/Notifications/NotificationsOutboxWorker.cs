@@ -41,6 +41,7 @@ public class NotificationsOutboxWorker(
                     {
                         try
                         {
+                            //TODO: возможно если почта или что-то другое будет отправляться долго, то не успеет все обработать. Мб сделать Task.WhenAll или чоли
                             await notificationPipelineHandler.HandleNotificationAsync(notification, ct);
                             notification.MarkAsCompleted();
                         }

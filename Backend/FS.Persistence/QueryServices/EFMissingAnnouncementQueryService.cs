@@ -5,6 +5,7 @@ using FS.Application.Shared.DTOs;
 using FS.Application.Shared.Exceptions;
 using FS.Application.UserLogic.DTOs;
 using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Specifications;
 using FS.Persistence.Context;
 using FS.Persistence.Extensions;
@@ -31,7 +32,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
             .Where(ma => ma.CreatedAt < lastDateTime)
-            .Where(ma => !ma.IsCompleted && !ma.IsDeleted)
+            .Where(ma => !ma.IsCompleted && ma.DeleteType == null)
             .Take(20)
             .Select(a => new MissingAnnouncementFeed
             {
@@ -90,7 +91,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                     from sa in context.SimilarAnnouncements
                     join ann in context.StreetPetAnnouncements 
                         on sa.StreetPetAnnouncementId equals ann.Id
-                    where sa.MissingAnnouncementId == a.Id
+                    where sa.MissingAnnouncementId == a.Id && ann.DeleteType == null
                     select new SimilarMapAnnouncementProjection
                     {
                         Id = ann.Id,
@@ -113,7 +114,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
         
         return await context.MissingAnnouncements
             .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
-            .Where(ma => !ma.IsDeleted)
+            .Where(ma => ma.DeleteType != DeleteType.UserCancel)
             .OrderByDescending(ma => ma.CreatedAt)
             .Select(ma => new MyAnnouncementFeed
             {   
@@ -123,6 +124,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 District = ma.District,
                 Street = ma.Street,
                 Breed = ma.Breed,
+                IsDeletedByAdmin = ma.DeleteType == DeleteType.AdminHide,
                 MainImagePath = ma.Images.First().FullImagePath,
             })
             .Take(20)

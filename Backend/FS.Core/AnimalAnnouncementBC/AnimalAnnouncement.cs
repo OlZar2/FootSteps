@@ -33,7 +33,7 @@ public abstract class AnimalAnnouncement : AggregateRoot
     
     public DateTime EventDate { get; private set; }
     
-    public bool IsDeleted { get; protected set; } = false;
+    public DeleteType? DeleteType { get; protected set; }
 
     protected AnimalAnnouncement(
         List<FSImage> images,
@@ -64,6 +64,24 @@ public abstract class AnimalAnnouncement : AggregateRoot
         var image = _images.FirstOrDefault(i => i.Id == imageId)
             ?? throw new DomainException(IssueCodes.NotFound, $"image by id {imageId} not found.");
         image.SetEmbedding(vector);
+    }
+
+    public void HideByAdmin()
+    {
+        DeleteType = Enums.DeleteType.AdminHide;
+    }
+
+    protected void CancelByUser()
+    {
+        if (DeleteType == Enums.DeleteType.AdminHide)
+            throw new DomainException(
+                IssueCodes.Announcement.DeletedByAdmin,
+                "Объявление удалено по причинам модерации");
+
+        if (DeleteType == Enums.DeleteType.UserCancel)
+            throw new DomainException(IssueCodes.Announcement.AlreadyCancelled, "Объявление уже отменено");
+
+        DeleteType = Enums.DeleteType.UserCancel;
     }
     
     protected virtual void OnImageEmbeddingUpdated(Guid imageId)

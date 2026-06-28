@@ -20,6 +20,7 @@ namespace FS.Application.FindAnnouncementLogic.Implementations;
 public class FindAnnouncementService(
     IFindAnnouncementRepository findAnnouncementRepository,
     IFindAnnouncementQueryService findAnnouncementQueryService,
+    IAnimalAnnouncementQueryService animalAnnouncementQueryService,
     ITransactionFactory transactionFactory,
     IImageStorageService imageStorageService,
     IOptions<S3StorageConfiguration> s3StorageOptions,
@@ -99,9 +100,10 @@ public class FindAnnouncementService(
 
     public async Task<FindAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
     {
-        var entity = await findAnnouncementQueryService.GetForPageByIdAsync(id, ct);
-        
-        return entity;
+        var deleteType = await animalAnnouncementQueryService.GetDeleteTypeByIdAsync(id, ct);
+        AnimalAnnouncementVisibilityPolicy.EnsureVisibleForPage(deleteType);
+
+        return await findAnnouncementQueryService.GetForPageByIdAsync(id, ct);
     }
     
     public async Task Cancel(DeleteFindAnnouncementData data, CancellationToken ct)

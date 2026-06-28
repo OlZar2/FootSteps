@@ -13,4 +13,12 @@ public class AnimalAnnouncementService(IAnimalAnnouncementRepository animalAnnou
 
         await animalAnnouncementRepository.SaveChangesAsync(ct);
     }
+
+    public async Task HideByAdminAsync(Guid announcementId, CancellationToken ct)
+    {
+        var announcement = await animalAnnouncementRepository.GetByIdAsync(announcementId, ct);
+        announcement.HideByAdmin();
+
+        await animalAnnouncementRepository.SaveChangesAsync(ct);
+    }
 }

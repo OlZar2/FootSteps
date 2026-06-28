@@ -12,6 +12,7 @@ public static class IssueCodes
     public static class Announcement
     {
         public const string AlreadyCancelled = "ALREADY_CANCELLED";
+        public const string DeletedByAdmin = "DELETED_BY_ADMIN";
     }
 
     public static class Coordinates

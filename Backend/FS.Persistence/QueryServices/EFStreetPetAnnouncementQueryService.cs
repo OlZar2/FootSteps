@@ -28,6 +28,7 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
         var items = await query
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
+            .Where(ma => ma.DeleteType == null)
             .Where(ma => ma.CreatedAt < lastDateTime)
             .Take(20)
             .Select(fa => new StreetPetAnnouncementFeedProjection

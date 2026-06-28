@@ -34,6 +34,7 @@ public static class DependencyInjection
             .AddScoped<INotificationRepository, EFNotificationRepository>()
             .AddScoped<ISimilarAnnouncementRepository, EFSimilarAnnouncementRepository>()
             .AddScoped<IAnimalAnnouncementRepository, EFAnimalAnnouncementRepository>()
+            .AddScoped<IAnnouncementReportRepository, EFAnnouncementReportRepository>()
             .AddScoped<IImageRepository, EFImageRepository>();
 
         services

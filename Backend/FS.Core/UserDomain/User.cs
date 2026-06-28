@@ -85,6 +85,8 @@ public class User : AggregateRoot
             contacts,
             id
         );
+        
+        user.AssignRole(Role.User);
 
         user.AddDomainEvent(new UserRegisteredDomainEvent(
             user.Id,

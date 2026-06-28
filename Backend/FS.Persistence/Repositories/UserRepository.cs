@@ -57,7 +57,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return !await context.Users.Where(u => u.Email.Value == email).AnyAsync(cancellationToken);
     }
 
-    public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    public async Task<User> GetByEmailWithRolesAsync(string email, CancellationToken cancellationToken)
     {
         return await context.Users
                    .Include(u => u.Roles)

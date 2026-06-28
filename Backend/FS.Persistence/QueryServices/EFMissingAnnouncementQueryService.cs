@@ -4,11 +4,9 @@ using FS.Application.MissingPetLogic.DTOs;
 using FS.Application.Shared.DTOs;
 using FS.Application.Shared.Exceptions;
 using FS.Application.UserLogic.DTOs;
-using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC;
 using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Specifications;
-using FS.Core.Exceptions;
 using FS.Persistence.Context;
 using FS.Persistence.Extensions;
 using FS.Persistence.Projections.MissingAnnouncement;
@@ -89,7 +87,6 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 EventDate = a.EventDate,
                 Description = a.Description,
                 PetName = a.PetName,
-                DeleteType = a.DeleteType,
                 SimilarAnnouncements = (
                     from sa in context.SimilarAnnouncements
                     join ann in context.StreetPetAnnouncements 
@@ -105,12 +102,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             }
         ).SingleOrDefaultAsync(ct);
 
-        if (page is null)
-            throw new NotFoundException("MissingAnnouncement", nameof(id));
-
-        EnsureNotDeletedByAdmin(page.DeleteType);
-
-        return ToPageDto(page);
+        return page is null ? throw new NotFoundException("MissingAnnouncement", nameof(id)) : ToPageDto(page);
     }
 
     public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(
@@ -197,14 +189,6 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 .Select(ToSimilarMapAnnouncement)
                 .ToArray()
         };
-    }
-
-    private static void EnsureNotDeletedByAdmin(DeleteType? deleteType)
-    {
-        if (deleteType == DeleteType.AdminHide)
-            throw new DomainException(
-                IssueCodes.Announcement.DeletedByAdmin,
-                "Объявление удалено по причинам модерации");
     }
 
     private static SimilarMapAnnouncement ToSimilarMapAnnouncement(

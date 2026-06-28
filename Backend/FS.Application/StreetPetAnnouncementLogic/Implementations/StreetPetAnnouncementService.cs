@@ -1,4 +1,5 @@
 ﻿using FS.Application.Interfaces.QueryServices;
+using FS.Application.AnnouncementLogic.Policies;
 using FS.Application.Interfaces.Storages;
 using FS.Application.Interfaces.Transaction;
 using FS.Application.Shared.Configurations;
@@ -21,6 +22,7 @@ public class StreetPetAnnouncementService(
     ITransactionFactory transactionFactory,
     IImageStorageService imageStorageService,
     IStreetPetAnnouncementQueryService streetPetAnnouncementQueryService,
+    IAnimalAnnouncementQueryService animalAnnouncementQueryService,
     IMissingAnnouncementRepository missingAnnouncementRepository,
     ILogger<StreetPetAnnouncementService> logger,
     ISimilarAnnouncementRepository similarAnnouncementRepository,
@@ -96,9 +98,10 @@ public class StreetPetAnnouncementService(
 
     public async Task<StreetPetAnnouncementPage> GetPageByIdAsync(Guid id, CancellationToken ct)
     {
-        var response = await streetPetAnnouncementQueryService.GetForPageByIdAsync(id, ct);
-        
-        return response;
+        var deleteType = await animalAnnouncementQueryService.GetDeleteTypeByIdAsync(id, ct);
+        AnimalAnnouncementVisibilityPolicy.EnsureVisibleForPage(deleteType);
+
+        return await streetPetAnnouncementQueryService.GetForPageByIdAsync(id, ct);
     }
 
     public async Task UpdateSimilarAnnouncementAsync(

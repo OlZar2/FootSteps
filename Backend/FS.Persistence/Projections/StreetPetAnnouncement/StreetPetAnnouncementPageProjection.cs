@@ -23,5 +23,4 @@ public class StreetPetAnnouncementPageProjection
     
     public required string? PlaceDescription { get; init; }
 
-    public DeleteType? DeleteType { get; init; }
 }

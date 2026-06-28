@@ -21,6 +21,7 @@ public class MissingAnnouncementService(
     IImageStorageService imageStorageService,
     ITransactionFactory transactionFactory,
     IMissingAnnouncementQueryService missingAnnouncementQueryService,
+    IAnimalAnnouncementQueryService animalAnnouncementQueryService,
     IOptions<S3StorageConfiguration> s3StorageOptions,
     ISpottedLocationsQueryService spottedLocationsQueryService,
     IFoundReportsQueryService foundReportsQueryService,
@@ -99,8 +100,13 @@ public class MissingAnnouncementService(
         await transaction.CommitAsync(ct);
     }
 
-    public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct) =>
-        await missingAnnouncementQueryService.GetForPageByIdAsync(id, ct);
+    public async Task<MissingAnnouncementPage> GetForPageByIdAsync(Guid id, CancellationToken ct)
+    {
+        var deleteType = await animalAnnouncementQueryService.GetDeleteTypeByIdAsync(id, ct);
+        AnimalAnnouncementVisibilityPolicy.EnsureVisibleForPage(deleteType);
+
+        return await missingAnnouncementQueryService.GetForPageByIdAsync(id, ct);
+    }
 
     public async Task Cancel(DeleteMissingAnnouncementData data, CancellationToken ct)
     {

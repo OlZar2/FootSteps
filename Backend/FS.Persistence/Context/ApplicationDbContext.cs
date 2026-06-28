@@ -25,6 +25,7 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
         modelBuilder.ApplyConfiguration(new MissingAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new StreetPetAnnouncementConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
         modelBuilder.ApplyConfiguration(new SearchRequestConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationDeliveryConfiguration());
@@ -62,6 +63,7 @@ public class ApplicationDbContext(DbContextOptions options, IDomainEventsDispatc
     public DbSet<MissingAnnouncement> MissingAnnouncements { get; set; } = null!;
     public DbSet<StreetPetAnnouncement> StreetPetAnnouncements { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<UserRole> UserRoles { get; set; } = null!;
     public DbSet<OutboxEvent> OutboxEvents { get; set; } = null!;
     public DbSet<SearchRequest> SearchRequests { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;

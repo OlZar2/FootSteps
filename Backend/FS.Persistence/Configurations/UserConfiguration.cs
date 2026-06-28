@@ -15,6 +15,11 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
         builder.HasMany(u => u.UserDevices)
             .WithOne()
             .HasForeignKey(ud => ud.UserId);
+
+        builder.HasMany(u => u.Roles)
+            .WithOne()
+            .HasForeignKey(ur => ur.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         builder.OwnsOne(u => u.Email, b =>
         {

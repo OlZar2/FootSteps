@@ -11,6 +11,8 @@ public interface IUserRepository
     Task<User> GetByEmailForUpdateAsync(string email, CancellationToken cancellationToken);
     
     Task<User> GetByIdWithContactsAsync(Guid id, CancellationToken ct);
+
+    Task<User> GetByIdWithRolesAsync(Guid id, CancellationToken ct);
     
     Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     

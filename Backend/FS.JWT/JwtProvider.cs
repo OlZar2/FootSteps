@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using FS.Application.Interfaces.Jwt;
+using FS.Core.UserDomain.Enums;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,9 +12,10 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
 
-    public string GenerateToken(Guid id)
+    public string GenerateToken(Guid id, IEnumerable<Role> roles)
     {
-        Claim[] claims = [new(ClaimTypes.NameIdentifier, id.ToString())];
+        var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, id.ToString()) };
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role.ToString())));
 
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), SecurityAlgorithms.HmacSha256);

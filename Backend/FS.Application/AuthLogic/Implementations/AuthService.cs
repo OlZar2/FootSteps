@@ -73,7 +73,7 @@ public class AuthService(
                 throw new EmailNotConfirmedException();
             }
 
-            var token = jwtProvider.GenerateToken(account.Id);
+            var token = jwtProvider.GenerateToken(account.Id, account.Roles.Select(userRole => userRole.Role));
             return new JwtData(token);
         }
         catch (NotFoundException)

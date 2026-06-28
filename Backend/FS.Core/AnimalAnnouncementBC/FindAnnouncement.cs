@@ -87,10 +87,7 @@ public class FindAnnouncement : PetAnnouncement
             throw new NotEnoughRightsException(IssueCodes.AccessDenied,
                 "Вы не явлвяетесь создателем объявления");
         
-        if (IsDeleted)
-            throw new DomainException(IssueCodes.Announcement.AlreadyCancelled, "Объявление уже отменено");
-
-        IsDeleted = true;
+        CancelByUser();
         DeleteReason = reason;
     }
     

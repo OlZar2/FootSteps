@@ -22,4 +22,6 @@ public class StreetPetAnnouncementPageProjection
     public required DateTime EventDate { get; init; }
     
     public required string? PlaceDescription { get; init; }
+
+    public DeleteType? DeleteType { get; init; }
 }

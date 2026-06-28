@@ -47,8 +47,8 @@ namespace FS.Migrations.Migrations
                     b.Property<string>("House")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                    b.Property<int?>("DeleteType")
+                        .HasColumnType("integer");
 
                     b.Property<Point>("Location")
                         .IsRequired()

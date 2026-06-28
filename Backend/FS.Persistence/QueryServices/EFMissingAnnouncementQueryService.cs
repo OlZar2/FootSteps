@@ -4,8 +4,11 @@ using FS.Application.MissingPetLogic.DTOs;
 using FS.Application.Shared.DTOs;
 using FS.Application.Shared.Exceptions;
 using FS.Application.UserLogic.DTOs;
+using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.Exceptions;
 using FS.Persistence.Context;
 using FS.Persistence.Extensions;
 using FS.Persistence.Projections.MissingAnnouncement;
@@ -31,7 +34,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
             .Where(ma => ma.CreatedAt < lastDateTime)
-            .Where(ma => !ma.IsCompleted && !ma.IsDeleted)
+            .Where(ma => !ma.IsCompleted && ma.DeleteType == null)
             .Take(20)
             .Select(a => new MissingAnnouncementFeed
             {
@@ -86,11 +89,12 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 EventDate = a.EventDate,
                 Description = a.Description,
                 PetName = a.PetName,
+                DeleteType = a.DeleteType,
                 SimilarAnnouncements = (
                     from sa in context.SimilarAnnouncements
                     join ann in context.StreetPetAnnouncements 
                         on sa.StreetPetAnnouncementId equals ann.Id
-                    where sa.MissingAnnouncementId == a.Id
+                    where sa.MissingAnnouncementId == a.Id && ann.DeleteType == null
                     select new SimilarMapAnnouncementProjection
                     {
                         Id = ann.Id,
@@ -101,7 +105,12 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
             }
         ).SingleOrDefaultAsync(ct);
 
-        return page is null ? throw new NotFoundException("MissingAnnouncement", nameof(id)) : ToPageDto(page);
+        if (page is null)
+            throw new NotFoundException("MissingAnnouncement", nameof(id));
+
+        EnsureNotDeletedByAdmin(page.DeleteType);
+
+        return ToPageDto(page);
     }
 
     public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(
@@ -113,7 +122,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
         
         return await context.MissingAnnouncements
             .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
-            .Where(ma => !ma.IsDeleted)
+            .Where(ma => ma.DeleteType != DeleteType.UserCancel)
             .OrderByDescending(ma => ma.CreatedAt)
             .Select(ma => new MyAnnouncementFeed
             {   
@@ -123,6 +132,7 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 District = ma.District,
                 Street = ma.Street,
                 Breed = ma.Breed,
+                IsDeletedByAdmin = ma.DeleteType == DeleteType.AdminHide,
                 MainImagePath = ma.Images.First().FullImagePath,
             })
             .Take(20)
@@ -187,6 +197,14 @@ public class EFMissingAnnouncementQueryService(ApplicationDbContext context) : I
                 .Select(ToSimilarMapAnnouncement)
                 .ToArray()
         };
+    }
+
+    private static void EnsureNotDeletedByAdmin(DeleteType? deleteType)
+    {
+        if (deleteType == DeleteType.AdminHide)
+            throw new DomainException(
+                IssueCodes.Announcement.DeletedByAdmin,
+                "Объявление удалено по причинам модерации");
     }
 
     private static SimilarMapAnnouncement ToSimilarMapAnnouncement(

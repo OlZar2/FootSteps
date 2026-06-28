@@ -4,8 +4,11 @@ using FS.Application.Interfaces.QueryServices;
 using FS.Application.Shared.DTOs;
 using FS.Application.Shared.Exceptions;
 using FS.Application.UserLogic.DTOs;
+using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.Exceptions;
 using FS.Persistence.Context;
 using FS.Persistence.Extensions;
 using FS.Persistence.Projections.FindAnnouncement;
@@ -32,7 +35,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
         return await query
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
-            .Where(ma => !ma.IsCompleted && !ma.IsDeleted)
+            .Where(ma => !ma.IsCompleted && ma.DeleteType == null)
             .Where(ma => ma.CreatedAt < lastDateTime)
             .Take(20)
             .Select(fa => new FindAnnouncementFeed
@@ -86,9 +89,15 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 Location = a.Location,
                 EventDate = a.EventDate,
                 Description = a.Description,
+                DeleteType = a.DeleteType,
             }).FirstOrDefaultAsync(ct);
         
-        return pageProjection is null ? throw new NotFoundException("MissingAnnouncement", nameof(id)) : ToPageDto(pageProjection);
+        if (pageProjection is null)
+            throw new NotFoundException("MissingAnnouncement", nameof(id));
+
+        EnsureNotDeletedByAdmin(pageProjection.DeleteType);
+
+        return ToPageDto(pageProjection);
     }
     
     public async Task<MyAnnouncementFeed[]> GetFeedForUserAsync(
@@ -101,7 +110,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
         return await context.FindAnnouncements
             .Where(ma => ma.CreatedAt < lastDateTime && ma.CreatorId == id)
             .OrderByDescending(ma => ma.CreatedAt)
-            .Where(ma => !ma.IsDeleted)
+            .Where(ma => ma.DeleteType != DeleteType.UserCancel)
             .Select(ma => new MyAnnouncementFeed
             {   
                 Id = ma.Id,
@@ -110,6 +119,7 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
                 District = ma.District,
                 Street = ma.Street,
                 Breed = ma.Breed,
+                IsDeletedByAdmin = ma.DeleteType == DeleteType.AdminHide,
                 MainImagePath = ma.Images.First().FullImagePath,
             })
             .Take(20)
@@ -135,5 +145,13 @@ public class EFFindAnnouncementQueryService(ApplicationDbContext context) : IFin
             EventDate = page.EventDate,
             Description = page.Description,
         };
+    }
+
+    private static void EnsureNotDeletedByAdmin(DeleteType? deleteType)
+    {
+        if (deleteType == DeleteType.AdminHide)
+            throw new DomainException(
+                IssueCodes.Announcement.DeletedByAdmin,
+                "Объявление удалено по причинам модерации");
     }
 }

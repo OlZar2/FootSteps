@@ -3,8 +3,11 @@ using FS.Application.Interfaces.QueryServices;
 using FS.Application.Shared.Exceptions;
 using FS.Application.StreetPetAnnouncementLogic.DTOs;
 using FS.Application.UserLogic.DTOs;
+using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC;
+using FS.Core.AnimalAnnouncementBC.Enums;
 using FS.Core.AnimalAnnouncementBC.Specifications;
+using FS.Core.Exceptions;
 using FS.Persistence.Context;
 using FS.Persistence.Extensions;
 using FS.Persistence.Projections.StreetPetAnnouncement;
@@ -28,6 +31,7 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
         var items = await query
             .OrderByDescending(ma => ma.CreatedAt)
             .Where(spec.Criteria)
+            .Where(ma => ma.DeleteType == null)
             .Where(ma => ma.CreatedAt < lastDateTime)
             .Take(20)
             .Select(fa => new StreetPetAnnouncementFeedProjection
@@ -79,9 +83,15 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
                 Location = a.Location,
                 EventDate = a.EventDate,
                 PlaceDescription = a.PlaceDescription,
+                DeleteType = a.DeleteType,
             }).SingleOrDefaultAsync(ct);
         
-        return pageProjection is null ? throw new NotFoundException(nameof(StreetPetAnnouncement), id) : ToPageDto(pageProjection);
+        if (pageProjection is null)
+            throw new NotFoundException(nameof(StreetPetAnnouncement), id);
+
+        EnsureNotDeletedByAdmin(pageProjection.DeleteType);
+
+        return ToPageDto(pageProjection);
     }
     
     private static StreetPetAnnouncementFeed ToFeedDto(StreetPetAnnouncementFeedProjection feedProjection)
@@ -115,5 +125,13 @@ public class EFStreetPetAnnouncementQueryService(ApplicationDbContext context) :
             EventDate = pageProjection.EventDate,
             PlaceDescription = pageProjection.PlaceDescription,
         };
+    }
+
+    private static void EnsureNotDeletedByAdmin(DeleteType? deleteType)
+    {
+        if (deleteType == DeleteType.AdminHide)
+            throw new DomainException(
+                IssueCodes.Announcement.DeletedByAdmin,
+                "Объявление удалено по причинам модерации");
     }
 }

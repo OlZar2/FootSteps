@@ -22,5 +22,6 @@ public class MissingAnnouncementPageProjection
     public DateTime EventDate { get; init; }
     public string? Description { get; init; }
     public required string PetName { get; init; }
+    public DeleteType? DeleteType { get; init; }
     public SimilarMapAnnouncementProjection[] SimilarAnnouncements { get; init; } = [];
 }

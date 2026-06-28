@@ -2,6 +2,8 @@
 using FS.Application.AnnouncementLogic.Implementations;
 using FS.Application.AnnouncementLogic.Interfaces;
 using FS.Application.AnnouncementLogic.Policies;
+using FS.Application.AnnouncementReportLogic.Implementations;
+using FS.Application.AnnouncementReportLogic.Interfaces;
 using FS.Application.AuthLogic.Handlers;
 using FS.Application.AuthLogic.Implementations;
 using FS.Application.AuthLogic.Interfaces;
@@ -43,6 +45,7 @@ public static class DependencyInjection
             .AddScoped<IUserService, UserService>()
             .AddScoped<ISearchService, SearchService>()
             .AddScoped<INotificationService, NotificationService>()
+            .AddScoped<IAnnouncementReportService, AnnouncementReportService>()
             .AddScoped<IAnimalAnnouncementService, AnimalAnnouncementService>();
 
         services

@@ -15,6 +15,12 @@ public class EFAnimalAnnouncementRepository(ApplicationDbContext context) : IAni
             .FirstOrDefaultAsync(ct) ?? throw new NotFoundException($"announcement by image {imageId} not found");
     }
 
+    public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct)
+    {
+        return await context.AnimalAnnouncements
+            .AnyAsync(aa => aa.Id == id, ct);
+    }
+
     public async Task SaveChangesAsync(CancellationToken ct)
     {
         await context.SaveChangesAsync(ct);

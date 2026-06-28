@@ -208,6 +208,17 @@ public class User : AggregateRoot
         _roles.Add(UserRole.Create(Id, role));
     }
 
+    public void RemoveRole(Role role)
+    {
+        var userRole = _roles.FirstOrDefault(userRole => userRole.Role == role);
+        if (userRole is null)
+        {
+            return;
+        }
+
+        _roles.Remove(userRole);
+    }
+
     private static void EnsureUniqueKinds(InitialContact[]? contacts)
     {
         if(contacts == null) return;

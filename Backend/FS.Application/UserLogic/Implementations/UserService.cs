@@ -124,6 +124,15 @@ public class UserService(
         await userRepository.UpdateAsync(user, ct);
     }
 
+    public async Task RemoveAdminRoleAsync(Guid userId, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdWithRolesAsync(userId, ct);
+
+        user.RemoveRole(Role.Admin);
+
+        await userRepository.UpdateAsync(user, ct);
+    }
+
     public async Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct) =>
         await userQueryService.GetUserMainInfoByIdAsync(userId, ct);
 }

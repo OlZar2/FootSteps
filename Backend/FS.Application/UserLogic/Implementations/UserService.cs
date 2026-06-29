@@ -133,6 +133,26 @@ public class UserService(
         await userRepository.UpdateAsync(user, ct);
     }
 
+    public async Task BlockUserAsync(Guid userId, string reason, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new NotFoundException(nameof(User), userId);
+
+        user.Block(reason, DateTime.UtcNow);
+
+        await userRepository.UpdateAsync(user, ct);
+    }
+
+    public async Task UnblockUserAsync(Guid userId, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new NotFoundException(nameof(User), userId);
+
+        user.Unblock();
+
+        await userRepository.UpdateAsync(user, ct);
+    }
+
     public async Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct) =>
         await userQueryService.GetUserMainInfoByIdAsync(userId, ct);
 }

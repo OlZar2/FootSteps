@@ -53,6 +53,15 @@ public static class ErrorFactory
             [
                 new ErrorDetail(field: "", issue: IssueCodes.EmailNotConfirmed, "Подтвердите почту перед входом")
             ]);
+
+    public static ErrorEnvelope UserBlocked(string reason) =>
+        new(
+            code: "UNAUTHORIZED",
+            message: "Пользователь заблокирован.",
+            details:
+            [
+                new ErrorDetail(field: nameof(reason), issue: IssueCodes.UserBlocked, reason)
+            ]);
     
     public static ErrorEnvelope BadCoordinates() =>
         new(

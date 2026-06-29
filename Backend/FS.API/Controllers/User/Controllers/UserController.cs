@@ -22,7 +22,8 @@ public class UserController(
     IClaimService claimService,
     IValidator<UpdateUserInfoRM> updateUserInfoValidator,
     IValidator<UpdateUserLocationRM> updateUserLocationValidator,
-    IValidator<AddDeviceRM> addDeviceValidator) : ControllerBase
+    IValidator<AddDeviceRM> addDeviceValidator,
+    IValidator<BlockUserRM> blockUserValidator) : ControllerBase
 {
     /// <summary>
     /// Обновить информацию о пользователе
@@ -141,6 +142,28 @@ public class UserController(
     public async Task RemoveAdminRole(Guid userId, CancellationToken ct)
     {
         await userService.RemoveAdminRoleAsync(userId, ct);
+    }
+
+    /// <summary>
+    /// Заблокировать пользователя
+    /// </summary>
+    [Authorize(Roles = nameof(Role.Admin))]
+    [HttpPost("{userId:guid}/block")]
+    public async Task BlockUser(Guid userId, BlockUserRM request, CancellationToken ct)
+    {
+        await blockUserValidator.ValidateAndThrowAsync(request, ct);
+
+        await userService.BlockUserAsync(userId, request.Reason!, ct);
+    }
+
+    /// <summary>
+    /// Разблокировать пользователя
+    /// </summary>
+    [Authorize(Roles = nameof(Role.Admin))]
+    [HttpDelete("{userId:guid}/block")]
+    public async Task UnblockUser(Guid userId, CancellationToken ct)
+    {
+        await userService.UnblockUserAsync(userId, ct);
     }
 
     /// <summary>

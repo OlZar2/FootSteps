@@ -35,6 +35,9 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
         
         builder.Property(loc => loc.LastCoordinates)
             .HasColumnType("geography(Point,4326)");
+
+        builder.Property(u => u.BlockReason)
+            .HasMaxLength(User.MaxBlockReasonLength);
         
         builder
             .HasOne(u => u.AvatarImage)

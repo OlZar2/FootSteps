@@ -80,6 +80,15 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
 
             await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
         }
+        catch (UserBlockedException ubex)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            ctx.Response.ContentType = "application/json";
+
+            var payload = ErrorFactory.UserBlocked(ubex.Reason);
+
+            await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = payload }, JsonOptions));
+        }
         catch (OperationCanceledException operationCanceledException)
         {
             logger.LogInformation(operationCanceledException, "Operation Canceled {Path}", ctx.Request.Path);

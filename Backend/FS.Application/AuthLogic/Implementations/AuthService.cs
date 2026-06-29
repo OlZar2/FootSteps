@@ -68,6 +68,11 @@ public class AuthService(
             var account = await userRepository.GetByEmailWithRolesAsync(loginData.Email, ct);
             passwordHasher.VerifyPassword(loginData.Password, account.PasswordHash);
 
+            if (account.IsBlocked)
+            {
+                throw new UserBlockedException(account.BlockReason ?? string.Empty);
+            }
+
             if (!account.IsEmailConfirmed)
             {
                 throw new EmailNotConfirmedException();

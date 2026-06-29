@@ -13,6 +13,8 @@ namespace FS.Core.UserDomain;
 
 public class User : AggregateRoot
 {
+    public const int MaxBlockReasonLength = 1000;
+
     private readonly List<UserContact> _contacts = [];
     private readonly List<UserDevice> _userDevices = [];
     private readonly List<UserRole> _roles = [];
@@ -36,6 +38,10 @@ public class User : AggregateRoot
     public string? EmailConfirmationToken { get; private set; }
 
     public DateTime? EmailConfirmationLastSentAt { get; private set; }
+
+    public bool IsBlocked { get; private set; }
+
+    public string? BlockReason { get; private set; }
     
     public Point? LastCoordinates { get; private set; }
     
@@ -111,6 +117,27 @@ public class User : AggregateRoot
         IsEmailConfirmed = true;
         EmailConfirmationToken = null;
         EmailConfirmationLastSentAt = null;
+    }
+
+    public void Block(string reason)
+    {
+        var normalizedReason = reason.Trim();
+
+        if (string.IsNullOrWhiteSpace(normalizedReason))
+        {
+            throw new DomainException(IssueCodes.Required, "cannot be null or whitespace.", nameof(BlockReason));
+        }
+
+        if (normalizedReason.Length > MaxBlockReasonLength)
+        {
+            throw new DomainException(
+                IssueCodes.TooLong,
+                $"cannot be longer than {MaxBlockReasonLength}.",
+                nameof(BlockReason));
+        }
+
+        IsBlocked = true;
+        BlockReason = normalizedReason;
     }
 
     public void RequestEmailConfirmationResend(DateTime utcNow)

@@ -133,6 +133,16 @@ public class UserService(
         await userRepository.UpdateAsync(user, ct);
     }
 
+    public async Task BlockUserAsync(Guid userId, string reason, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new NotFoundException(nameof(User), userId);
+
+        user.Block(reason);
+
+        await userRepository.UpdateAsync(user, ct);
+    }
+
     public async Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct) =>
         await userQueryService.GetUserMainInfoByIdAsync(userId, ct);
 }

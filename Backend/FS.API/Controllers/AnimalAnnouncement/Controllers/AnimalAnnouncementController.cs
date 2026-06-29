@@ -3,6 +3,7 @@ using FluentValidation;
 using FS.API.Controllers.AnimalAnnouncement.RequestModels;
 using FS.API.Errors;
 using FS.API.Services.ClaimLogic.Interfaces;
+using FS.Application.AnnouncementLogic.DTOs;
 using FS.Application.AnnouncementLogic.Interfaces;
 using FS.Application.AnnouncementReportLogic.DTOs;
 using FS.Application.AnnouncementReportLogic.Interfaces;
@@ -23,8 +24,23 @@ public class AnimalAnnouncementController(
     IAnimalAnnouncementService animalAnnouncementService,
     IAnnouncementReportService announcementReportService,
     IClaimService claimService,
+    IValidator<AdminAnimalAnnouncementListQuery> adminAnimalAnnouncementListQueryValidator,
     IValidator<ReportAnnouncementRM> reportAnnouncementValidator) : ControllerBase
 {
+    [Authorize(Roles = nameof(Role.Admin))]
+    [HttpGet("admin")]
+    [ProducesResponseType(typeof(AdminAnimalAnnouncementListPage), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
+    public async Task<AdminAnimalAnnouncementListPage> GetAdminList(
+        [FromQuery] AdminAnimalAnnouncementListQuery query,
+        CancellationToken ct)
+    {
+        await adminAnimalAnnouncementListQueryValidator.ValidateAndThrowAsync(query, ct);
+
+        return await animalAnnouncementService.GetAdminListAsync(query, ct);
+    }
+
     [Authorize(Roles = nameof(Role.Admin))]
     [HttpPost("{announcementId:guid}/admin-hide")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

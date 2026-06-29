@@ -1,14 +1,17 @@
+using FS.Application.AnnouncementLogic.Configurations;
 using FS.Application.AnnouncementLogic.DTOs;
 using FS.Application.AnnouncementLogic.Interfaces;
 using FS.Application.Interfaces.QueryServices;
 using FS.Core.AnimalAnnouncementBC.Stores;
+using Microsoft.Extensions.Options;
 using Pgvector;
 
 namespace FS.Application.AnnouncementLogic.Implementations;
 
 public class AnimalAnnouncementService(
     IAnimalAnnouncementRepository animalAnnouncementRepository,
-    IAnimalAnnouncementQueryService animalAnnouncementQueryService) : IAnimalAnnouncementService
+    IAnimalAnnouncementQueryService animalAnnouncementQueryService,
+    IOptions<AdminAnimalAnnouncementListOptions> adminAnimalAnnouncementListOptions) : IAnimalAnnouncementService
 {
     public async Task UpdateEmbeddingAsync(Guid imageId, Vector vector, CancellationToken ct)
     {
@@ -30,6 +33,19 @@ public class AnimalAnnouncementService(
         AdminAnimalAnnouncementListQuery query,
         CancellationToken ct)
     {
-        return await animalAnnouncementQueryService.GetAdminListAsync(query, ct);
+        var options = adminAnimalAnnouncementListOptions.Value;
+        var normalizedQuery = new AdminAnimalAnnouncementListQuery
+        {
+            PageSize = query.PageSize ?? options.DefaultPageSize,
+            Cursor = query.Cursor,
+            CreatedAtFrom = query.CreatedAtFrom,
+            CreatedAtTo = query.CreatedAtTo,
+            ReportsCountFrom = query.ReportsCountFrom,
+            ReportsCountTo = query.ReportsCountTo,
+            SortBy = query.SortBy,
+            SortDirection = query.SortDirection,
+        };
+
+        return await animalAnnouncementQueryService.GetAdminListAsync(normalizedQuery, ct);
     }
 }

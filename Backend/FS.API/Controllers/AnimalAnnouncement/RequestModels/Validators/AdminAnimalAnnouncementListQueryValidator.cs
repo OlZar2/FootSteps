@@ -1,19 +1,25 @@
 using FluentValidation;
+using FS.Application.AnnouncementLogic.Configurations;
 using FS.Application.AnnouncementLogic.DTOs;
 using FS.Contracts.Error;
+using Microsoft.Extensions.Options;
 
 namespace FS.API.Controllers.AnimalAnnouncement.RequestModels.Validators;
 
 public sealed class AdminAnimalAnnouncementListQueryValidator : AbstractValidator<AdminAnimalAnnouncementListQuery>
 {
-    public AdminAnimalAnnouncementListQueryValidator()
+    public AdminAnimalAnnouncementListQueryValidator(IOptions<AdminAnimalAnnouncementListOptions> options)
     {
+        var listOptions = options.Value;
+
         RuleFor(x => x.PageSize)
-            .GreaterThanOrEqualTo(AdminAnimalAnnouncementListQuery.MinPageSize)
-            .WithMessage($"Page size must be at least {AdminAnimalAnnouncementListQuery.MinPageSize}.")
-            .WithErrorCode(IssueCodes.TooSmall)
-            .LessThanOrEqualTo(AdminAnimalAnnouncementListQuery.MaxPageSize)
-            .WithMessage($"Page size cannot be more than {AdminAnimalAnnouncementListQuery.MaxPageSize}.")
+            .Must(pageSize => !pageSize.HasValue || pageSize.Value >= listOptions.MinPageSize)
+            .WithMessage($"Page size must be at least {listOptions.MinPageSize}.")
+            .WithErrorCode(IssueCodes.TooSmall);
+
+        RuleFor(x => x.PageSize)
+            .Must(pageSize => !pageSize.HasValue || pageSize.Value <= listOptions.MaxPageSize)
+            .WithMessage($"Page size cannot be more than {listOptions.MaxPageSize}.")
             .WithErrorCode(IssueCodes.TooLarge);
 
         RuleFor(x => x.SortBy)

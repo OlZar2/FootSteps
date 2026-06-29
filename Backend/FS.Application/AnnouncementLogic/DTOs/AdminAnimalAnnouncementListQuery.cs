@@ -2,11 +2,7 @@ namespace FS.Application.AnnouncementLogic.DTOs;
 
 public class AdminAnimalAnnouncementListQuery
 {
-    public const int MinPageSize = 10;
-    public const int MaxPageSize = 30;
-    public const int DefaultPageSize = 20;
-
-    public int PageSize { get; set; } = DefaultPageSize;
+    public int? PageSize { get; set; }
 
     public string? Cursor { get; set; }
 

@@ -20,6 +20,9 @@ public class AnimalAnnouncementConfiguration: IEntityTypeConfiguration<AnimalAnn
         builder.Property(loc => loc.Location)
             .HasColumnType("geography(Point,4326)");
 
+        builder.Property(a => a.ReportCount)
+            .HasDefaultValue(0);
+
         builder
             .HasMany(p => p.Images)
             .WithOne();

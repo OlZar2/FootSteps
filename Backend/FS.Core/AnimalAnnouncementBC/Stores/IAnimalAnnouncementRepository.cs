@@ -7,6 +7,8 @@ public interface IAnimalAnnouncementRepository
     Task<AnimalAnnouncement> GetByIdAsync(Guid id, CancellationToken ct);
 
     Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct);
+
+    Task IncrementReportCountAsync(Guid id, CancellationToken ct);
     
     Task SaveChangesAsync(CancellationToken ct);
 }

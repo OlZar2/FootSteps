@@ -157,6 +157,16 @@ public class UserController(
     }
 
     /// <summary>
+    /// Разблокировать пользователя
+    /// </summary>
+    [Authorize(Roles = nameof(Role.Admin))]
+    [HttpDelete("{userId:guid}/block")]
+    public async Task UnblockUser(Guid userId, CancellationToken ct)
+    {
+        await userService.UnblockUserAsync(userId, ct);
+    }
+
+    /// <summary>
     /// Возвращает профиль пользователя
     /// </summary>
     /// <param name="userId">id пользователя</param>

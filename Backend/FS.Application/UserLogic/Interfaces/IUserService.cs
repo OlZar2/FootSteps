@@ -19,6 +19,8 @@ public interface IUserService
     Task RemoveAdminRoleAsync(Guid userId, CancellationToken ct);
 
     Task BlockUserAsync(Guid userId, string reason, CancellationToken ct);
+
+    Task UnblockUserAsync(Guid userId, CancellationToken ct);
     
     Task<UserMainInfo> GetUserMainInfo(Guid userId, CancellationToken ct);
 }

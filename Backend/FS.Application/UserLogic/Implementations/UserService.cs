@@ -138,7 +138,17 @@ public class UserService(
         var user = await userRepository.GetByIdAsync(userId, ct)
                    ?? throw new NotFoundException(nameof(User), userId);
 
-        user.Block(reason);
+        user.Block(reason, DateTime.UtcNow);
+
+        await userRepository.UpdateAsync(user, ct);
+    }
+
+    public async Task UnblockUserAsync(Guid userId, CancellationToken ct)
+    {
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new NotFoundException(nameof(User), userId);
+
+        user.Unblock();
 
         await userRepository.UpdateAsync(user, ct);
     }

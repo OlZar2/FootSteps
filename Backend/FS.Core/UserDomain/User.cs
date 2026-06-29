@@ -42,6 +42,8 @@ public class User : AggregateRoot
     public bool IsBlocked { get; private set; }
 
     public string? BlockReason { get; private set; }
+
+    public DateTime? BlockedAt { get; private set; }
     
     public Point? LastCoordinates { get; private set; }
     
@@ -119,7 +121,7 @@ public class User : AggregateRoot
         EmailConfirmationLastSentAt = null;
     }
 
-    public void Block(string reason)
+    public void Block(string reason, DateTime utcNow)
     {
         var normalizedReason = reason.Trim();
 
@@ -138,6 +140,14 @@ public class User : AggregateRoot
 
         IsBlocked = true;
         BlockReason = normalizedReason;
+        BlockedAt = utcNow;
+    }
+
+    public void Unblock()
+    {
+        IsBlocked = false;
+        BlockReason = null;
+        BlockedAt = null;
     }
 
     public void RequestEmailConfirmationResend(DateTime utcNow)

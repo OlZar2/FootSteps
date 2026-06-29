@@ -35,6 +35,8 @@ public abstract class AnimalAnnouncement : AggregateRoot
     
     public DeleteType? DeleteType { get; protected set; }
 
+    public int ReportCount { get; private set; }
+
     protected AnimalAnnouncement(
         List<FSImage> images,
         Guid creatorId,

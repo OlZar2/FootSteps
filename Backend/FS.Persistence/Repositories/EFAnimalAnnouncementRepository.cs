@@ -28,6 +28,17 @@ public class EFAnimalAnnouncementRepository(ApplicationDbContext context) : IAni
             .AnyAsync(aa => aa.Id == id, ct);
     }
 
+    public async Task IncrementReportCountAsync(Guid id, CancellationToken ct)
+    {
+        await context.AnimalAnnouncements
+            .Where(aa => aa.Id == id)
+            .ExecuteUpdateAsync(
+                updates => updates.SetProperty(
+                    aa => aa.ReportCount,
+                    aa => aa.ReportCount + 1),
+                ct);
+    }
+
     public async Task SaveChangesAsync(CancellationToken ct)
     {
         await context.SaveChangesAsync(ct);

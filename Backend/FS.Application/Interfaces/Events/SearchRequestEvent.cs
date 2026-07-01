@@ -3,6 +3,6 @@
 namespace FS.Application.Interfaces.Events;
 
 public record SearchRequestEvent(
-    [property: JsonPropertyName("imageId")] string SearchId,
+    [property: JsonPropertyName("searchId")] string SearchId,
     [property: JsonPropertyName("imageUrl")] string ImageUrl
 );

@@ -15,4 +15,8 @@ public interface ISearchQueryService
     Task<SearchResultDto> GetSearchResultsBySearchRequestId(
         Guid searchRequestId,
         CancellationToken ct);
+
+    Task<Guid[]> GetSearchCreatorDeviceIdsBySearchRequestId(
+        Guid searchRequestId,
+        CancellationToken ct);
 }

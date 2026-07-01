@@ -4,6 +4,7 @@ using FS.Core.Enums;
 using FS.Core.ImageDomain.Entities;
 using FS.Core.SearchDomain.Events;
 using FS.Core.Shared.Abstractions;
+using NetTopologySuite.Geometries;
 using Pgvector;
 
 namespace FS.Core.SearchDomain;
@@ -19,22 +20,30 @@ public class SearchRequest : AggregateRoot
     [Column(TypeName = "vector(512)")]
     public Vector? Embedding { get; set; }
     
+    public Point Location { get; private set; }
+    
     public List<AnimalAnnouncement> Results { get; private set; } = [];
     public DateTime CreatedAt { get; private set; }
 
-    private SearchRequest(FSImage image, SearchRequestStatus searchRequestStatus, Guid creatorId, Guid? id = null)
+    private SearchRequest(
+        FSImage image,
+        SearchRequestStatus searchRequestStatus,
+        Guid creatorId,
+        Point location,
+        Guid? id = null)
     : base(id ?? Guid.NewGuid())
     {
         Image = image;
         ImageId = image.Id;
         SearchRequestStatus = searchRequestStatus;
         CreatorId = creatorId;
+        Location = location;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public static SearchRequest Create(FSImage image, Guid creatorId, Guid? id = null)
+    public static SearchRequest Create(FSImage image, Guid creatorId, Point location, Guid? id = null)
     {
-        var created = new SearchRequest(image, SearchRequestStatus.Queued, creatorId, id);
+        var created = new SearchRequest(image, SearchRequestStatus.Queued, creatorId, location, id);
         
         created.AddDomainEvent(new SearchRequestCreatedDomainEvent(created.Id));
 
@@ -44,6 +53,8 @@ public class SearchRequest : AggregateRoot
     public void SetResults(List<AnimalAnnouncement> results)
     {
         Results = results;
+        
+        AddDomainEvent(new SearchRequestCompletedDomainEvent(Id));
     }
     
     public void SetEmbedding(Vector embedding)

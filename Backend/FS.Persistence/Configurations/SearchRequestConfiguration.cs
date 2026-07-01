@@ -13,6 +13,9 @@ public class SearchRequestConfiguration: IEntityTypeConfiguration<SearchRequest>
         
         builder.HasKey(i => i.Id);
         
+        builder.Property(loc => loc.Location)
+            .HasColumnType("geography(Point,4326)");
+        
         builder.Property(x => x.Embedding)
             .HasColumnType("vector(512)");
 

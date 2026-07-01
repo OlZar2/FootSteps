@@ -15,7 +15,7 @@ public class AnimalAnnouncementService(
 {
     public async Task UpdateEmbeddingAsync(Guid imageId, Vector vector, CancellationToken ct)
     {
-        var announcement = await animalAnnouncementRepository.GetByImageIdAsync(imageId, ct);
+        var announcement = await animalAnnouncementRepository.GetByImageIdWithImagesAsync(imageId, ct);
         announcement.UpdateImageEmbedding(imageId, vector);
 
         await animalAnnouncementRepository.SaveChangesAsync(ct);

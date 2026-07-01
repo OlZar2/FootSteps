@@ -5,6 +5,7 @@ using FS.API.Errors;
 using FS.API.Services.ClaimLogic.Interfaces;
 using FS.Application.SearchLogic.DTOs;
 using FS.Application.SearchLogic.Interfaces;
+using FS.Application.Shared.DTOs;
 using FS.Contracts.Error;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,10 +34,19 @@ public class SearchController(
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);
 
+        await using var ms = new MemoryStream();
+        await searchRequestModel.Image.CopyToAsync(ms, ct);
+
+        var fileData =  new FileData
+        {
+            Content = ms.ToArray()
+        };
+        
         var searchRequestDto = new SearchRequestDto
         {
             UserId = userId,
-            ImageId = searchRequestModel.ImageId,
+            Image = fileData,
+            Location = searchRequestModel.Location,
         };
         
         await searchService.RequestSearchAsync(searchRequestDto, ct);

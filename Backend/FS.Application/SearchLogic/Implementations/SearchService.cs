@@ -9,6 +9,7 @@ using FS.Application.Shared.Configurations;
 using FS.Contracts.Error;
 using FS.Core.AnimalAnnouncementBC.Stores;
 using FS.Core.Exceptions;
+using FS.Core.ImageDomain.Entities;
 using FS.Core.OutboxDomain.Entities;
 using FS.Core.OutboxDomain.Stores;
 using FS.Core.SearchDomain;
@@ -16,6 +17,7 @@ using FS.Core.SearchDomain.Stores;
 using FS.SignalR.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 using Pgvector;
 
 namespace FS.Application.SearchLogic.Implementations;
@@ -26,9 +28,9 @@ public class SearchService(
     IHubContext<SearchAnnouncementsHub> searchAnnouncementsHub,
     IImageStorageService imageStorageService,
     IOutboxRepository outboxRepository,
-    IImageRepository imageRepository,
     IOptions<S3StorageConfiguration> s3StorageConfigurationOptions,
-    ITransactionFactory transactionFactory) : ISearchService
+    ITransactionFactory transactionFactory,
+    GeometryFactory geometryFactory) : ISearchService
 {
     private readonly S3StorageConfiguration _s3StorageConfiguration = s3StorageConfigurationOptions.Value;
     
@@ -39,11 +41,6 @@ public class SearchService(
         
         searchRequest.SetResults(similarAnnouncements);
         await searchRequestRepository.UpdateAsync(searchRequest, ct);
-        
-        await searchAnnouncementsHub
-            .Clients
-            .User(searchRequest.CreatorId.ToString())
-            .SendAsync("searchCompleted", new { requestId = searchRequest.Id }, cancellationToken: ct);
     }
 
     public async Task<SearchResultDto[]> GetPaginatedSearchResults(Guid userId, DateTime lastDateTime, CancellationToken ct)
@@ -65,14 +62,21 @@ public class SearchService(
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
-        var image = await imageRepository.GetByIdAsync(searchRequestDto.ImageId, ct);
-        var searchRequest = SearchRequest.Create(image, searchRequestDto.UserId);
+        var s3Key = Guid.NewGuid().ToString();
+        var createdImage = FSImage.Create(s3Key, _s3StorageConfiguration.ImagesBucketUrl);
+        await imageStorageService.UploadAsync(searchRequestDto.Image.Content, s3Key, ct);
+        
+        var location = geometryFactory.CreatePoint(new Coordinate(
+            searchRequestDto.Location.Longitude,
+            searchRequestDto.Location.Latitude));
+        
+        var searchRequest = SearchRequest.Create(createdImage, searchRequestDto.UserId, location);
 
         await searchRequestRepository.AddAsync(searchRequest, ct);
 
         var outboxPayload = JsonSerializer.Serialize(new SearchRequestEvent(
             SearchId: searchRequest.Id.ToString(),
-            ImageUrl: image.FullImagePath
+            ImageUrl: createdImage.FullImagePath
         ));
 
         var outboxEvent = OutboxEvent.Create("image.search.request", outboxPayload);
@@ -90,7 +94,6 @@ public class SearchService(
         searchRequest.SetEmbedding(pgVector);
 
         var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
-        //TODO: возможно баг и не надо image.search.match
         var outboxEvent = OutboxEvent.Create("image.search.match", jobPayload);
         await outboxRepository.AddAsync(outboxEvent, ct);
         await searchRequestRepository.UpdateAsync(searchRequest, ct);

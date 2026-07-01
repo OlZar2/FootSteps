@@ -19,6 +19,7 @@ using FS.Application.MissingPetLogic.Implementations;
 using FS.Application.MissingPetLogic.Interfaces;
 using FS.Application.NotificationLogic.Implementations;
 using FS.Application.NotificationLogic.Interfaces;
+using FS.Application.SearchLogic.EventHandlers;
 using FS.Application.SearchLogic.Implementations;
 using FS.Application.SearchLogic.Interfaces;
 using FS.Application.StreetPetAnnouncementLogic.Implementations;
@@ -27,6 +28,7 @@ using FS.Application.UserLogic.Implementations;
 using FS.Application.UserLogic.Interfaces;
 using FS.Application.UserLogic.Policies;
 using FS.Core.AnimalAnnouncementBC.Events;
+using FS.Core.SearchDomain.Events;
 using FS.Core.UserDomain.Events;
 using NetTopologySuite;
 
@@ -64,7 +66,8 @@ public static class DependencyInjection
             .AddScoped<IDomainEventHandler<ReportFoundDomainEvent>, ReportFoundDomainEventHandler>()
             .AddScoped<IDomainEventHandler<ReportSpottedDomainEvent>, ReportSpottedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<UserRegisteredDomainEvent>, UserRegisteredDomainEventHandler>()
-            .AddScoped<IDomainEventHandler<EmailConfirmationRequestedDomainEvent>, EmailConfirmationRequestedDomainEventHandler>();
+            .AddScoped<IDomainEventHandler<EmailConfirmationRequestedDomainEvent>, EmailConfirmationRequestedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<SearchRequestCompletedDomainEvent>, SearchRequestCompletedDomainEventHandler>();
 
         return services;
     }

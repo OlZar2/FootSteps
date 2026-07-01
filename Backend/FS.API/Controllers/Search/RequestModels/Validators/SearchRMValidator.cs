@@ -7,10 +7,14 @@ public class SearchRMValidator : AbstractValidator<SearchRequestModel>
 {
     public SearchRMValidator()
     {
-        RuleFor(x => x.ImageId)
+        RuleFor(x => x.Image)
             .NotNull()
             .WithErrorCode(IssueCodes.Required)
             .NotEmpty()
             .WithErrorCode(IssueCodes.Required);
+        RuleFor(x => x.Location.Latitude)
+            .NotEmpty().WithErrorCode(IssueCodes.Required);
+        RuleFor(x => x.Location.Longitude)
+            .NotEmpty().WithErrorCode(IssueCodes.Required);
     }
 }

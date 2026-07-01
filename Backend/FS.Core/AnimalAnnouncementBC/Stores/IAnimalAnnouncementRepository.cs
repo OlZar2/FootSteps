@@ -2,7 +2,7 @@
 
 public interface IAnimalAnnouncementRepository
 {
-    Task<AnimalAnnouncement> GetByImageIdAsync(Guid imageId, CancellationToken ct);
+    Task<AnimalAnnouncement> GetByImageIdWithImagesAsync(Guid imageId, CancellationToken ct);
 
     Task<AnimalAnnouncement> GetByIdAsync(Guid id, CancellationToken ct);
 

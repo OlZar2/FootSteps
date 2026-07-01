@@ -83,7 +83,7 @@ public sealed class EmbedResponseConsumer(
             var animalAnnouncementService = scope.ServiceProvider.GetRequiredService<IAnimalAnnouncementService>();
 
             Guid.TryParse(res.ImageId, out var imageGuid);
-            var vector = new Pgvector.Vector(res.Embedding);
+            var vector = res.Embedding != null ? new Pgvector.Vector(res.Embedding) : null;
             
             await animalAnnouncementService.UpdateEmbeddingAsync(imageGuid, vector, CancellationToken.None);
 

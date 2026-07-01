@@ -22,6 +22,8 @@ public class SearchRequest : AggregateRoot
     
     public Point Location { get; private set; }
     
+    public string? ErrorCode { get; private set; }
+    
     public List<AnimalAnnouncement> Results { get; private set; } = [];
     public DateTime CreatedAt { get; private set; }
 
@@ -53,13 +55,23 @@ public class SearchRequest : AggregateRoot
     public void SetResults(List<AnimalAnnouncement> results)
     {
         Results = results;
+        SearchRequestStatus = SearchRequestStatus.Success;
         
         AddDomainEvent(new SearchRequestCompletedDomainEvent(Id));
     }
     
     public void SetEmbedding(Vector embedding)
     {
+        SearchRequestStatus = SearchRequestStatus.Processing;
         Embedding = embedding;
+    }
+    
+    public void SetError(string errorCode)
+    {
+        ErrorCode = errorCode;
+        SearchRequestStatus = SearchRequestStatus.Error;
+        
+        AddDomainEvent(new SearchRequestCompletedWithErrorDomainEvent(Id));
     }
 
     // EF

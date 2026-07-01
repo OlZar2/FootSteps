@@ -5,6 +5,5 @@ namespace FS.Application.Interfaces.Events;
 
 public record EmbedResponse(
     [property: JsonPropertyName("imageId")] string ImageId,
-    [property: JsonPropertyName("embedding")] float[]? Embedding,
-    [property: JsonPropertyName("announcementType")] AnnouncementType AnnouncementType
+    [property: JsonPropertyName("embedding")] float[]? Embedding
 );

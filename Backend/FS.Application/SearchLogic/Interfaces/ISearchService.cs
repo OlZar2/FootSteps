@@ -6,7 +6,7 @@ public interface ISearchService
 {
     Task DoSearch(Guid searchId, CancellationToken ct);
 
-    Task<SearchResultDto[]> GetPaginatedSearchResults(Guid userId, DateTime lastDateTime, CancellationToken ct);
+    Task<SearchResultDto[]> GetPaginatedSearchResults(Guid userId, DateTime? lastDateTime, CancellationToken ct);
 
     Task<SearchResultDto> GetSearchResultBySearchRequestId(
         Guid searchRequestId,
@@ -15,5 +15,5 @@ public interface ISearchService
 
     Task RequestSearchAsync(SearchRequestDto searchRequestDto, CancellationToken ct);
 
-    Task SetSearchEmbeddingAsync(Guid searchId, float[] vector, CancellationToken ct);
+    Task SetSearchEmbeddingAsync(Guid searchId, float[]? vector, string? error, CancellationToken ct);
 }

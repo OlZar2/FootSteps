@@ -61,7 +61,7 @@ public abstract class AnimalAnnouncement : AggregateRoot
         EventDate = eventDate;
     }
 
-    public void UpdateImageEmbedding(Guid imageId, Vector vector)
+    public void UpdateImageEmbedding(Guid imageId, Vector? vector)
     {
         var image = _images.FirstOrDefault(i => i.Id == imageId)
             ?? throw new DomainException(IssueCodes.NotFound, $"image by id {imageId} not found.");

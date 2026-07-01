@@ -80,7 +80,7 @@ public class SearchController(
     [ProducesResponseType(typeof(SearchResultDto[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorEnvelope), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(InternalError), StatusCodes.Status500InternalServerError)]
-    public async Task<SearchResultDto[]> GetPaginated(DateTime lastDateTime, CancellationToken ct)
+    public async Task<SearchResultDto[]> GetPaginated([FromQuery] DateTime? lastDateTime, CancellationToken ct)
     {
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         var userId = claimService.TryParseGuidClaim(userIdClaim);

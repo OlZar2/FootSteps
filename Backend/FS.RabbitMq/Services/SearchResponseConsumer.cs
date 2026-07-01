@@ -97,14 +97,7 @@ public sealed class SearchResponseConsumer(
                     await _ch.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
                 return;
             }
-            if (res.Embedding is null)
-            {
-                logger.LogError("Embedding is null in message: {Json}", json);
-                if (_ch is not null)
-                    await _ch.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-                return;
-            }
-            await searchService.SetSearchEmbeddingAsync(searchId, res.Embedding, CancellationToken.None);
+            await searchService.SetSearchEmbeddingAsync(searchId, res.Embedding, res.Code, CancellationToken.None);
             
             if (_ch is not null)
                 await _ch.BasicAckAsync(ea.DeliveryTag, multiple: false);

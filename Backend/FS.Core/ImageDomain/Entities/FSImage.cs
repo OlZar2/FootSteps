@@ -32,7 +32,7 @@ public class FSImage : Entity
         return new FSImage(s3Key, bucketURL);
     }
     
-    public void SetEmbedding(Vector embedding)
+    public void SetEmbedding(Vector? embedding)
     {
         Embedding = embedding;
     }

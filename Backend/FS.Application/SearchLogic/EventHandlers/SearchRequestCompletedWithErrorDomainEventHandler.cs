@@ -8,17 +8,17 @@ using FS.Core.SearchDomain.Events;
 
 namespace FS.Application.SearchLogic.EventHandlers;
 
-public class SearchRequestCompletedDomainEventHandler(
+public class SearchRequestCompletedWithErrorDomainEventHandler(
     ISearchQueryService searchQueryService,
     INotificationRepository notificationRepository)
-    : IDomainEventHandler<SearchRequestCompletedDomainEvent>
+    : IDomainEventHandler<SearchRequestCompletedWithErrorDomainEvent>
 {
-    public async Task Handle(SearchRequestCompletedDomainEvent domainEvent, CancellationToken ct)
+    public async Task Handle(SearchRequestCompletedWithErrorDomainEvent domainEvent, CancellationToken ct)
     {
         var notification = Notification.Create(
             NotificationType.ReportFound,
-            "Поиск похожих питомцев завершен",
-            "Нажмите, чтобы посмотреть результаты",
+            "Поиск похожих питомцев завершился с ошибкой",
+            "Нажмите, чтобы узнать подробнее",
             [NotificationChannel.Push],
             domainEvent.SearchRequestId);
         

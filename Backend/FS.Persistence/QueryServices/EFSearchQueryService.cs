@@ -64,12 +64,14 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
 
     public async Task<SearchResultDto[]> GetSearchResults(
         Guid userId,
-        DateTime lastSearchCreatedAt,
+        DateTime? lastSearchCreatedAt,
         CancellationToken ct)
     {
+        lastSearchCreatedAt ??= DateTime.MaxValue;
+        
         var results = await context.SearchRequests
-            .Where(sr => sr.CreatorId == userId && sr.CreatedAt <= lastSearchCreatedAt)
-            .OrderBy(sr => sr.CreatedAt)
+            .Where(sr => sr.CreatorId == userId && sr.CreatedAt < lastSearchCreatedAt)
+            .OrderByDescending(ma => ma.CreatedAt)
             .Take(3)
             .Select(sr => new SearchResultDto
             {
@@ -90,6 +92,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                     .Select(i => i.FullImagePath)
                     .First(),
                 CreatedAt = sr.CreatedAt,
+                ErrorCode = sr.ErrorCode,
             })
             .ToArrayAsync(cancellationToken: ct);
         
@@ -123,6 +126,7 @@ public class EFSearchQueryService(ApplicationDbContext context) : ISearchQuerySe
                     .Select(i => i.FullImagePath)
                     .First(),
                 CreatedAt = sr.CreatedAt,
+                ErrorCode = sr.ErrorCode,
             })
             .FirstOrDefaultAsync(cancellationToken: ct)
             ?? throw new NotFoundException(nameof(SearchRequest), searchRequestId);

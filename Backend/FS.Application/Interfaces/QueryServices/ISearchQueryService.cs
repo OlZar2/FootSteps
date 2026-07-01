@@ -9,7 +9,7 @@ public interface ISearchQueryService
 
     Task<SearchResultDto[]> GetSearchResults(
         Guid userId,
-        DateTime lastSearchCreatedAt,
+        DateTime? lastSearchCreatedAt,
         CancellationToken ct);
 
     Task<SearchResultDto> GetSearchResultsBySearchRequestId(

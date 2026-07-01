@@ -13,7 +13,7 @@ public class AnimalAnnouncementService(
     IAnimalAnnouncementQueryService animalAnnouncementQueryService,
     IOptions<AdminAnimalAnnouncementListOptions> adminAnimalAnnouncementListOptions) : IAnimalAnnouncementService
 {
-    public async Task UpdateEmbeddingAsync(Guid imageId, Vector vector, CancellationToken ct)
+    public async Task UpdateEmbeddingAsync(Guid imageId, Vector? vector, CancellationToken ct)
     {
         var announcement = await animalAnnouncementRepository.GetByImageIdWithImagesAsync(imageId, ct);
         announcement.UpdateImageEmbedding(imageId, vector);

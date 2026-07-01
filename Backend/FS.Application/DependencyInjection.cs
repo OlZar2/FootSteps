@@ -59,15 +59,22 @@ public static class DependencyInjection
         
         services.AddSingleton(provider =>
             NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
-        
-        services.AddScoped<IDomainEventHandler<MissingAnnouncementCreatedDomainEvent>, MissingAnnouncementCreatedDomainEventHandler>()
-            .AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>, StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>()
+
+        services
+            .AddScoped<IDomainEventHandler<MissingAnnouncementCreatedDomainEvent>,
+                MissingAnnouncementCreatedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<StreetPetAnnouncementEmbeddingCalculatedDomainEvent>,
+                StreetPetAnnouncementEmbeddingCalculatedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<AnnouncementCreatedDomainEvent>, AnnouncementCreatedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<ReportFoundDomainEvent>, ReportFoundDomainEventHandler>()
             .AddScoped<IDomainEventHandler<ReportSpottedDomainEvent>, ReportSpottedDomainEventHandler>()
             .AddScoped<IDomainEventHandler<UserRegisteredDomainEvent>, UserRegisteredDomainEventHandler>()
-            .AddScoped<IDomainEventHandler<EmailConfirmationRequestedDomainEvent>, EmailConfirmationRequestedDomainEventHandler>()
-            .AddScoped<IDomainEventHandler<SearchRequestCompletedDomainEvent>, SearchRequestCompletedDomainEventHandler>();
+            .AddScoped<IDomainEventHandler<EmailConfirmationRequestedDomainEvent>,
+                EmailConfirmationRequestedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<SearchRequestCompletedDomainEvent>,
+                SearchRequestCompletedDomainEventHandler>()
+            .AddScoped<IDomainEventHandler<SearchRequestCompletedWithErrorDomainEvent>,
+                SearchRequestCompletedWithErrorDomainEventHandler>();
 
         return services;
     }

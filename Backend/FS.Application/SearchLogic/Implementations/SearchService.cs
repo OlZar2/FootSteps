@@ -43,7 +43,7 @@ public class SearchService(
         await searchRequestRepository.UpdateAsync(searchRequest, ct);
     }
 
-    public async Task<SearchResultDto[]> GetPaginatedSearchResults(Guid userId, DateTime lastDateTime, CancellationToken ct)
+    public async Task<SearchResultDto[]> GetPaginatedSearchResults(Guid userId, DateTime? lastDateTime, CancellationToken ct)
         => await searchQueryService.GetSearchResults(userId, lastDateTime, ct);
 
     public async Task<SearchResultDto> GetSearchResultBySearchRequestId(
@@ -85,17 +85,26 @@ public class SearchService(
         await transaction.CommitAsync(ct);
     }
 
-    public async Task SetSearchEmbeddingAsync(Guid searchId, float[] vector, CancellationToken ct)
+    public async Task SetSearchEmbeddingAsync(Guid searchId, float[]? vector, string? error, CancellationToken ct)
     {
         await using var transaction = await transactionFactory.BeginAsync(ct);
         
         var searchRequest = await searchRequestRepository.GetByIdAsync(searchId, ct);
-        var pgVector = new Vector(vector);
-        searchRequest.SetEmbedding(pgVector);
 
-        var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
-        var outboxEvent = OutboxEvent.Create("image.search.match", jobPayload);
-        await outboxRepository.AddAsync(outboxEvent, ct);
+        if (error != null)
+        {
+            searchRequest.SetError(error);
+        }
+        else
+        {
+            var pgVector = new Vector(vector);
+            searchRequest.SetEmbedding(pgVector);
+
+            var jobPayload = JsonSerializer.Serialize(new SearchOutboxEvent { SearchId = searchId });
+            var outboxEvent = OutboxEvent.Create("image.search.match", jobPayload);
+            await outboxRepository.AddAsync(outboxEvent, ct);
+        }
+        
         await searchRequestRepository.UpdateAsync(searchRequest, ct);
         
         await transaction.CommitAsync(ct);
